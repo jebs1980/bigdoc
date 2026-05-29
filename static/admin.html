@@ -68,6 +68,7 @@
   <nav>
     <button class="nav-btn active" onclick="showTab('dashboard')">Dashboard</button>
     <button class="nav-btn" onclick="showTab('leads')">Leads</button>
+    <button class="nav-btn" onclick="showTab('catalogue')">Catalogue</button>
     <button class="nav-btn" onclick="showTab('stripe')">Paiements</button>
     <button class="nav-btn" onclick="showTab('settings')">Paramètres</button>
   </nav>
@@ -168,6 +169,24 @@
             <th>Phase</th><th>Score</th><th>Heures</th><th>€/an</th><th>Palier</th><th></th>
           </tr></thead>
           <tbody id="leads-tbody"><tr><td colspan="11" class="empty">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CATALOGUE ══ -->
+  <div id="tab-catalogue" class="tab">
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Catalogue des services</div>
+        <button class="btn-primary" onclick="openProductModal()">+ Nouveau service</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr>
+            <th>Ordre</th><th>Nom</th><th>Description</th><th>Prix</th><th>Type</th><th>Bouton bilan</th><th>Stripe Price ID</th><th>Statut</th><th></th>
+          </tr></thead>
+          <tbody id="products-tbody"><tr><td colspan="9" class="empty">Chargement…</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -297,7 +316,64 @@
 </div>
 </div>
 
-<!-- Modal détail -->
+<!-- Modal produit -->
+<div class="modal-overlay" id="product-modal">
+  <div class="modal" style="max-width:520px">
+    <button class="close-btn" onclick="closeProductModal()">✕</button>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:1.5rem" id="product-modal-title">Nouveau service</h2>
+    <input type="hidden" id="pm-id"/>
+    <div class="form-grid" style="padding:0;gap:.85rem">
+      <div class="form-group full">
+        <label>Nom du service *</label>
+        <input type="text" id="pm-nom" placeholder="Ex : Audit express"/>
+      </div>
+      <div class="form-group full">
+        <label>Description courte</label>
+        <input type="text" id="pm-desc" placeholder="Ce que le médecin reçoit exactement"/>
+      </div>
+      <div class="form-group">
+        <label>Prix (€) — 0 = gratuit</label>
+        <input type="number" id="pm-prix" placeholder="0"/>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="pm-type">
+          <option value="unique">Prestation unique</option>
+          <option value="abonnement">Abonnement mensuel</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Bouton dans le bilan</label>
+        <select id="pm-bouton">
+          <option value="payer">Payer maintenant (Stripe)</option>
+          <option value="rdv">Prendre RDV (Calendly)</option>
+          <option value="aucun">Aucun bouton</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ordre d'affichage</label>
+        <input type="number" id="pm-ordre" placeholder="1"/>
+      </div>
+      <div class="form-group full">
+        <label>Stripe Price ID (optionnel — si vide, créé à la volée)</label>
+        <input type="text" id="pm-stripe" placeholder="price_1ABC..."/>
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="pm-actif">
+          <option value="1">Actif</option>
+          <option value="0">Inactif</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.5rem">
+      <button class="btn-sm" onclick="closeProductModal()">Annuler</button>
+      <button class="btn-primary" onclick="saveProduct()">Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal détail diagnostic -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <button class="close-btn" onclick="closeModal()">✕</button>
@@ -350,6 +426,7 @@ function showTab(name) {
   if (name === 'leads') loadLeads();
   if (name === 'stripe') loadStripeStats();
   if (name === 'settings') loadSettings();
+  if (name === 'catalogue') loadProducts();
 }
 
 // ─── DASHBOARD ───
@@ -578,6 +655,122 @@ async function showDetail(sessionId) {
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+// ─── CATALOGUE PRODUITS ───
+let allProducts = [];
+
+async function loadProducts() {
+  try {
+    const r = await fetch('/api/admin/products', {headers:{'X-Admin-Token':adminToken}});
+    allProducts = await r.json();
+    renderProducts();
+  } catch(e) {
+    document.getElementById('products-tbody').innerHTML = '<tr><td colspan="9" class="empty">Erreur chargement</td></tr>';
+  }
+}
+
+function renderProducts() {
+  const tb = document.getElementById('products-tbody');
+  if (!allProducts.length) {
+    tb.innerHTML = '<tr><td colspan="9" class="empty">Aucun service — créez votre premier produit</td></tr>';
+    return;
+  }
+  tb.innerHTML = allProducts.map(p => {
+    const prix = p.prix_cents > 0
+      ? (p.prix_cents/100).toLocaleString('fr') + '€' + (p.type==='abonnement'?'/mois':'')
+      : 'Gratuit';
+    const boutonLabel = p.bouton==='payer'?'💳 Payer':p.bouton==='rdv'?'📅 RDV':'—';
+    const statutBadge = p.actif
+      ? '<span style="color:var(--teal);font-size:.78rem">● Actif</span>'
+      : '<span style="color:var(--grey);font-size:.78rem">○ Inactif</span>';
+    return `<tr style="${!p.actif?'opacity:.5':''}">
+      <td style="color:var(--grey)">${p.ordre}</td>
+      <td style="font-weight:500">${p.nom}</td>
+      <td style="color:var(--grey);font-size:.82rem;max-width:200px">${p.description||'—'}</td>
+      <td style="font-weight:500;color:var(--teal)">${prix}</td>
+      <td><span class="phase-badge">${p.type}</span></td>
+      <td style="font-size:.82rem">${boutonLabel}</td>
+      <td style="font-size:.75rem;color:var(--grey);font-family:monospace">${p.stripe_price_id||'—'}</td>
+      <td>${statutBadge}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-sm" onclick="editProduct(${p.id})">Modifier</button>
+        <button class="btn-sm" onclick="toggleProductStatus(${p.id})" style="margin-left:.25rem">${p.actif?'Désactiver':'Activer'}</button>
+        <button class="btn-sm" onclick="confirmDeleteProduct(${p.id})" style="margin-left:.25rem;color:var(--red);border-color:var(--red)">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openProductModal(product = null) {
+  document.getElementById('pm-id').value = product ? product.id : '';
+  document.getElementById('pm-nom').value = product ? product.nom : '';
+  document.getElementById('pm-desc').value = product ? product.description||'' : '';
+  document.getElementById('pm-prix').value = product ? product.prix_cents/100 : '';
+  document.getElementById('pm-type').value = product ? product.type : 'unique';
+  document.getElementById('pm-bouton').value = product ? product.bouton : 'rdv';
+  document.getElementById('pm-ordre').value = product ? product.ordre : allProducts.length+1;
+  document.getElementById('pm-stripe').value = product ? product.stripe_price_id||'' : '';
+  document.getElementById('pm-actif').value = product ? (product.actif?'1':'0') : '1';
+  document.getElementById('product-modal-title').textContent = product ? 'Modifier le service' : 'Nouveau service';
+  document.getElementById('product-modal').classList.add('open');
+}
+
+function closeProductModal() {
+  document.getElementById('product-modal').classList.remove('open');
+}
+
+function editProduct(id) {
+  const p = allProducts.find(p => p.id === id);
+  if (p) openProductModal(p);
+}
+
+async function saveProduct() {
+  const id = document.getElementById('pm-id').value;
+  const data = {
+    nom: document.getElementById('pm-nom').value,
+    description: document.getElementById('pm-desc').value,
+    prix_cents: Math.round(parseFloat(document.getElementById('pm-prix').value||0) * 100),
+    type: document.getElementById('pm-type').value,
+    bouton: document.getElementById('pm-bouton').value,
+    ordre: parseInt(document.getElementById('pm-ordre').value||99),
+    stripe_price_id: document.getElementById('pm-stripe').value,
+    actif: document.getElementById('pm-actif').value === '1',
+  };
+  if (!data.nom) { alert('Le nom est obligatoire'); return; }
+
+  const url = id ? `/api/admin/products/${id}` : '/api/admin/products';
+  const method = id ? 'PUT' : 'POST';
+
+  try {
+    const r = await fetch(url, {
+      method, headers: {'Content-Type':'application/json','X-Admin-Token':adminToken},
+      body: JSON.stringify(data)
+    });
+    if (r.ok) { closeProductModal(); loadProducts(); }
+    else { alert('Erreur lors de la sauvegarde'); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+async function toggleProductStatus(id) {
+  await fetch(`/api/admin/products/${id}/toggle`, {
+    method:'POST', headers:{'X-Admin-Token':adminToken}
+  });
+  loadProducts();
+}
+
+async function confirmDeleteProduct(id) {
+  const p = allProducts.find(p => p.id === id);
+  if (!p) return;
+  if (!confirm(`Supprimer "${p.nom}" définitivement ?`)) return;
+  await fetch(`/api/admin/products/${id}`, {
+    method:'DELETE', headers:{'X-Admin-Token':adminToken}
+  });
+  loadProducts();
+}
+
+document.getElementById('product-modal').addEventListener('click', function(e){
+  if(e.target===this) closeProductModal();
+});
 
 // ─── INIT ───
 checkAuth();
