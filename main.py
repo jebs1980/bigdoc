@@ -457,6 +457,18 @@ async def list_products():
     return get_products(actif_only=True)
 
 
+@app.get("/api/public-settings")
+async def public_settings():
+    """Paramètres publics non-sensibles pour le front."""
+    s = get_app_settings()
+    return {
+        "calendly_url": s.get("calendly_url", ""),
+        "email_contact": s.get("email_contact", "bonjour@bigdoc.fr"),
+        "telephone":     s.get("telephone", ""),
+        "seuil_rdv":     s.get("seuil_rdv", 50),
+    }
+
+
 @app.get("/api/admin/products")
 async def admin_list_products(request: Request):
     auth = request.headers.get("X-Admin-Token", "")
@@ -602,52 +614,65 @@ Vous soignez les gens, on soigne vos problèmes.
 
 
 # ─────────────────────────────────────────
-# STRIPE (structure prête, à compléter avec vrais price_id)
+# STRIPE — Checkout depuis le catalogue
 # ─────────────────────────────────────────
 class CheckoutRequest(BaseModel):
     session_id: str
-    produit: str   # "plan_action"|"serenitee"|"confort"|"cabinet_libere"|"installation"
+    produit: str   # product ID (int as string) depuis le catalogue
     email: str = ""
-
-
-STRIPE_PRODUCTS = {
-    "plan_action":     {"nom": "Plan d'action personnalisé", "prix_cents": 3500,  "mode": "payment"},
-    "audit_express":   {"nom": "Audit express",              "prix_cents": 3900,  "mode": "payment"},
-    "installation":    {"nom": "Installation clé en main",   "prix_cents": 25000, "mode": "payment"},
-    "business_plan":   {"nom": "Business plan & dossier bancaire", "prix_cents": 25000, "mode": "payment"},
-    "serenite":        {"nom": "Abonnement Sérénité",        "prix_cents": 9000,  "mode": "subscription"},
-    "confort":         {"nom": "Abonnement Confort",         "prix_cents": 25000, "mode": "subscription"},
-    "cabinet_libere":  {"nom": "Abonnement Cabinet libéré",  "prix_cents": 59000, "mode": "subscription"},
-}
 
 
 @app.post("/api/create-checkout")
 async def create_checkout(body: CheckoutRequest):
-    """Crée une session Stripe Checkout."""
+    """Crée une session Stripe Checkout depuis le catalogue."""
     import stripe
-    stripe.api_key = STRIPE_SECRET_KEY
+    settings = get_app_settings()
+    sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
+    if not sk:
+        raise HTTPException(status_code=400, detail="Stripe non configuré — ajoutez vos clés dans les paramètres admin")
+    stripe.api_key = sk
 
-    produit = STRIPE_PRODUCTS.get(body.produit)
-    if not produit:
-        raise HTTPException(status_code=400, detail="Produit inconnu")
+    # Chercher le produit dans le catalogue
+    product = None
+    try:
+        product = get_product(int(body.produit))
+    except (ValueError, TypeError):
+        pass
+
+    if not product:
+        raise HTTPException(status_code=400, detail="Produit introuvable dans le catalogue")
+
+    nom = product["nom"]
+    prix_cents = product["prix_cents"]
+    is_sub = product["type"] == "abonnement"
+    stripe_price_id = product.get("stripe_price_id", "") or ""
+
+    if prix_cents == 0:
+        raise HTTPException(status_code=400, detail="Ce service est gratuit")
 
     try:
+        mode = "subscription" if is_sub else "payment"
+
+        if stripe_price_id:
+            line_item = {"price": stripe_price_id, "quantity": 1}
+        else:
+            price_data = {
+                "currency": "eur",
+                "product_data": {"name": nom},
+                "unit_amount": prix_cents,
+            }
+            if is_sub:
+                price_data["recurring"] = {"interval": "month"}
+            line_item = {"price_data": price_data, "quantity": 1}
+
         session = stripe.checkout.Session.create(
             payment_method_types=["card"],
-            mode=produit["mode"],
-            line_items=[{
-                "price_data": {
-                    "currency": "eur",
-                    "product_data": {"name": produit["nom"]},
-                    "unit_amount": produit["prix_cents"],
-                    **({"recurring": {"interval": "month"}} if produit["mode"] == "subscription" else {})
-                },
-                "quantity": 1,
-            }],
+            mode=mode,
+            line_items=[line_item],
             customer_email=body.email or None,
             success_url=f"https://bigdoc.fr/bilan/{body.session_id}?paiement=ok",
             cancel_url=f"https://bigdoc.fr/bilan/{body.session_id}",
-            metadata={"session_id": body.session_id, "produit": body.produit}
+            metadata={"session_id": body.session_id, "produit_id": str(product["id"]), "produit_nom": nom}
         )
         return {"checkout_url": session.url}
     except Exception as e:
@@ -658,21 +683,23 @@ async def create_checkout(body: CheckoutRequest):
 async def stripe_webhook(request: Request):
     """Webhook Stripe — confirme les paiements."""
     import stripe
-    stripe.api_key = STRIPE_SECRET_KEY
+    settings = get_app_settings()
+    sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
+    stripe.api_key = sk
 
     payload = await request.body()
     sig = request.headers.get("stripe-signature", "")
+    webhook_secret = settings.get("stripe_webhook_secret") or STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+        event = stripe.Webhook.construct_event(payload, sig, webhook_secret)
     except Exception:
         raise HTTPException(status_code=400, detail="Signature Stripe invalide")
 
     if event["type"] in ("checkout.session.completed", "invoice.payment_succeeded"):
         session = event["data"]["object"]
         meta = session.get("metadata", {})
-        # TODO: déclencher génération bilan détaillé / email de confirmation
-        print(f"✅ Paiement confirmé — session {meta.get('session_id')} / {meta.get('produit')}")
+        logger.info(f"✅ Paiement confirmé — session {meta.get('session_id')} / {meta.get('produit_nom')}")
 
     return {"received": True}
 
