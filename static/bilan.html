@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Votre bilan Bigdoc</title>
+  <meta name="description" content="Votre ordonnance personnalisée pour votre cabinet médical."/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#0B2545;--navy2:#163766;--teal:#1A7A5E;--teal-l:#22A37D;
+      --cream:#FAF3E0;--warm:#F4A261;--red:#C0392B;--grey:#8A9BB0;--white:#FFFFFF;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);min-height:100vh}
+    header{background:var(--navy);padding:1.2rem 2rem;display:flex;align-items:center;justify-content:space-between}
+    .loading{text-align:center;padding:6rem 2rem}
+    .loading-circle{width:70px;height:70px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--teal));margin:0 auto 2rem;animation:pulse 1.5s ease-in-out infinite}
+    @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.8}}
+    .card{background:var(--white);border-radius:16px;box-shadow:0 4px 40px rgba(11,37,69,.1);max-width:660px;margin:2rem auto 4rem;overflow:hidden;position:relative;z-index:1}
+    .error-box{text-align:center;padding:4rem 2rem}
+    .alerte{background:rgba(192,57,43,.08);border-left:3px solid var(--red);border-radius:8px;padding:1rem 1.25rem;margin:0 2.5rem 1.5rem;font-size:.88rem;color:var(--red);line-height:1.5}
+    .share-banner{background:rgba(26,122,94,.06);border-top:1px solid rgba(26,122,94,.15);padding:1rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+    .btn-share{padding:.5rem 1.25rem;background:var(--teal);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s}
+    .btn-share:hover{background:var(--teal-l)}
+    @media(max-width:600px){.card{margin:1rem;}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px">
+    <svg width="34" height="34" viewBox="0 0 54 54" fill="none">
+      <rect width="54" height="54" rx="12" fill="#163766"/>
+      <polyline points="4,27 15,27 19,11 23,43 28,20 32,27 50,27" stroke="#FAF3E0" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="19" cy="11" r="3" fill="#F4A261"/>
+    </svg>
+    <div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;line-height:1">
+        <span style="font-weight:300;color:#FAF3E0">big</span><span style="font-weight:700;color:#FAF3E0">doc</span>
+      </div>
+      <div style="font-size:.5rem;font-weight:300;letter-spacing:.18em;text-transform:uppercase;color:rgba(250,243,224,.4);margin-top:1px">un service RMS</div>
+    </div>
+  </div>
+  <a href="/" style="color:rgba(250,243,224,.5);font-size:.8rem;font-weight:300;text-decoration:none">Faire mon diagnostic →</a>
+</header>
+
+<div id="content">
+  <div class="loading">
+    <div class="loading-circle"></div>
+    <p style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--navy)">Chargement de votre bilan…</p>
+  </div>
+</div>
+
+<script>
+const dimLabels = {
+  administration:'Administration & CPAM',achats_materiel:'Matériel & Stocks',
+  informatique:'Informatique & Infrastructure',comptabilite:'Comptabilité & Finances',
+  charge_mentale:'Charge mentale hors soins',financement:'Financement & Investissements',
+  developpement:'Développement & Croissance'
+};
+
+async function loadBilan() {
+  const path = window.location.pathname;
+  let url;
+
+  if (path.startsWith('/partage/')) {
+    const token = path.split('/partage/')[1];
+    url = `/api/partage/${token}`;
+  } else if (path.startsWith('/bilan/')) {
+    const sessionId = path.split('/bilan/')[1];
+    url = `/api/bilan/${sessionId}`;
+  } else {
+    showError('Lien invalide.');
+    return;
+  }
+
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Non trouvé');
+    const data = await r.json();
+    renderBilan(data.bilan);
+  } catch(e) {
+    showError('Ce bilan n\'existe pas ou a expiré.');
+  }
+}
+
+function showError(msg) {
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="error-box">
+        <div style="font-size:2rem;margin-bottom:1rem">🔍</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;margin-bottom:.75rem">Bilan introuvable</h2>
+        <p style="color:var(--grey);font-size:.9rem;margin-bottom:1.5rem">${msg}</p>
+        <a href="/" style="display:inline-block;padding:.75rem 2rem;background:var(--teal);color:white;border-radius:8px;text-decoration:none;font-size:.9rem">Faire mon diagnostic</a>
+      </div>
+    </div>
+  `;
+}
+
+function renderBilan(b) {
+  const score = b.score_global;
+  const scoreColor = score<=25?'#C0392B':score<=50?'#E67E22':score<=75?'#F4A261':'#1A7A5E';
+  const isPartage = window.location.pathname.startsWith('/partage/');
+
+  const dimsHtml = Object.entries(b.dimensions||{}).map(([key,dim])=>{
+    const pct = Math.round((dim.score/20)*100);
+    const color = pct<=35?'#C0392B':pct<=65?'#E67E22':'#1A7A5E';
+    return `
+      <div style="margin-bottom:1.25rem">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
+          <span style="font-size:.82rem;font-weight:500">${dimLabels[key]||key}</span>
+          <span style="font-size:.82rem;color:${color};font-weight:600">${dim.score}/20</span>
+        </div>
+        <div style="height:6px;background:#EEF0F4;border-radius:3px">
+          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px"></div>
+        </div>
+        ${dim.commentaire?`<p style="font-size:.78rem;color:#8A9BB0;margin-top:.3rem;line-height:1.5">${dim.commentaire}</p>`:''}
+      </div>`;
+  }).join('');
+
+  const recoSecHtml = (b.recommandations_secondaires||[]).slice(0,2).map(r=>`
+    <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:#F8F9FA;border-radius:8px;margin-bottom:.5rem">
+      <span style="color:var(--teal)">→</span>
+      <div>
+        <strong style="font-size:.85rem">${r.service}</strong>
+        <span style="color:var(--grey);font-size:.82rem"> · ${r.tarif}</span>
+        <p style="font-size:.78rem;color:var(--grey);margin-top:.2rem">${r.raison}</p>
+      </div>
+    </div>`).join('');
+
+  const quickHtml = (b.quick_wins||[]).map(w=>
+    `<li style="font-size:.85rem;padding:.4rem 0;border-bottom:1px solid #F0F2F5">${w}</li>`
+  ).join('');
+
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      ${isPartage?`<div style="background:rgba(26,122,94,.06);padding:.75rem 1.5rem;text-align:center;font-size:.8rem;color:var(--teal)">
+        Ce bilan a été partagé avec vous · <a href="/" style="color:var(--teal)">Faire mon propre diagnostic →</a>
+      </div>`:''}
+
+      <div style="background:var(--navy);padding:2.5rem;text-align:center">
+        <div style="width:110px;height:110px;border-radius:50%;border:4px solid ${scoreColor};display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.25rem">
+          <span style="font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:600;color:${scoreColor};line-height:1">${score}</span>
+          <span style="font-size:.65rem;color:#8A9BB0;letter-spacing:.08em">/100</span>
+        </div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--white);margin-bottom:.5rem">${b.niveau}</h2>
+        <p style="font-size:.85rem;color:#8A9BB0;font-weight:300;max-width:480px;margin:0 auto;line-height:1.6">${b.message_bilan||''}</p>
+      </div>
+
+      ${b.alerte_urgente?`<div class="alerte">⚠️ ${b.alerte_urgente}</div>`:''}
+
+      <div style="padding:2rem 2.5rem;display:flex;gap:1.5rem;border-bottom:1px solid #F0F2F5;flex-wrap:wrap">
+        <div style="flex:1;min-width:130px;text-align:center">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${b.heures_perdues_semaine}h</div>
+          <div style="font-size:.75rem;color:var(--grey)">perdues par semaine</div>
+        </div>
+        <div style="flex:1;min-width:130px;text-align:center">
+          <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €</div>
+          <div style="font-size:.75rem;color:var(--grey)">récupérables par an</div>
+        </div>
+      </div>
+
+      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.5rem">Bilan par dimension</h3>
+        ${dimsHtml}
+      </div>
+
+      <div style="padding:2rem 2.5rem;background:rgba(26,122,94,.04);border-bottom:1px solid #F0F2F5">
+        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem">Ordonnance Bigdoc</div>
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--navy);margin-bottom:.35rem">${b.recommandation_principale?.service||''}</h3>
+        <div style="font-size:.9rem;color:var(--teal);font-weight:500;margin-bottom:.75rem">${b.recommandation_principale?.tarif||''}</div>
+        <p style="font-size:.85rem;color:var(--grey);line-height:1.6;margin-bottom:1.25rem">${b.recommandation_principale?.justification||''}</p>
+        ${recoSecHtml}
+      </div>
+
+      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1rem">3 actions cette semaine</h3>
+        <ul style="list-style:none">${quickHtml}</ul>
+      </div>
+
+      <div style="padding:2rem 2.5rem;text-align:center">
+        <p style="font-size:.9rem;color:var(--grey);margin-bottom:1.25rem">Prêt à traiter votre cabinet ?</p>
+        <a href="https://realmedservices.com/contact" style="display:inline-block;padding:1rem 2.5rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));color:white;border-radius:10px;text-decoration:none;font-size:1rem;font-weight:500">
+          Contacter Bigdoc →
+        </a>
+      </div>
+    </div>
+
+    <div style="max-width:660px;margin:0 auto 2rem;padding:0 1rem">
+      <div class="share-banner">
+        <div>
+          <div style="font-size:.82rem;font-weight:500;color:var(--navy)">Partager ce diagnostic</div>
+          <div style="font-size:.75rem;color:var(--grey)">${b.message_partage||'Un confrère pourrait être concerné'}</div>
+        </div>
+        <button class="btn-share" onclick="copyLink()">📋 Copier le lien</button>
+      </div>
+    </div>
+  `;
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(window.location.href).then(()=>alert('Lien copié !')).catch(()=>prompt('Copiez ce lien :',window.location.href));
+}
+
+loadBilan();
+</script>
+</body>
+</html>
