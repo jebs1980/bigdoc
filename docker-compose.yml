@@ -1,0 +1,22 @@
+services:
+
+  bigdoc:
+    build: .
+    container_name: bigdoc
+    restart: unless-stopped
+    ports:
+      - "8001:8000"       # 8001 côté hôte pour ne pas conflictueer
+    volumes:
+      - ./data:/data      # SQLite persisté hors conteneur
+    environment:
+      - DATABASE_PATH=/data/bigdoc.db
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# En prod : mettre un reverse proxy Nginx devant (HTTPS + rate limiting réseau)
