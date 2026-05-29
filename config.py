@@ -337,14 +337,18 @@ QUESTIONNAIRE = [
     },
     {
         "id": "developpement",
-        "question": "Votre développement à 3 ans…",
-        "type": "single",
+        "question": "Quels projets avez-vous pour votre cabinet ? (plusieurs choix possibles)",
+        "type": "multi_select",
         "dimension": "developpement",
         "options": [
-            {"value": "1", "label": "Je n'y pense pas, je gère le quotidien"},
-            {"value": "2", "label": "J'ai des idées mais rien de structuré"},
-            {"value": "3", "label": "J'ai un projet défini mais je ne sais pas comment le financer ou le monter"},
-            {"value": "4", "label": "J'ai un plan en cours de réalisation"}
+            {"value": "aucun",        "label": "Aucun projet — je gère le quotidien"},
+            {"value": "association",  "label": "M'associer ou accueillir un collaborateur"},
+            {"value": "msp",          "label": "Rejoindre ou créer une MSP / CPTS"},
+            {"value": "extension",    "label": "Ouvrir un 2e cabinet ou déménager"},
+            {"value": "actes",        "label": "Développer de nouveaux actes ou la téléconsultation"},
+            {"value": "secteur",      "label": "Passer en secteur 2 ou optimiser mes tarifs"},
+            {"value": "transmission", "label": "Préparer ma succession ou céder mon cabinet"},
+            {"value": "idees",        "label": "J'ai des idées mais rien de structuré"}
         ]
     }
 ]
