@@ -15,7 +15,8 @@ import anthropic
 
 from config import (
     ANTHROPIC_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
-    TURNSTILE_SECRET, SYSTEM_PROMPT, SYSTEM_PROMPT_CHAT_REACTION, QUESTIONNAIRE
+    TURNSTILE_SECRET, SYSTEM_PROMPT, SYSTEM_PROMPT_CHAT_REACTION,
+    QUESTIONNAIRE, RESEND_API_KEY, FROM_EMAIL, ALERT_EMAIL
 )
 from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
@@ -256,6 +257,66 @@ async def get_partage(token: str):
 async def get_public_stats():
     """Stats anonymisées — pour la page d'accueil et le SEO."""
     return get_stats()
+
+
+@app.get("/api/health")
+async def health_check():
+    """Healthcheck — vérifie que le modèle Anthropic répond."""
+    status = {"bigdoc": "ok", "model": ANTHROPIC_MODEL, "model_status": "unknown"}
+    try:
+        anthropic_client.messages.create(
+            model=ANTHROPIC_MODEL,
+            max_tokens=5,
+            messages=[{"role": "user", "content": "ping"}]
+        )
+        status["model_status"] = "ok"
+    except anthropic.NotFoundError:
+        status["model_status"] = "MODEL_DEPRECATED"
+        status["bigdoc"] = "degraded"
+        # Envoyer email d'alerte
+        await send_alert_email(
+            subject="⚠️ Bigdoc — Modèle Anthropic déprécié",
+            body=f"""Le modèle '{ANTHROPIC_MODEL}' n'est plus disponible.
+
+ACTION REQUISE :
+1. Ouvre Z:\\.env
+2. Change ANTHROPIC_MODEL={ANTHROPIC_MODEL}
+   par le nouveau nom disponible sur console.anthropic.com/models
+3. Redémarre le serveur
+
+Le diagnostic Bigdoc ne fonctionne plus jusqu'à correction.
+"""
+        )
+    except anthropic.AuthenticationError:
+        status["model_status"] = "AUTH_ERROR"
+        status["bigdoc"] = "degraded"
+    except Exception as e:
+        status["model_status"] = f"ERROR: {str(e)}"
+        status["bigdoc"] = "degraded"
+
+    return status
+
+
+async def send_alert_email(subject: str, body: str):
+    """Envoie un email d'alerte via Resend."""
+    if not RESEND_API_KEY:
+        logger.warning("RESEND_API_KEY non configuré — email d'alerte non envoyé")
+        return
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+                json={
+                    "from": FROM_EMAIL,
+                    "to": [ALERT_EMAIL],
+                    "subject": subject,
+                    "text": body
+                }
+            )
+        logger.info(f"✅ Email d'alerte envoyé à {ALERT_EMAIL}")
+    except Exception as e:
+        logger.error(f"❌ Erreur envoi email alerte : {e}")
 
 
 class ChatReactionRequest(BaseModel):
