@@ -21,6 +21,19 @@ def init_db():
             value TEXT NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS products (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            nom           TEXT NOT NULL,
+            description   TEXT,
+            prix_cents    INTEGER NOT NULL DEFAULT 0,
+            type          TEXT NOT NULL DEFAULT 'unique',
+            bouton        TEXT NOT NULL DEFAULT 'rdv',
+            stripe_price_id TEXT,
+            actif         INTEGER NOT NULL DEFAULT 1,
+            ordre         INTEGER NOT NULL DEFAULT 0,
+            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
         CREATE TABLE IF NOT EXISTS admin_users (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
             username      TEXT UNIQUE NOT NULL,
@@ -288,8 +301,129 @@ def get_all_leads() -> list:
     return [dict(row) for row in rows]
 
 
-SETTINGS_DEFAULTS = {
-    "stripe_mode": "test",
+PRODUITS_DEFAUT = [
+    {"nom": "Diagnostic confort",        "description": "Bilan complet 7 dimensions",                      "prix_cents": 0,     "type": "unique",      "bouton": "rdv",    "ordre": 1},
+    {"nom": "Plan d'action personnalisé","description": "Feuille de route priorisée pour votre cabinet",    "prix_cents": 3500,  "type": "unique",      "bouton": "payer",  "ordre": 2},
+    {"nom": "Audit express",             "description": "Relecture facture, devis ou document clé",         "prix_cents": 3900,  "type": "unique",      "bouton": "payer",  "ordre": 3},
+    {"nom": "Sourcing matériel",         "description": "Pièce introuvable, fabrication sur mesure",        "prix_cents": 25000, "type": "unique",      "bouton": "rdv",    "ordre": 4},
+    {"nom": "Intégration téléconsultation","description":"Plateforme agréée, renvoi IP, formation complète", "prix_cents": 25000, "type": "unique",      "bouton": "rdv",    "ordre": 5},
+    {"nom": "Mise en conformité téléconsult","description":"Migration depuis Zoom/Teams vers plateforme légale","prix_cents":25000,"type":"unique",      "bouton": "rdv",    "ordre": 6},
+    {"nom": "Business plan & dossier bancaire","description":"Prévisionnel médecin, dossier banque",        "prix_cents": 25000, "type": "unique",      "bouton": "rdv",    "ordre": 7},
+    {"nom": "Installation cabinet clé en main","description":"De la recherche du local aux formalités",     "prix_cents": 100000,"type": "unique",      "bouton": "rdv",    "ordre": 8},
+    {"nom": "Abonnement Sérénité",       "description": "Suivi mensuel, questions illimitées",              "prix_cents": 9000,  "type": "abonnement",  "bouton": "rdv",    "ordre": 9},
+    {"nom": "Abonnement Confort",        "description": "Gestion courante + support + comptable",           "prix_cents": 25000, "type": "abonnement",  "bouton": "rdv",    "ordre": 10},
+    {"nom": "Abonnement Cabinet libéré", "description": "Délégation totale — RMS gère, vous soignez",      "prix_cents": 59000, "type": "abonnement",  "bouton": "rdv",    "ordre": 11},
+]
+
+
+def init_products():
+    """Insère les produits par défaut si la table est vide."""
+    conn = get_connection()
+    count = conn.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+    if count == 0:
+        for p in PRODUITS_DEFAUT:
+            conn.execute("""
+                INSERT INTO products (nom, description, prix_cents, type, bouton, ordre)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (p["nom"], p["description"], p["prix_cents"], p["type"], p["bouton"], p["ordre"]))
+        conn.commit()
+    conn.close()
+
+
+def get_products(actif_only: bool = False) -> list:
+    conn = get_connection()
+    q = "SELECT * FROM products"
+    if actif_only:
+        q += " WHERE actif = 1"
+    q += " ORDER BY ordre, id"
+    rows = conn.execute(q).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+
+def get_product(product_id: int) -> dict | None:
+    conn = get_connection()
+    row = conn.execute("SELECT * FROM products WHERE id = ?", (product_id,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def create_product(data: dict) -> int:
+    conn = get_connection()
+    cursor = conn.execute("""
+        INSERT INTO products (nom, description, prix_cents, type, bouton, stripe_price_id, actif, ordre)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        data.get("nom", ""),
+        data.get("description", ""),
+        int(data.get("prix_cents", 0)),
+        data.get("type", "unique"),
+        data.get("bouton", "rdv"),
+        data.get("stripe_price_id", ""),
+        1 if data.get("actif", True) else 0,
+        int(data.get("ordre", 99)),
+    ))
+    product_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+    return product_id
+
+
+def update_product(product_id: int, data: dict):
+    conn = get_connection()
+    conn.execute("""
+        UPDATE products SET
+            nom = ?, description = ?, prix_cents = ?, type = ?,
+            bouton = ?, stripe_price_id = ?, actif = ?, ordre = ?
+        WHERE id = ?
+    """, (
+        data.get("nom", ""),
+        data.get("description", ""),
+        int(data.get("prix_cents", 0)),
+        data.get("type", "unique"),
+        data.get("bouton", "rdv"),
+        data.get("stripe_price_id", ""),
+        1 if data.get("actif", True) else 0,
+        int(data.get("ordre", 99)),
+        product_id,
+    ))
+    conn.commit()
+    conn.close()
+
+
+def delete_product(product_id: int):
+    conn = get_connection()
+    conn.execute("DELETE FROM products WHERE id = ?", (product_id,))
+    conn.commit()
+    conn.close()
+
+
+def toggle_product(product_id: int) -> bool:
+    conn = get_connection()
+    row = conn.execute("SELECT actif FROM products WHERE id = ?", (product_id,)).fetchone()
+    if not row:
+        conn.close()
+        return False
+    new_actif = 0 if row["actif"] else 1
+    conn.execute("UPDATE products SET actif = ? WHERE id = ?", (new_actif, product_id))
+    conn.commit()
+    conn.close()
+    return bool(new_actif)
+
+
+def get_catalogue_for_prompt() -> str:
+    """Génère le catalogue produits formaté pour le system prompt."""
+    products = get_products(actif_only=True)
+    lines = []
+    for p in products:
+        prix = f"{p['prix_cents'] // 100}€" if p['prix_cents'] > 0 else "Gratuit"
+        if p['type'] == 'abonnement':
+            prix += "/mois"
+        lines.append(f"• {p['nom']} — {prix} ({p['type']}) : {p['description']}")
+    return "\n".join(lines)
+
+
+SETTINGS_DEFAULTS = {    "stripe_mode": "test",
     "stripe_pk": "",
     "stripe_sk": "",
     "prix_plan_action": "35",
