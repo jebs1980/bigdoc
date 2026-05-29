@@ -574,10 +574,98 @@
       </div>
     </div>
 
-    <button class="hero-cta" onclick="startDiagnostic()">
+    <button class="hero-cta" onclick="showChoix()">
       Consulter mon cabinet — gratuit
     </button>
     <span class="hero-sub">Aucune inscription · Score immédiat · Bilan personnalisé</span>
+  </div>
+</div>
+
+
+<!-- ── CHOIX DU PARCOURS ── -->
+<div id="screen-choix" class="screen">
+  <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
+    <div class="card fade-in">
+      <div style="padding:2.5rem 2.5rem 2rem;text-align:center">
+        <div class="question-number">Votre consultation commence ici</div>
+        <div class="question-text" style="margin-bottom:.5rem">Comment préférez-vous démarrer ?</div>
+        <p style="font-size:.85rem;color:var(--grey);font-weight:300;margin-bottom:2rem">Les deux aboutissent au même bilan personnalisé.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+
+          <!-- CHAT LIBRE -->
+          <button onclick="startChat()" style="
+            padding:1.5rem 1rem;
+            border:2px solid #E8EBF0;
+            border-radius:12px;
+            background:var(--white);
+            cursor:pointer;
+            text-align:left;
+            transition:all .2s;
+            font-family:'DM Sans',sans-serif;
+          " onmouseover="this.style.borderColor='var(--teal)';this.style.background='rgba(26,122,94,.04)'"
+             onmouseout="this.style.borderColor='#E8EBF0';this.style.background='var(--white)'">
+            <div style="font-size:1.6rem;margin-bottom:.75rem">💬</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:.4rem">Décrire mon problème</div>
+            <div style="font-size:.78rem;color:var(--grey);line-height:1.5">J'ai une situation précise à exposer. Rapide et direct.</div>
+            <div style="margin-top:.75rem;font-size:.72rem;font-weight:500;color:var(--teal);letter-spacing:.04em">2 MINUTES</div>
+          </button>
+
+          <!-- QUESTIONNAIRE -->
+          <button onclick="startDiagnostic()" style="
+            padding:1.5rem 1rem;
+            border:2px solid var(--teal);
+            border-radius:12px;
+            background:rgba(26,122,94,.04);
+            cursor:pointer;
+            text-align:left;
+            transition:all .2s;
+            font-family:'DM Sans',sans-serif;
+            position:relative;
+          ">
+            <div style="position:absolute;top:-10px;right:12px;background:var(--teal);color:white;font-size:.6rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .6rem;border-radius:999px">Recommandé</div>
+            <div style="font-size:1.6rem;margin-bottom:.75rem">📋</div>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy);margin-bottom:.4rem">Questionnaire guidé</div>
+            <div style="font-size:.78rem;color:var(--grey);line-height:1.5">8 questions sur votre cabinet. Score précis sur 7 dimensions.</div>
+            <div style="margin-top:.75rem;font-size:.72rem;font-weight:500;color:var(--teal);letter-spacing:.04em">3 MINUTES</div>
+          </button>
+
+        </div>
+      </div>
+      <div style="padding:0 2.5rem 1.5rem;text-align:center">
+        <button class="btn-back" onclick="showScreen('hero')" style="visibility:visible">← Retour</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── CHAT LIBRE ── -->
+<div id="screen-chat" class="screen">
+  <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
+    <div class="card fade-in">
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" style="width:30%"></div>
+      </div>
+      <div class="progress-info">
+        <span class="progress-step">Diagnostic libre</span>
+      </div>
+      <div class="question-area">
+        <div class="question-number">Décrivez votre situation</div>
+        <div class="question-text">Qu'est-ce qui vous préoccupe dans votre cabinet ?</div>
+        <textarea id="chat-texte" placeholder="Exemple : « Je passe trop de temps sur l'administratif, j'ai des rejets CPAM non traités depuis 2 mois et mon logiciel plante régulièrement... »
+
+Ou : « Je veux ouvrir un 2e cabinet mais je ne sais pas par où commencer ni comment financer ça. »
+
+Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="min-height:180px"></textarea>
+        <p style="font-size:.75rem;color:var(--grey);margin-top:.5rem;line-height:1.5">
+          Pas de bonne ou mauvaise réponse. Écrivez comme vous parleriez à un confrère de confiance.
+        </p>
+      </div>
+      <div class="question-nav">
+        <button class="btn-back" onclick="showScreen('choix')">← Retour</button>
+        <button class="btn-next" id="btn-chat-next" onclick="goChatCapture()" style="opacity:1">Voir mon diagnostic →</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -751,9 +839,30 @@ function startDiagnostic() {
   showScreen('questionnaire');
 }
 
-function goToStep(step) {
-  showScreen(step);
+function showChoix() {
+  showScreen('choix');
 }
+
+function startChat() {
+  showScreen('chat');
+}
+
+function goChatCapture() {
+  const texte = document.getElementById('chat-texte').value.trim();
+  if (!texte || texte.length < 20) {
+    document.getElementById('chat-texte').style.borderColor = 'var(--red)';
+    document.getElementById('chat-texte').placeholder = 'Merci de décrire votre situation en quelques mots...';
+    return;
+  }
+  state.texteLibre = texte;
+  state.reponses = {}; // pas de questionnaire dans ce parcours
+  state.parcours = 'chat';
+  // Score partiel inconnu — on met 50 par défaut
+  document.getElementById('partial-score').textContent = '?';
+  document.getElementById('score-niveau').textContent = 'Votre diagnostic est en cours de préparation.';
+  showScreen('capture');
+}
+
 
 // ─────────────────────────────────────────
 // QUESTIONNAIRE
