@@ -23,7 +23,10 @@ from database import (
     create_partage_token, get_diagnostic_by_token,
     delete_lead_data, get_stats, get_all_leads,
     get_lead_by_session, verify_admin,
-    get_app_settings, save_app_settings
+    get_app_settings, save_app_settings,
+    init_products, get_products, get_product,
+    create_product, update_product, delete_product,
+    toggle_product, get_catalogue_for_prompt
 )
 
 # Modèle Anthropic — configurable dans .env
@@ -52,6 +55,7 @@ anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 @app.on_event("startup")
 async def startup():
     init_db()
+    init_products()
     # Vérifier que le modèle Anthropic est accessible
     try:
         test = anthropic_client.messages.create(
@@ -119,7 +123,7 @@ async def verify_turnstile(token: str, ip: str) -> bool:
         return r.json().get("success", False)
 
 
-def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = "", ville: str = "") -> str:
+def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = "", ville: str = "", catalogue: str = "") -> str:
     """Construit le prompt utilisateur à partir des réponses."""
     lines = ["Voici les réponses du médecin au questionnaire de diagnostic :\n"]
 
@@ -130,6 +134,12 @@ def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = 
         if ville:      ctx.append(f"Ville/zone : {ville}")
         lines.append("PROFIL DU MÉDECIN :")
         lines.extend([f"• {c}" for c in ctx])
+        lines.append("")
+
+    # Catalogue dynamique
+    if catalogue:
+        lines.append("CATALOGUE SERVICES BIGDOC ACTUEL (utiliser ces prix exacts) :")
+        lines.append(catalogue)
         lines.append("")
 
     labels = {
@@ -202,8 +212,9 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
     if not await verify_turnstile(body.turnstile_token, client_ip):
         raise HTTPException(status_code=429, detail="Vérification anti-bot échouée")
 
-    # Construire le prompt
-    user_prompt = build_diagnostic_prompt(body.reponses, body.texte_libre, body.specialite, body.ville)
+    # Construire le prompt avec catalogue dynamique
+    catalogue = get_catalogue_for_prompt()
+    user_prompt = build_diagnostic_prompt(body.reponses, body.texte_libre, body.specialite, body.ville, catalogue)
 
     # Appel Claude Sonnet
     try:
@@ -438,6 +449,53 @@ async def save_settings_route(request: Request):
     data = await request.json()
     save_app_settings(data)
     return {"success": True}
+
+
+@app.get("/api/products")
+async def list_products():
+    """Catalogue public — pour le bilan."""
+    return get_products(actif_only=True)
+
+
+@app.get("/api/admin/products")
+async def admin_list_products(request: Request):
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    return get_products()
+
+
+@app.post("/api/admin/products")
+async def admin_create_product(request: Request):
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    data = await request.json()
+    product_id = create_product(data)
+    return {"success": True, "id": product_id}
+
+
+@app.put("/api/admin/products/{product_id}")
+async def admin_update_product(product_id: int, request: Request):
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    data = await request.json()
+    update_product(product_id, data)
+    return {"success": True}
+
+
+@app.delete("/api/admin/products/{product_id}")
+async def admin_delete_product(product_id: int, request: Request):
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    delete_product(product_id)
+    return {"success": True}
+
+
+@app.post("/api/admin/products/{product_id}/toggle")
+async def admin_toggle_product(product_id: int, request: Request):
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    actif = toggle_product(product_id)
+    return {"success": True, "actif": actif}
 
 
 @app.get("/api/admin/stripe-stats")
