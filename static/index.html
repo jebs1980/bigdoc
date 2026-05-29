@@ -869,8 +869,14 @@ async function goChatCapture() {
       body: JSON.stringify({ texte, turnstile_token: '' })
     });
     const data = await r.json();
+    console.log('Chat reaction response:', data); // debug
 
-    // Afficher la réaction dans l'écran chat avant de passer à la capture
+    if (!data.reaction) {
+      btn.disabled = false;
+      btn.textContent = 'Recevoir mon bilan complet →';
+      btn.onclick = () => showScreen('capture');
+      return;
+    }
     const area = document.querySelector('#screen-chat .question-area');
     const reactionBox = document.createElement('div');
     reactionBox.style.cssText = `
