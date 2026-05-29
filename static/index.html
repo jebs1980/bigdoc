@@ -1313,66 +1313,74 @@ function selectSpecialite(val) {
 // ─────────────────────────────────────────
 let villeTimer = null;
 
+// Arrondissements pré-chargés pour Paris, Lyon, Marseille
+const ARRONDISSEMENTS = {
+  paris: Array.from({length:20}, (_,i) => ({
+    label: `Paris ${i+1}e arrondissement`,
+    value: `Paris ${i+1}e (750${String(i+1).padStart(2,'0')})`
+  })),
+  lyon: Array.from({length:9}, (_,i) => ({
+    label: `Lyon ${i+1}e arrondissement`,
+    value: `Lyon ${i+1}e (6900${i+1})`
+  })),
+  marseille: Array.from({length:16}, (_,i) => {
+    const arr = i+1;
+    const cp = arr <= 9 ? `1300${arr}` : `130${arr}`;
+    return { label: `Marseille ${arr}e arrondissement`, value: `Marseille ${arr}e (${cp})` };
+  })
+};
+
 async function searchVille(val) {
   const drop = document.getElementById('drop-ville');
   if (!val || val.length < 2) { drop.style.display = 'none'; return; }
+
+  const valLower = val.toLowerCase().trim();
   clearTimeout(villeTimer);
+
+  // Détection immédiate Paris/Lyon/Marseille — pas d'API, pas de délai
+  const grand = ['paris','lyon','marseille'].find(g => valLower.startsWith(g) || g.startsWith(valLower));
+  if (grand) {
+    const arr = ARRONDISSEMENTS[grand];
+    // Filtrer si numéro tapé après le nom
+    const numMatch = valLower.replace(grand, '').trim().match(/\d+/);
+    const filtered = numMatch
+      ? arr.filter(a => a.label.includes(numMatch[0]))
+      : arr;
+    renderDropVille(drop, filtered.slice(0, 12));
+    return;
+  }
+
+  // Autres villes — API avec debounce 250ms
   villeTimer = setTimeout(async () => {
     try {
-      // Détecter Paris/Lyon/Marseille pour afficher les arrondissements
-      const valLower = val.toLowerCase();
-      let url;
-
-      if (valLower.startsWith('paris') || valLower.match(/^75\d*/)) {
-        url = `https://geo.api.gouv.fr/communes?codePostal=75&fields=nom,codesPostaux&limit=20`;
-      } else if (valLower.startsWith('lyon') || valLower.match(/^69\d*/)) {
-        url = `https://geo.api.gouv.fr/communes?nom=Lyon&fields=nom,codesPostaux,departement&limit=20`;
-      } else if (valLower.startsWith('marseille') || valLower.match(/^13\d*/)) {
-        url = `https://geo.api.gouv.fr/communes?nom=Marseille&fields=nom,codesPostaux,departement&limit=20`;
-      } else {
-        url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=10`;
-      }
-
-      const r = await fetch(url);
+      const r = await fetch(
+        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=8`
+      );
       const villes = await r.json();
       if (!villes.length) { drop.style.display = 'none'; return; }
-
-      // Pour Paris/Lyon/Marseille : afficher chaque arrondissement
-      let items = [];
-      for (const v of villes) {
-        const cps = v.codesPostaux || [];
-        if (cps.length <= 1) {
-          const cp = cps[0] || '';
-          const dept = v.departement?.nom || '';
-          items.push({ label: `${v.nom}${dept ? ` — ${dept}` : ''}`, value: `${v.nom} (${cp})` });
-        } else {
-          // Plusieurs codes postaux = arrondissements
-          for (const cp of cps) {
-            const arr = cp.slice(-2).replace(/^0/, '');
-            items.push({
-              label: `${v.nom} ${arr}e — <span style="color:var(--grey);font-size:.78rem">${cp}</span>`,
-              value: `${v.nom} ${arr}e (${cp})`
-            });
-          }
-        }
-      }
-
-      // Filtrer si l'utilisateur a tapé un arrondissement
-      if (valLower.includes('paris') || valLower.includes('lyon') || valLower.includes('marseille')) {
-        const num = val.match(/\d+/);
-        if (num) items = items.filter(i => i.value.includes(num[0]));
-      }
-
-      drop.innerHTML = items.slice(0, 12).map(i => `
-        <div onclick="selectVille('${i.value.replace(/'/g, "\\'")}')" style="
-          padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
-          border-bottom:1px solid #F0F2F5;transition:background .15s;
-        " onmouseover="this.style.background='rgba(26,122,94,.06)'"
-           onmouseout="this.style.background='white'">${i.label}</div>
-      `).join('');
-      drop.style.display = 'block';
+      const items = villes.map(v => {
+        const cp = v.codesPostaux?.[0] || '';
+        const dept = v.departement?.nom || '';
+        return {
+          label: `${v.nom}<span style="color:var(--grey);font-size:.78rem"> ${cp} — ${dept}</span>`,
+          value: `${v.nom} (${cp})`
+        };
+      });
+      renderDropVille(drop, items);
     } catch(e) { drop.style.display = 'none'; }
-  }, 300);
+  }, 250);
+}
+
+function renderDropVille(drop, items) {
+  if (!items.length) { drop.style.display = 'none'; return; }
+  drop.innerHTML = items.map(i => `
+    <div onclick="selectVille('${i.value.replace(/'/g,"\\'")}')" style="
+      padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
+      border-bottom:1px solid #F0F2F5;transition:background .15s;
+    " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+       onmouseout="this.style.background='white'">${i.label}</div>
+  `).join('');
+  drop.style.display = 'block';
 }
 
 function selectVille(val) {
