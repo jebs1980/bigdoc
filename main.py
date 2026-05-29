@@ -13,7 +13,7 @@ import anthropic
 
 from config import (
     ANTHROPIC_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
-    TURNSTILE_SECRET, SYSTEM_PROMPT, QUESTIONNAIRE
+    TURNSTILE_SECRET, SYSTEM_PROMPT, SYSTEM_PROMPT_CHAT_REACTION, QUESTIONNAIRE
 )
 from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
@@ -224,6 +224,36 @@ async def get_partage(token: str):
 async def get_public_stats():
     """Stats anonymisées — pour la page d'accueil et le SEO."""
     return get_stats()
+
+
+class ChatReactionRequest(BaseModel):
+    texte: str
+    turnstile_token: str = ""
+
+
+@app.post("/api/chat-reaction")
+@limiter.limit("10/hour")
+async def chat_reaction(request: Request, body: ChatReactionRequest):
+    """Réaction immédiate au texte libre — avant la capture email."""
+    client_ip = request.client.host
+    if not await verify_turnstile(body.turnstile_token, client_ip):
+        raise HTTPException(status_code=429, detail="Vérification anti-bot échouée")
+
+    if len(body.texte.strip()) < 20:
+        raise HTTPException(status_code=400, detail="Texte trop court")
+
+    try:
+        message = anthropic_client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=200,
+            system=SYSTEM_PROMPT_CHAT_REACTION,
+            messages=[{"role": "user", "content": body.texte}]
+        )
+        reaction = message.content[0].text.strip()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    return {"reaction": reaction}
 
 
 @app.post("/api/delete-my-data")
