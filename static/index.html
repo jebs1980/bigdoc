@@ -785,17 +785,47 @@ function renderQuestion() {
   `;
 
   const list = document.getElementById('options-list');
+  const isMulti = q.type === 'multi_select';
+  const currentVal = state.reponses[q.id];
+  const selectedValues = isMulti
+    ? (Array.isArray(currentVal) ? currentVal : [])
+    : [];
+
   q.options.forEach(opt => {
     const btn = document.createElement('button');
-    btn.className = 'option-btn' + (state.reponses[q.id] === opt.value ? ' selected' : '');
-    btn.innerHTML = `<span class="option-dot"></span><span>${opt.label}</span>`;
-    btn.onclick = () => selectOption(q.id, opt.value, btn);
+    const isSelected = isMulti
+      ? selectedValues.includes(opt.value)
+      : currentVal === opt.value;
+
+    btn.className = 'option-btn' + (isSelected ? ' selected' : '');
+
+    if (isMulti) {
+      // Case à cocher carrée pour multi
+      btn.innerHTML = `
+        <span style="width:18px;height:18px;border-radius:4px;border:2px solid ${isSelected ? 'var(--teal)' : '#D0D5DE'};
+          background:${isSelected ? 'var(--teal)' : 'transparent'};flex-shrink:0;display:flex;
+          align-items:center;justify-content:center;transition:all .18s">
+          ${isSelected ? '<svg width="10" height="8" viewBox="0 0 10 8" fill="none"><polyline points="1,4 4,7 9,1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' : ''}
+        </span>
+        <span>${opt.label}</span>`;
+      btn.onclick = () => selectMulti(q.id, opt.value);
+    } else {
+      btn.innerHTML = `<span class="option-dot"></span><span>${opt.label}</span>`;
+      btn.onclick = () => selectOption(q.id, opt.value, btn);
+    }
     list.appendChild(btn);
   });
 
   // Bouton retour
   document.getElementById('btn-back').style.visibility = state.currentStep === 0 ? 'hidden' : 'visible';
-  document.getElementById('btn-next').disabled = !state.reponses[q.id];
+
+  // Multi : toujours activé (on peut continuer sans sélection = aucun projet)
+  if (isMulti) {
+    document.getElementById('btn-next').disabled = false;
+    document.getElementById('btn-next').textContent = 'Suivant →';
+  } else {
+    document.getElementById('btn-next').disabled = !state.reponses[q.id];
+  }
 }
 
 function selectOption(questionId, value, btn) {
@@ -803,6 +833,21 @@ function selectOption(questionId, value, btn) {
   btn.classList.add('selected');
   state.reponses[questionId] = value;
   document.getElementById('btn-next').disabled = false;
+}
+
+function selectMulti(questionId, value) {
+  if (!state.reponses[questionId]) state.reponses[questionId] = [];
+  const arr = state.reponses[questionId];
+  const idx = arr.indexOf(value);
+  if (idx === -1) arr.push(value);
+  else arr.splice(idx, 1);
+  // Si "aucun" sélectionné, vider les autres
+  if (value === 'aucun' && arr.includes('aucun')) {
+    state.reponses[questionId] = ['aucun'];
+  } else {
+    state.reponses[questionId] = arr.filter(v => v !== 'aucun');
+  }
+  renderQuestion();
 }
 
 function nextQuestion() {
