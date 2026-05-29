@@ -1091,7 +1091,9 @@ async function submitLead() {
         session_id: state.sessionId,
         reponses: state.reponses,
         texte_libre: state.texteLibre,
-        turnstile_token: ''
+        turnstile_token: '',
+        specialite: document.getElementById('lead-specialite').value,
+        ville: document.getElementById('lead-ville').value,
       })
     });
     const data = await r.json();
