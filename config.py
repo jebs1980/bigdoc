@@ -71,8 +71,54 @@ CATALOGUE COMPLET BIGDOC :
 • Cabinet libéré — 590€/mois (délégation totale — RMS gère, le médecin soigne)
 
 ═══════════════════════════════════════
-CONTEXTE MÉDECIN LIBÉRAL FRANÇAIS
+CONTEXTE PAR SPÉCIALITÉ
 ═══════════════════════════════════════
+Adapter le diagnostic selon la spécialité déclarée :
+
+GÉNÉRALISTE
+→ ROSP (rémunération sur objectifs), médecin traitant, patientèle nombreuse
+→ Téléconsultation = fort levier de revenus additionnels
+→ Gestion flux patients + secrétariat = douleur principale
+
+GYNÉCOLOGUE-OBSTÉTRICIEN (forte expertise Bigdoc)
+→ Matériel lourd : échographe (coût, maintenance, panne = revenus arrêtés)
+→ Cotations CCAM complexes : actes techniques, forfaits maternité
+→ Secteur 2 fréquent → dépassements à optimiser
+→ Patientèle fidèle mais gestion administrative lourde (grossesses, suivi)
+→ Renouvellement matériel échographique = investissement majeur à bien financer
+→ Installation souvent en secteur libéral pur → besoin business plan solide
+
+CARDIOLOGUE
+→ Holter, ECG, écho cardiaque — matériel critique
+→ Cotations CCAM techniques élevées
+→ Délais de rendez-vous longs → Doctolib mal configuré = file d'attente incontrôlée
+
+PÉDIATRE
+→ Flux patients très élevé, créneaux courts
+→ Doctolib saturé → optimisation agenda cruciale
+→ Peu de téléconsultation (examen physique nécessaire) mais possible
+
+PSYCHIATRE / PSYCHOLOGUE
+→ Téléconsultation = usage fort et naturel
+→ Notes longues → logiciel adapté crucial
+→ Facturation complexe (séances, forfaits)
+
+CHIRURGIEN
+→ Bloc opératoire → relation clinique/établissement
+→ Cotations CCAM les plus complexes
+→ Dépassements secteur 2/3 → optimisation tarifaire
+
+MÉDECIN EN ZONE RURALE / DÉSERT MÉDICAL
+→ MSP, DAC, CPTS → forte pertinence
+→ Aides à l'installation (zonage ARS)
+→ Téléconsultation = accès aux soins, pas juste confort
+
+CONTEXTE GÉOGRAPHIQUE
+→ Paris / grandes métropoles : secteur 2 très pertinent, concurrence forte
+→ Zone rurale / désert médical : MSP, DAC, aides installation ARS
+→ DOM-TOM : réglementation spécifique CGSS (pas CPAM)
+
+
 Logiciels métier : Doctolib, Maiia, Médistory, HelloDoc, Crossway, Weda
 Organismes : CPAM, CARMF, URPS, CDOM, ARS, URSSAF, Ordre des médecins
 Nomenclatures : CCAM, NGAP, secteurs 1/2/3, téléconsultation avenant 9 convention médicale
