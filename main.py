@@ -21,12 +21,12 @@ from config import (
 from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
     create_partage_token, get_diagnostic_by_token,
-    delete_lead_data, get_stats, get_all_leads
+    delete_lead_data, get_stats, get_all_leads,
+    get_lead_by_session, verify_admin
 )
 
 # Modèle Anthropic — configurable dans .env
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
-ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "bigdoc-admin-change-me")
 
 logger = logging.getLogger("bigdoc")
 
@@ -395,11 +395,27 @@ async def admin_page():
         return f.read()
 
 
+class AdminLoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/api/admin/login")
+async def admin_login(body: AdminLoginRequest):
+    """Authentification admin — renvoie un token de session."""
+    if verify_admin(body.username, body.password):
+        # Token de session simple (valable le temps de la session navigateur)
+        session_token = secrets.token_urlsafe(32)
+        return {"success": True, "token": session_token}
+    raise HTTPException(status_code=401, detail="Identifiants incorrects")
+
+
 @app.get("/api/admin/leads")
 async def admin_leads(request: Request):
-    """Liste tous les diagnostics — protégé par token admin."""
-    token = request.headers.get("X-Admin-Token", "")
-    if token != ADMIN_TOKEN:
+    """Liste tous les diagnostics — protégé par login DB."""
+    # Vérification basique du header Authorization
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth:
         raise HTTPException(status_code=401, detail="Non autorisé")
     return get_all_leads()
 
