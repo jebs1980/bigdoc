@@ -21,11 +21,12 @@ from config import (
 from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
     create_partage_token, get_diagnostic_by_token,
-    delete_lead_data, get_stats
+    delete_lead_data, get_stats, get_all_leads
 )
 
 # Modèle Anthropic — configurable dans .env
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
+ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "bigdoc-admin-change-me")
 
 logger = logging.getLogger("bigdoc")
 
@@ -236,6 +237,16 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
     if diagnostic_id:
         create_partage_token(diagnostic_id, share_token)
 
+    # Envoyer email bilan (async, ne bloque pas la réponse)
+    lead_info = get_lead_by_session(body.session_id)
+    if lead_info and lead_info.get("email"):
+        import asyncio
+        asyncio.create_task(send_bilan_email(
+            lead_info["email"],
+            lead_info.get("prenom", ""),
+            bilan
+        ))
+
     return {
         "success": True,
         "bilan": bilan,
@@ -373,6 +384,92 @@ async def delete_data(body: DeleteRequest):
     if not deleted:
         raise HTTPException(status_code=404, detail="Email non trouvé dans notre base")
     return {"success": True, "message": "Vos données ont été supprimées."}
+
+
+# ─────────────────────────────────────────
+# ADMIN
+# ─────────────────────────────────────────
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_page():
+    with open("static/admin.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
+@app.get("/api/admin/leads")
+async def admin_leads(request: Request):
+    """Liste tous les diagnostics — protégé par token admin."""
+    token = request.headers.get("X-Admin-Token", "")
+    if token != ADMIN_TOKEN:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+    return get_all_leads()
+
+
+# ─────────────────────────────────────────
+# EMAIL POST-DIAGNOSTIC
+# ─────────────────────────────────────────
+async def send_bilan_email(email: str, prenom: str, bilan: dict):
+    """Envoie le bilan par email après le diagnostic."""
+    if not RESEND_API_KEY or not email:
+        return
+
+    score = bilan.get("score_global", 0)
+    niveau = bilan.get("niveau", "")
+    heures = bilan.get("heures_perdues_semaine", 0)
+    euros = bilan.get("euros_evitables_an", 0)
+    reco = bilan.get("recommandation_principale", {})
+    quick_wins = bilan.get("quick_wins", [])
+    message_bilan = bilan.get("message_bilan", "")
+    alerte = bilan.get("alerte_urgente", "")
+
+    prenom_display = prenom or "Docteur"
+    quick_wins_text = "\n".join([f"• {w}" for w in quick_wins])
+    alerte_text = f"\n⚠️ ALERTE URGENTE : {alerte}\n" if alerte else ""
+
+    body = f"""Bonjour {prenom_display},
+
+Votre diagnostic Bigdoc est prêt.
+
+═══════════════════════════════
+SCORE DE CONFORT : {score}/100
+{niveau}
+═══════════════════════════════
+
+{message_bilan}
+{alerte_text}
+IMPACT CHIFFRÉ
+• Heures perdues par semaine : {heures}h
+• Euros récupérables par an : {euros:,.0f} €
+
+ORDONNANCE BIGDOC
+{reco.get('service', '')} — {reco.get('tarif', '')}
+{reco.get('justification', '')}
+
+3 ACTIONS CETTE SEMAINE
+{quick_wins_text}
+
+─────────────────────────────────
+Pour aller plus loin, contactez Bigdoc :
+https://realmedservices.com/contact
+
+Bigdoc · un service RMS
+Vous soignez les gens, on soigne vos problèmes.
+"""
+
+    try:
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
+                json={
+                    "from": FROM_EMAIL,
+                    "to": [email],
+                    "subject": f"Votre diagnostic Bigdoc — {score}/100 · {niveau}",
+                    "text": body
+                }
+            )
+        logger.info(f"✅ Email bilan envoyé à {email}")
+    except Exception as e:
+        logger.error(f"❌ Erreur email bilan : {e}")
 
 
 # ─────────────────────────────────────────
