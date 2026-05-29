@@ -1319,23 +1319,57 @@ async function searchVille(val) {
   clearTimeout(villeTimer);
   villeTimer = setTimeout(async () => {
     try {
-      const r = await fetch(
-        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=8`
-      );
+      // Détecter Paris/Lyon/Marseille pour afficher les arrondissements
+      const valLower = val.toLowerCase();
+      let url;
+
+      if (valLower.startsWith('paris') || valLower.match(/^75\d*/)) {
+        url = `https://geo.api.gouv.fr/communes?codePostal=75&fields=nom,codesPostaux&limit=20`;
+      } else if (valLower.startsWith('lyon') || valLower.match(/^69\d*/)) {
+        url = `https://geo.api.gouv.fr/communes?nom=Lyon&fields=nom,codesPostaux,departement&limit=20`;
+      } else if (valLower.startsWith('marseille') || valLower.match(/^13\d*/)) {
+        url = `https://geo.api.gouv.fr/communes?nom=Marseille&fields=nom,codesPostaux,departement&limit=20`;
+      } else {
+        url = `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=10`;
+      }
+
+      const r = await fetch(url);
       const villes = await r.json();
       if (!villes.length) { drop.style.display = 'none'; return; }
-      drop.innerHTML = villes.map(v => {
-        const cp = v.codesPostaux?.[0] || '';
-        const dept = v.departement?.nom || '';
-        const label = `${v.nom} <span style="color:var(--grey);font-size:.78rem">${cp} — ${dept}</span>`;
-        return `
-          <div onclick="selectVille('${v.nom} (${cp})')" style="
-            padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
-            border-bottom:1px solid #F0F2F5;transition:background .15s;
-          " onmouseover="this.style.background='rgba(26,122,94,.06)'"
-             onmouseout="this.style.background='white'">${label}</div>
-        `;
-      }).join('');
+
+      // Pour Paris/Lyon/Marseille : afficher chaque arrondissement
+      let items = [];
+      for (const v of villes) {
+        const cps = v.codesPostaux || [];
+        if (cps.length <= 1) {
+          const cp = cps[0] || '';
+          const dept = v.departement?.nom || '';
+          items.push({ label: `${v.nom}${dept ? ` — ${dept}` : ''}`, value: `${v.nom} (${cp})` });
+        } else {
+          // Plusieurs codes postaux = arrondissements
+          for (const cp of cps) {
+            const arr = cp.slice(-2).replace(/^0/, '');
+            items.push({
+              label: `${v.nom} ${arr}e — <span style="color:var(--grey);font-size:.78rem">${cp}</span>`,
+              value: `${v.nom} ${arr}e (${cp})`
+            });
+          }
+        }
+      }
+
+      // Filtrer si l'utilisateur a tapé un arrondissement
+      if (valLower.includes('paris') || valLower.includes('lyon') || valLower.includes('marseille')) {
+        const num = val.match(/\d+/);
+        if (num) items = items.filter(i => i.value.includes(num[0]));
+      }
+
+      drop.innerHTML = items.slice(0, 12).map(i => `
+        <div onclick="selectVille('${i.value.replace(/'/g, "\\'")}')" style="
+          padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
+          border-bottom:1px solid #F0F2F5;transition:background .15s;
+        " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+           onmouseout="this.style.background='white'">${i.label}</div>
+      `).join('');
       drop.style.display = 'block';
     } catch(e) { drop.style.display = 'none'; }
   }, 300);
