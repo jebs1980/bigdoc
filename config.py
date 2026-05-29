@@ -134,14 +134,15 @@ Si le médecin a coché "zoomtele" (téléconsultation sur Zoom/Teams/WhatsApp) 
 → Service : intégration & formation 250€
 
 SCORING DIMENSION INFORMATIQUE (basé sur les cases cochées) :
-- "ok" coché       → +5 pts
-- "backup" coché   → +5 pts
-- "teleok" coché   → +6 pts
-- "pannes" coché   → -4 pts
-- "nobackup" coché → -4 pts
-- "nosetup" coché  → -6 pts
-- "zoomtele" coché → -6 pts + alerte urgente
-- "notele" coché   → -2 pts + opportunité signalée
+- "ok" coché        → +5 pts
+- "backup" coché    → +5 pts
+- "teleok" coché    → +6 pts
+- "galeres" coché   → -3 pts
+- "bloquant" coché  → -6 pts + alerte urgente "panne bloquante"
+- "nobackup" coché  → -4 pts
+- "nosetup" coché   → -6 pts
+- "zoomtele" coché  → -6 pts + alerte urgente téléconsultation
+- "notele" coché    → -2 pts + opportunité signalée
 Score final plafonné entre 0 et 20.
 
 DIMENSION 4 — Comptabilité & Finances courantes (0-20)
@@ -337,7 +338,8 @@ QUESTIONNAIRE = [
             {"value": "ok",        "label": "Logiciel cabinet adapté et à jour (Doctolib, Maiia, HelloDoc…)"},
             {"value": "backup",    "label": "Données sauvegardées régulièrement"},
             {"value": "teleok",    "label": "Téléconsultation sur plateforme agréée HDS"},
-            {"value": "pannes",    "label": "Pannes fréquentes ou matériel vieillissant"},
+            {"value": "galeres",   "label": "Problèmes réguliers — bugs, lenteurs, galères informatiques hebdomadaires"},
+            {"value": "bloquant",  "label": "Situation bloquante — panne actuelle ou données inaccessibles"},
             {"value": "notele",    "label": "Pas de téléconsultation — je ne sais pas comment m'y mettre"},
             {"value": "zoomtele",  "label": "Téléconsultation sur Zoom, Teams ou WhatsApp"},
             {"value": "nobackup",  "label": "Pas de sauvegarde organisée"},
