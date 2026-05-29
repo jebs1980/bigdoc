@@ -1,0 +1,32 @@
+@echo off
+title Bigdoc — Mise a jour
+color 0A
+
+echo.
+echo  ██████╗ ██╗ ██████╗ ██████╗  ██████╗  ██████╗
+echo  ██╔══██╗██║██╔════╝ ██╔══██╗██╔═══██╗██╔════╝
+echo  ██████╔╝██║██║  ███╗██║  ██║██║   ██║██║
+echo  ██╔══██╗██║██║   ██║██║  ██║██║   ██║██║
+echo  ██████╔╝██║╚██████╔╝██████╔╝╚██████╔╝╚██████╗
+echo  ╚═════╝ ╚═╝ ╚═════╝ ╚═════╝  ╚═════╝  ╚═════╝
+echo.
+echo  un service RMS
+echo  ----------------------------------------
+echo.
+
+cd /d Z:\
+
+echo [1/2] Recuperation des modifications GitHub...
+git pull
+
+echo.
+echo [2/2] Verification...
+git log --oneline -3
+
+echo.
+echo  ----------------------------------------
+echo  OK - Bigdoc est a jour
+echo  Le serveur recharge automatiquement
+echo  ----------------------------------------
+echo.
+pause
