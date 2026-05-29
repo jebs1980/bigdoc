@@ -22,7 +22,8 @@ from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
     create_partage_token, get_diagnostic_by_token,
     delete_lead_data, get_stats, get_all_leads,
-    get_lead_by_session, verify_admin
+    get_lead_by_session, verify_admin,
+    get_app_settings, save_app_settings
 )
 
 # Modèle Anthropic — configurable dans .env
@@ -413,11 +414,65 @@ async def admin_login(body: AdminLoginRequest):
 @app.get("/api/admin/leads")
 async def admin_leads(request: Request):
     """Liste tous les diagnostics — protégé par login DB."""
-    # Vérification basique du header Authorization
     auth = request.headers.get("X-Admin-Token", "")
     if not auth:
         raise HTTPException(status_code=401, detail="Non autorisé")
     return get_all_leads()
+
+
+@app.get("/api/admin/settings")
+async def get_settings_route(request: Request):
+    """Récupère les paramètres depuis la base."""
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+    return get_app_settings()
+
+
+@app.post("/api/admin/settings")
+async def save_settings_route(request: Request):
+    """Sauvegarde les paramètres dans la base."""
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+    data = await request.json()
+    save_app_settings(data)
+    return {"success": True}
+
+
+@app.get("/api/admin/stripe-stats")
+async def stripe_stats_route(request: Request):
+    """Stats CA depuis Stripe."""
+    auth = request.headers.get("X-Admin-Token", "")
+    if not auth:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+
+    settings = get_app_settings()
+    sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
+    mode = settings.get("stripe_mode", "test")
+
+    if not sk:
+        return {"ca_mois": 0, "ca_total": 0, "abonnes": 0, "transactions_mois": 0, "mode": mode}
+
+    try:
+        import stripe as stripe_lib
+        stripe_lib.api_key = sk
+        from datetime import datetime
+        debut_mois = int(datetime(datetime.now().year, datetime.now().month, 1).timestamp())
+
+        charges = stripe_lib.BalanceTransaction.list(limit=100)
+        ca_total = sum(t.amount for t in charges.data if t.type == "charge")
+
+        charges_mois = stripe_lib.BalanceTransaction.list(limit=100, created={"gte": debut_mois})
+        ca_mois = sum(t.amount for t in charges_mois.data if t.type == "charge")
+
+        subs = stripe_lib.Subscription.list(status="active", limit=100)
+        abonnes = len(subs.data)
+
+        return {"ca_mois": ca_mois, "ca_total": ca_total, "abonnes": abonnes,
+                "transactions_mois": len(charges_mois.data), "mode": mode}
+    except Exception as e:
+        return {"ca_mois": 0, "ca_total": 0, "abonnes": 0, "transactions_mois": 0, "mode": mode}
 
 
 # ─────────────────────────────────────────
