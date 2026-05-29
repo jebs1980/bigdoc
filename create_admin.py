@@ -1,11 +1,13 @@
 """
 Bigdoc — Utilitaire création mot de passe admin
 Usage : python create_admin.py
+        python create_admin.py --reset  (efface les comptes admin et recrée)
 """
 import hashlib
 import secrets
 import sqlite3
 import os
+import sys
 import getpass
 from dotenv import load_dotenv
 
@@ -57,15 +59,33 @@ def main():
     conn = sqlite3.connect(DATABASE_PATH)
     create_admin_table(conn)
 
-    # Vérifier si un admin existe déjà
-    existing = conn.execute("SELECT COUNT(*) FROM admin_users").fetchone()[0]
-    if existing > 0:
-        print(f"  ⚠️  {existing} compte(s) admin existent déjà.")
-        choice = input("  Créer un compte supplémentaire ? (o/N) : ").strip().lower()
-        if choice != 'o':
-            print("\n  Annulé.\n")
-            conn.close()
-            return
+    # Mode reset
+    if "--reset" in sys.argv:
+        existing = conn.execute("SELECT COUNT(*) FROM admin_users").fetchone()[0]
+        if existing == 0:
+            print("  Aucun compte admin à supprimer.")
+        else:
+            confirm = input(f"  ⚠️  Supprimer {existing} compte(s) admin existant(s) ? (oui/N) : ").strip().lower()
+            if confirm == 'oui':
+                conn.execute("DELETE FROM admin_users")
+                conn.commit()
+                print(f"  ✅ {existing} compte(s) supprimé(s).")
+                print("  Les diagnostics et leads sont intacts.\n")
+            else:
+                print("\n  Annulé — aucune donnée supprimée.\n")
+                conn.close()
+                return
+
+    # Vérifier si un admin existe déjà (hors mode reset)
+    if "--reset" not in sys.argv:
+        existing = conn.execute("SELECT COUNT(*) FROM admin_users").fetchone()[0]
+        if existing > 0:
+            print(f"  ⚠️  {existing} compte(s) admin existent déjà.")
+            choice = input("  Créer un compte supplémentaire ? (o/N) : ").strip().lower()
+            if choice != 'o':
+                print("\n  Annulé.\n")
+                conn.close()
+                return
 
     # Saisie
     username = input("  Nom d'utilisateur [admin] : ").strip() or "admin"
