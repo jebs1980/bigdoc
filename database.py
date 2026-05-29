@@ -16,6 +16,11 @@ def init_db():
     cursor = conn.cursor()
 
     cursor.executescript("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key   TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
+
         CREATE TABLE IF NOT EXISTS admin_users (
             id            INTEGER PRIMARY KEY AUTOINCREMENT,
             username      TEXT UNIQUE NOT NULL,
@@ -281,6 +286,52 @@ def get_all_leads() -> list:
     """).fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+
+SETTINGS_DEFAULTS = {
+    "stripe_mode": "test",
+    "stripe_pk": "",
+    "stripe_sk": "",
+    "prix_plan_action": "35",
+    "prix_audit": "39",
+    "prix_prestation": "250",
+    "prix_bizplan": "250",
+    "prix_serenite": "90",
+    "prix_confort": "250",
+    "prix_libere": "590",
+    "calendly_url": "",
+    "email_contact": "bonjour@bigdoc.fr",
+    "telephone": "",
+    "seuil_rdv": "50",
+}
+
+
+def get_app_settings() -> dict:
+    """Récupère tous les paramètres de l'application."""
+    conn = get_connection()
+    rows = conn.execute("SELECT key, value FROM settings").fetchall()
+    conn.close()
+    result = dict(SETTINGS_DEFAULTS)
+    for row in rows:
+        result[row["key"]] = row["value"]
+    # Convertir les numériques
+    for k in ["prix_plan_action","prix_audit","prix_prestation","prix_bizplan",
+              "prix_serenite","prix_confort","prix_libere","seuil_rdv"]:
+        try: result[k] = int(result[k])
+        except: pass
+    return result
+
+
+def save_app_settings(data: dict):
+    """Sauvegarde les paramètres dans la base."""
+    conn = get_connection()
+    for key, value in data.items():
+        conn.execute(
+            "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (key, str(value))
+        )
+    conn.commit()
+    conn.close()
 
 
 def get_stats() -> dict:
