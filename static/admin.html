@@ -51,7 +51,7 @@
   <div style="font-size:.75rem;color:rgba(250,243,224,.4)" id="last-refresh"></div>
 </header>
 
-<div class="container">
+<div class="container" id="content">
 
   <!-- Stats -->
   <div class="stats-grid" id="stats-grid">
@@ -147,14 +147,49 @@ async function loadLeads() {
 }
 
 function getAdminToken() {
-  return localStorage.getItem('bigdoc_admin_token') || '';
+  return sessionStorage.getItem('bigdoc_admin_token') || '';
 }
 
 function showLogin() {
-  const token = prompt('Token administrateur :');
-  if (token) {
-    localStorage.setItem('bigdoc_admin_token', token);
+  document.getElementById('content').innerHTML = `
+    <div style="max-width:360px;margin:4rem auto;background:white;border-radius:14px;padding:2rem;box-shadow:0 4px 30px rgba(11,37,69,.1)">
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.5rem;text-align:center">Accès administrateur</h2>
+      <div style="margin-bottom:1rem">
+        <label style="font-size:.8rem;color:var(--grey);display:block;margin-bottom:.3rem">Identifiant</label>
+        <input id="login-user" type="text" placeholder="admin" style="width:100%;padding:.75rem 1rem;border:1px solid #E8EBF0;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem"/>
+      </div>
+      <div style="margin-bottom:1.5rem">
+        <label style="font-size:.8rem;color:var(--grey);display:block;margin-bottom:.3rem">Mot de passe</label>
+        <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;padding:.75rem 1rem;border:1px solid #E8EBF0;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.9rem"
+               onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button onclick="doLogin()" style="width:100%;padding:.85rem;background:var(--teal);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.95rem;cursor:pointer">
+        Connexion
+      </button>
+      <div id="login-error" style="color:var(--red);font-size:.8rem;text-align:center;margin-top:.75rem;display:none">Identifiants incorrects</div>
+    </div>
+  `;
+}
+
+async function doLogin() {
+  const username = document.getElementById('login-user').value;
+  const password = document.getElementById('login-pass').value;
+  try {
+    const r = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ username, password })
+    });
+    if (!r.ok) {
+      document.getElementById('login-error').style.display = 'block';
+      return;
+    }
+    const data = await r.json();
+    sessionStorage.setItem('bigdoc_admin_token', data.token);
+    document.getElementById('content').innerHTML = '<div style="padding:2rem;text-align:center">Chargement…</div>';
     loadLeads();
+  } catch(e) {
+    document.getElementById('login-error').style.display = 'block';
   }
 }
 
