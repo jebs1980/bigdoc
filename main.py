@@ -156,7 +156,7 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
     # Appel Claude Sonnet
     try:
         message = anthropic_client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=2000,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}]
@@ -244,7 +244,7 @@ async def chat_reaction(request: Request, body: ChatReactionRequest):
 
     try:
         message = anthropic_client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=200,
             system=SYSTEM_PROMPT_CHAT_REACTION,
             messages=[{"role": "user", "content": body.texte}]
