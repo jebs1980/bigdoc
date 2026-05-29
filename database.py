@@ -16,6 +16,13 @@ def init_db():
     cursor = conn.cursor()
 
     cursor.executescript("""
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            username      TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
         CREATE TABLE IF NOT EXISTS leads (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
             email           TEXT NOT NULL,
@@ -205,6 +212,26 @@ def delete_lead_data(email: str) -> bool:
     conn.commit()
     conn.close()
     return True
+
+
+def verify_admin(username: str, password: str) -> bool:
+    """Vérifie les identifiants admin contre le hash en base."""
+    import hashlib
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT password_hash FROM admin_users WHERE username = ?",
+        (username,)
+    ).fetchone()
+    conn.close()
+    if not row:
+        return False
+    try:
+        stored = row["password_hash"]
+        salt, hashed = stored.split('$')
+        check = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100_000)
+        return check.hex() == hashed
+    except Exception:
+        return False
 
 
 def get_lead_by_session(session_id: str) -> dict | None:
