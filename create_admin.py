@@ -15,6 +15,34 @@ load_dotenv()
 DATABASE_PATH = os.getenv("DATABASE_PATH", "data/bigdoc.db")
 
 
+def input_password(prompt="Mot de passe : ") -> str:
+    """Saisie mot de passe avec affichage d'étoiles — compatible Windows."""
+    import sys
+    print(prompt, end='', flush=True)
+    password = []
+    try:
+        import msvcrt  # Windows uniquement
+        while True:
+            ch = msvcrt.getwch()
+            if ch in ('\r', '\n'):  # Entrée
+                print()
+                break
+            elif ch == '\x08':  # Backspace
+                if password:
+                    password.pop()
+                    print('\b \b', end='', flush=True)
+            elif ch == '\x03':  # Ctrl+C
+                raise KeyboardInterrupt
+            else:
+                password.append(ch)
+                print('*', end='', flush=True)
+    except ImportError:
+        # Linux/Mac — getpass natif suffit
+        print()
+        return getpass.getpass("")
+    return ''.join(password)
+
+
 def hash_password(password: str) -> str:
     """Hash le mot de passe avec SHA-256 + sel aléatoire."""
     salt = secrets.token_hex(32)
@@ -91,11 +119,11 @@ def main():
     username = input("  Nom d'utilisateur [admin] : ").strip() or "admin"
 
     while True:
-        password = getpass.getpass("  Mot de passe (invisible) : ")
+        password = input_password("  Mot de passe (*** masqué) : ")
         if len(password) < 8:
             print("  ❌ Trop court — minimum 8 caractères.")
             continue
-        confirm = getpass.getpass("  Confirmer le mot de passe : ")
+        confirm = input_password("  Confirmer le mot de passe  : ")
         if password != confirm:
             print("  ❌ Les mots de passe ne correspondent pas.")
             continue
