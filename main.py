@@ -82,9 +82,11 @@ async def startup():
 # ─────────────────────────────────────────
 class DiagnosticRequest(BaseModel):
     session_id: str
-    reponses: dict          # {question_id: valeur}
+    reponses: dict
     texte_libre: str = ""
     turnstile_token: str = ""
+    specialite: str = ""
+    ville: str = ""
 
 
 class LeadRequest(BaseModel):
@@ -115,19 +117,29 @@ async def verify_turnstile(token: str, ip: str) -> bool:
         return r.json().get("success", False)
 
 
-def build_diagnostic_prompt(reponses: dict, texte_libre: str) -> str:
+def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = "", ville: str = "") -> str:
     """Construit le prompt utilisateur à partir des réponses."""
     lines = ["Voici les réponses du médecin au questionnaire de diagnostic :\n"]
 
+    # Contexte médecin
+    if specialite or ville:
+        ctx = []
+        if specialite: ctx.append(f"Spécialité : {specialite}")
+        if ville:      ctx.append(f"Ville/zone : {ville}")
+        lines.append("PROFIL DU MÉDECIN :")
+        lines.extend([f"• {c}" for c in ctx])
+        lines.append("")
+
     labels = {
-        "phase": "Phase du cabinet",
-        "admin": "Charge administrative",
-        "materiel": "État du matériel et stocks",
-        "teleconsult": "Situation téléconsultation",
-        "compta": "Comptabilité et trésorerie",
-        "charge": "Charge mentale hors soins",
-        "financement": "Projets de financement",
-        "developpement": "Vision de développement",
+        "phase":         "Phase du cabinet",
+        "admin":         "Charge administrative",
+        "materiel":      "État du matériel et stocks",
+        "informatique":  "Infrastructure informatique",
+        "teleconsult":   "Situation téléconsultation",
+        "compta":        "Comptabilité et trésorerie",
+        "charge":        "Charge mentale hors soins",
+        "financement":   "Projets de financement",
+        "developpement": "Projets de développement",
     }
 
     # Map option values to readable labels
@@ -137,7 +149,12 @@ def build_diagnostic_prompt(reponses: dict, texte_libre: str) -> str:
 
     for qid, val in reponses.items():
         label = labels.get(qid, qid)
-        readable = option_map.get(qid, {}).get(str(val), str(val))
+        # Gérer les multi_select (liste de valeurs)
+        if isinstance(val, list):
+            opts = option_map.get(qid, {})
+            readable = ", ".join([opts.get(v, v) for v in val]) if val else "Aucune sélection"
+        else:
+            readable = option_map.get(qid, {}).get(str(val), str(val))
         lines.append(f"• {label} : {readable}")
 
     if texte_libre.strip():
@@ -184,7 +201,7 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
         raise HTTPException(status_code=429, detail="Vérification anti-bot échouée")
 
     # Construire le prompt
-    user_prompt = build_diagnostic_prompt(body.reponses, body.texte_libre)
+    user_prompt = build_diagnostic_prompt(body.reponses, body.texte_libre, body.specialite, body.ville)
 
     # Appel Claude Sonnet
     try:
