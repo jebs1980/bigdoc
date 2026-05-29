@@ -742,13 +742,31 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <input type="text" id="lead-prenom" placeholder="Marie" />
         </div>
         <div style="display:flex;gap:.75rem">
-          <div class="input-group" style="flex:1">
+          <div class="input-group" style="flex:1;position:relative">
             <label>Spécialité</label>
-            <input type="text" id="lead-specialite" placeholder="Généraliste" />
+            <input type="text" id="lead-specialite" placeholder="Généraliste"
+                   autocomplete="off"
+                   oninput="filterSpecialite(this.value)"
+                   onblur="setTimeout(()=>closeDropdown('drop-specialite'),200)"/>
+            <div id="drop-specialite" style="
+              display:none;position:absolute;top:100%;left:0;right:0;
+              background:white;border:1px solid #E8EBF0;border-radius:8px;
+              box-shadow:0 4px 20px rgba(11,37,69,.1);z-index:100;
+              max-height:200px;overflow-y:auto;
+            "></div>
           </div>
-          <div class="input-group" style="flex:1">
+          <div class="input-group" style="flex:1;position:relative">
             <label>Ville</label>
-            <input type="text" id="lead-ville" placeholder="Lyon" />
+            <input type="text" id="lead-ville" placeholder="Lyon"
+                   autocomplete="off"
+                   oninput="searchVille(this.value)"
+                   onblur="setTimeout(()=>closeDropdown('drop-ville'),200)"/>
+            <div id="drop-ville" style="
+              display:none;position:absolute;top:100%;left:0;right:0;
+              background:white;border:1px solid #E8EBF0;border-radius:8px;
+              box-shadow:0 4px 20px rgba(11,37,69,.1);z-index:100;
+              max-height:200px;overflow-y:auto;
+            "></div>
           </div>
         </div>
 
@@ -1250,9 +1268,87 @@ async function copyShareLink() {
   }
 }
 
-function showError(msg) {
-  showScreen('questionnaire');
-  alert(msg);
+
+// ─────────────────────────────────────────
+// AUTOCOMPLETE SPÉCIALITÉ
+// ─────────────────────────────────────────
+const SPECIALITES = [
+  "Médecine générale","Gynécologie-obstétrique","Gynécologie médicale",
+  "Cardiologie","Pédiatrie","Dermatologie","Ophtalmologie",
+  "Psychiatrie","Neurologie","Orthopédie","Chirurgie générale",
+  "Chirurgie digestive","Chirurgie vasculaire","Chirurgie thoracique",
+  "Anesthésie-réanimation","Radiologie","Gastro-entérologie",
+  "Pneumologie","Rhumatologie","Endocrinologie","Néphrologie",
+  "Urologie","ORL","Stomatologie","Médecine interne",
+  "Infectiologie","Hématologie","Oncologie","Médecine physique",
+  "Gériatrie","Médecine du travail","Médecine d'urgence",
+  "Médecine vasculaire","Allergologie","Addictologie",
+  "Homéopathie","Acupuncture","Ostéopathie"
+];
+
+function filterSpecialite(val) {
+  const drop = document.getElementById('drop-specialite');
+  if (!val || val.length < 2) { drop.style.display = 'none'; return; }
+  const matches = SPECIALITES.filter(s =>
+    s.toLowerCase().includes(val.toLowerCase())
+  ).slice(0, 8);
+  if (!matches.length) { drop.style.display = 'none'; return; }
+  drop.innerHTML = matches.map(s => `
+    <div onclick="selectSpecialite('${s}')" style="
+      padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
+      border-bottom:1px solid #F0F2F5;transition:background .15s;
+    " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+       onmouseout="this.style.background='white'">${s}</div>
+  `).join('');
+  drop.style.display = 'block';
+}
+
+function selectSpecialite(val) {
+  document.getElementById('lead-specialite').value = val;
+  document.getElementById('drop-specialite').style.display = 'none';
+}
+
+// ─────────────────────────────────────────
+// AUTOCOMPLETE VILLE — API Géo gouv.fr
+// ─────────────────────────────────────────
+let villeTimer = null;
+
+async function searchVille(val) {
+  const drop = document.getElementById('drop-ville');
+  if (!val || val.length < 2) { drop.style.display = 'none'; return; }
+  clearTimeout(villeTimer);
+  villeTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(
+        `https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=8`
+      );
+      const villes = await r.json();
+      if (!villes.length) { drop.style.display = 'none'; return; }
+      drop.innerHTML = villes.map(v => {
+        const cp = v.codesPostaux?.[0] || '';
+        const dept = v.departement?.nom || '';
+        const label = `${v.nom} <span style="color:var(--grey);font-size:.78rem">${cp} — ${dept}</span>`;
+        return `
+          <div onclick="selectVille('${v.nom} (${cp})')" style="
+            padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
+            border-bottom:1px solid #F0F2F5;transition:background .15s;
+          " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+             onmouseout="this.style.background='white'">${label}</div>
+        `;
+      }).join('');
+      drop.style.display = 'block';
+    } catch(e) { drop.style.display = 'none'; }
+  }, 300);
+}
+
+function selectVille(val) {
+  document.getElementById('lead-ville').value = val;
+  document.getElementById('drop-ville').style.display = 'none';
+}
+
+function closeDropdown(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
 }
 
 // ─────────────────────────────────────────
