@@ -123,17 +123,26 @@ Mesure : logiciel cabinet, matériel, sauvegardes, téléconsultation, télépho
 0  = pannes, pas de sauvegarde, téléconsultation illégale, aucune infrastructure de continuité
 
 ⚠️ CAS CRITIQUE SPÉCIFIQUE — TÉLÉCONSULTATION NON CONFORME :
-Si le médecin pratique via Zoom, Teams, WhatsApp, FaceTime, Skype ou tout outil non agréé HDS :
+Si le médecin a coché "zoomtele" (téléconsultation sur Zoom/Teams/WhatsApp) :
 → Score automatique 0 sur cette sous-dimension
 → Message OBLIGATOIRE : "Votre téléconsultation actuelle n'est pas remboursable par la CPAM et engage votre responsabilité civile professionnelle. Chaque acte ainsi facturé est juridiquement fragile."
 → Calculer approximativement : nb téléconsultations × tarif (25€ G ou 30€ CS) = montant à risque mensuel
 → Service : mise en conformité téléconsultation 250€ (ROI = 1er mois de remboursements CPAM récupérés)
 
-⚠️ CAS : PAS DE TÉLÉCONSULTATION :
+⚠️ CAS : PAS DE TÉLÉCONSULTATION (coché "notele") :
 → Opportunité manquée à chiffrer : "La téléconsultation représente 15-20% de revenus additionnels pour un généraliste, soit en moyenne 800-1 200€/mois non captés."
 → Service : intégration & formation 250€
 
-RMS = intégrateur INDÉPENDANT. Ne jamais nommer une plateforme comme "recommandée par RMS".
+SCORING DIMENSION INFORMATIQUE (basé sur les cases cochées) :
+- "ok" coché       → +5 pts
+- "backup" coché   → +5 pts
+- "teleok" coché   → +6 pts
+- "pannes" coché   → -4 pts
+- "nobackup" coché → -4 pts
+- "nosetup" coché  → -6 pts
+- "zoomtele" coché → -6 pts + alerte urgente
+- "notele" coché   → -2 pts + opportunité signalée
+Score final plafonné entre 0 et 20.
 
 DIMENSION 4 — Comptabilité & Finances courantes (0-20)
 Mesure : suivi recettes/dépenses, expert-comptable, CARMF, URSSAF, déclarations, trésorerie
@@ -320,15 +329,19 @@ QUESTIONNAIRE = [
         ]
     },
     {
-        "id": "teleconsult",
-        "question": "Votre téléconsultation est…",
-        "type": "single",
+        "id": "informatique",
+        "question": "Votre infrastructure informatique…",
+        "type": "multi_select",
         "dimension": "informatique",
         "options": [
-            {"value": "0b", "label": "Je n'en fais pas"},
-            {"value": "4",  "label": "Sur Doctolib, Maiia ou une plateforme agréée"},
-            {"value": "0a", "label": "Sur Zoom, Teams, WhatsApp ou un outil non médical"},
-            {"value": "1",  "label": "Je ne sais pas si ma plateforme est agréée"}
+            {"value": "ok",        "label": "Logiciel cabinet adapté et à jour (Doctolib, Maiia, HelloDoc…)"},
+            {"value": "backup",    "label": "Données sauvegardées régulièrement"},
+            {"value": "teleok",    "label": "Téléconsultation sur plateforme agréée HDS"},
+            {"value": "pannes",    "label": "Pannes fréquentes ou matériel vieillissant"},
+            {"value": "notele",    "label": "Pas de téléconsultation — je ne sais pas comment m'y mettre"},
+            {"value": "zoomtele",  "label": "Téléconsultation sur Zoom, Teams ou WhatsApp"},
+            {"value": "nobackup",  "label": "Pas de sauvegarde organisée"},
+            {"value": "nosetup",   "label": "Pas d'infrastructure structurée — je bricole"}
         ]
     },
     {
