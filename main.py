@@ -1,6 +1,8 @@
 import json
 import secrets
 import httpx
+import os
+import logging
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,6 +22,11 @@ from database import (
     create_partage_token, get_diagnostic_by_token,
     delete_lead_data, get_stats
 )
+
+# Modèle Anthropic — configurable dans .env
+ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
+
+logger = logging.getLogger("bigdoc")
 
 # ─────────────────────────────────────────
 app = FastAPI(title="Bigdoc", docs_url=None, redoc_url=None)
@@ -42,6 +49,31 @@ anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 @app.on_event("startup")
 async def startup():
     init_db()
+    # Vérifier que le modèle Anthropic est accessible
+    try:
+        test = anthropic_client.messages.create(
+            model=ANTHROPIC_MODEL,
+            max_tokens=10,
+            messages=[{"role": "user", "content": "ok"}]
+        )
+        logger.info(f"✅ Modèle Anthropic OK : {ANTHROPIC_MODEL}")
+    except anthropic.NotFoundError:
+        logger.error(f"""
+╔══════════════════════════════════════════════════════╗
+║  ⚠️  MODÈLE ANTHROPIC INTROUVABLE                   ║
+║                                                      ║
+║  Le modèle '{ANTHROPIC_MODEL}' n'existe plus.       ║
+║                                                      ║
+║  → Ouvre Z:\\.env                                   ║
+║  → Change ANTHROPIC_MODEL=claude-sonnet-4-5         ║
+║    par le nouveau nom de modèle Anthropic            ║
+║  → Redémarre le serveur                              ║
+║                                                      ║
+║  Modèles disponibles : console.anthropic.com/models  ║
+╚══════════════════════════════════════════════════════╝
+        """)
+    except Exception as e:
+        logger.warning(f"⚠️  Impossible de vérifier le modèle au démarrage : {e}")
 
 
 # ─────────────────────────────────────────
@@ -156,7 +188,7 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
     # Appel Claude Sonnet
     try:
         message = anthropic_client.messages.create(
-            model="claude-sonnet-4-5",
+            model=ANTHROPIC_MODEL,
             max_tokens=2000,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}]
@@ -244,7 +276,7 @@ async def chat_reaction(request: Request, body: ChatReactionRequest):
 
     try:
         message = anthropic_client.messages.create(
-            model="claude-sonnet-4-5",
+            model=ANTHROPIC_MODEL,
             max_tokens=200,
             system=SYSTEM_PROMPT_CHAT_REACTION,
             messages=[{"role": "user", "content": body.texte}]
