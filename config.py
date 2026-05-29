@@ -8,8 +8,9 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
 TURNSTILE_SECRET = os.getenv("TURNSTILE_SECRET", "")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "bigdoc.db")
-RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")   # pour les emails
-FROM_EMAIL = os.getenv("FROM_EMAIL", "diagnostic@realmedservices.com")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+FROM_EMAIL = os.getenv("FROM_EMAIL", "bonjour@bigdoc.fr")
+ALERT_EMAIL = os.getenv("ALERT_EMAIL", "")
 
 SYSTEM_PROMPT = """
 Tu es le moteur de diagnostic de Bigdoc, un service RMS (Real Med Services).
