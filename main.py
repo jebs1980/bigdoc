@@ -22,7 +22,7 @@ from database import (
 )
 
 # ─────────────────────────────────────────
-app = FastAPI(title="RMS Diagnostic", docs_url=None, redoc_url=None)
+app = FastAPI(title="Bigdoc", docs_url=None, redoc_url=None)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
