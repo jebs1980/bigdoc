@@ -207,7 +207,53 @@ def delete_lead_data(email: str) -> bool:
     return True
 
 
-def get_stats() -> dict:
+def get_lead_by_session(session_id: str) -> dict | None:
+    """Récupère les infos du lead lié à une session."""
+    conn = get_connection()
+    row = conn.execute("""
+        SELECT l.email, l.prenom, l.specialite, l.ville
+        FROM diagnostics d
+        LEFT JOIN leads l ON l.id = d.lead_id
+        WHERE d.session_id = ?
+    """, (session_id,)).fetchone()
+    conn.close()
+    if row:
+        return dict(row)
+    return None
+
+
+def get_all_leads() -> list:
+    """Retourne tous les diagnostics pour le back office admin."""
+    conn = get_connection()
+    rows = conn.execute("""
+        SELECT
+            d.session_id,
+            d.created_at as date,
+            l.email,
+            l.prenom,
+            l.specialite,
+            l.ville,
+            d.phase,
+            d.score_global,
+            d.dim_administration,
+            d.dim_achats_materiel,
+            d.dim_informatique,
+            d.dim_comptabilite,
+            d.dim_charge_mentale,
+            d.dim_financement,
+            d.dim_developpement,
+            d.heures_perdues_semaine,
+            d.euros_evitables_an,
+            d.recommandation_palier,
+            d.recommandation_tarif
+        FROM diagnostics d
+        LEFT JOIN leads l ON l.id = d.lead_id
+        WHERE d.score_global IS NOT NULL
+        ORDER BY d.created_at DESC
+        LIMIT 500
+    """).fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
     """Stats anonymisées pour LinkedIn / SEO."""
     conn = get_connection()
     total = conn.execute("SELECT COUNT(*) as n FROM diagnostics WHERE score_global IS NOT NULL").fetchone()["n"]
