@@ -281,6 +281,9 @@ def get_all_leads() -> list:
     """).fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+
+def get_stats() -> dict:
     """Stats anonymisées pour LinkedIn / SEO."""
     conn = get_connection()
     total = conn.execute("SELECT COUNT(*) as n FROM diagnostics WHERE score_global IS NOT NULL").fetchone()["n"]
