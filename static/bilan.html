@@ -80,6 +80,7 @@ async function loadBilan() {
     if (!r.ok) throw new Error('Non trouvé');
     const data = await r.json();
     renderBilan(data.bilan);
+    renderCTA(data.bilan);
   } catch(e) {
     showError('Ce bilan n\'existe pas ou a expiré.');
   }
@@ -181,9 +182,10 @@ function renderBilan(b) {
 
       <div style="padding:2rem 2.5rem;text-align:center">
         <p style="font-size:.9rem;color:var(--grey);margin-bottom:1.25rem">Prêt à traiter votre cabinet ?</p>
-        <a href="https://realmedservices.com/contact" style="display:inline-block;padding:1rem 2.5rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));color:white;border-radius:10px;text-decoration:none;font-size:1rem;font-weight:500">
-          Contacter Bigdoc →
-        </a>
+        <div id="cta-buttons" style="display:flex;flex-direction:column;gap:.75rem;align-items:center;max-width:320px;margin:0 auto">
+          <div style="width:100%;height:44px;background:#EEF0F4;border-radius:10px;animation:pulse 1.5s ease-in-out infinite"></div>
+        </div>
+        <p style="font-size:.75rem;color:var(--grey);margin-top:1rem" id="cta-sub"></p>
       </div>
     </div>
 
@@ -201,6 +203,105 @@ function renderBilan(b) {
 
 function copyLink() {
   navigator.clipboard.writeText(window.location.href).then(()=>alert('Lien copié !')).catch(()=>prompt('Copiez ce lien :',window.location.href));
+}
+
+async function renderCTA(bilan) {
+  try {
+    const [settingsRes, productsRes] = await Promise.all([
+      fetch('/api/public-settings'),
+      fetch('/api/products')
+    ]);
+    const settings = await settingsRes.json();
+    const products = await productsRes.json();
+
+    const score = bilan.score_global || 0;
+    const seuilRdv = settings.seuil_rdv || 50;
+    const calendly = settings.calendly_url || '';
+    const emailContact = settings.email_contact || 'bonjour@bigdoc.fr';
+    const tel = settings.telephone || '';
+
+    // Trouver le produit correspondant à la recommandation
+    const recoNom = bilan.recommandation_principale?.service || '';
+    const product = products.find(p =>
+      p.nom.toLowerCase().includes(recoNom.toLowerCase().slice(0,10)) ||
+      recoNom.toLowerCase().includes(p.nom.toLowerCase().slice(0,10))
+    ) || products.find(p => p.actif);
+
+    const container = document.getElementById('cta-buttons');
+    const sub = document.getElementById('cta-sub');
+
+    // Déterminer le type de bouton
+    const forcerRdv = score < seuilRdv;
+    const bouton = product?.bouton || 'rdv';
+    const prixCents = product?.prix_cents || 0;
+
+    if (bouton === 'payer' && prixCents > 0 && !forcerRdv) {
+      // Bouton paiement direct Stripe
+      const prix = (prixCents / 100).toLocaleString('fr') + '€';
+      container.innerHTML = `
+        <button onclick="goToStripe('${product?.id || ''}')"
+          style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
+                 color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
+                 font-size:1rem;font-weight:500;cursor:pointer;transition:all .2s">
+          Payer maintenant — ${prix} →
+        </button>
+        ${calendly ? `<a href="${calendly}" target="_blank"
+          style="font-size:.82rem;color:var(--teal);text-decoration:none">
+          Ou prendre un RDV gratuit de 15 min →
+        </a>` : ''}
+      `;
+      sub.textContent = 'Paiement sécurisé par Stripe · Satisfaction garantie';
+    } else if (calendly) {
+      // Bouton RDV Calendly
+      container.innerHTML = `
+        <a href="${calendly}" target="_blank"
+          style="display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
+                 color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;
+                 font-size:1rem;font-weight:500;text-align:center">
+          Prendre un RDV gratuit 15 min →
+        </a>
+        ${prixCents > 0 ? `<p style="font-size:.8rem;color:var(--grey)">
+          ${recoNom} — ${(prixCents/100).toLocaleString('fr')}€
+        </p>` : ''}
+      `;
+      sub.textContent = 'Entretien gratuit · Sans engagement · On vous rappelle sous 24h';
+    } else {
+      // Fallback contact email
+      container.innerHTML = `
+        <a href="mailto:${emailContact}"
+          style="display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
+                 color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;
+                 font-size:1rem;font-weight:500;text-align:center">
+          Contacter Bigdoc →
+        </a>
+        ${tel ? `<a href="tel:${tel}" style="font-size:.85rem;color:var(--teal);text-decoration:none">${tel}</a>` : ''}
+      `;
+      sub.textContent = emailContact;
+    }
+  } catch(e) {
+    document.getElementById('cta-buttons').innerHTML = `
+      <a href="mailto:bonjour@bigdoc.fr"
+        style="display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
+               color:white;border-radius:10px;text-decoration:none;font-size:1rem;font-weight:500;text-align:center;font-family:'DM Sans',sans-serif">
+        Contacter Bigdoc →
+      </a>`;
+  }
+}
+
+async function goToStripe(productId) {
+  const sessionId = new URLSearchParams(window.location.search).get('session') || '';
+  try {
+    const r = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ session_id: sessionId, produit: productId })
+    });
+    const data = await r.json();
+    if (data.checkout_url) window.location.href = data.checkout_url;
+    else alert('Erreur lors de la création du paiement');
+  } catch(e) {
+    alert('Erreur réseau');
+  }
 }
 
 loadBilan();
