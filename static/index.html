@@ -1344,7 +1344,7 @@ function generateUUID() {
 // ── BOUTON TEST (localhost uniquement) ──
 function injectTestButton() {
   const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
-  const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026';
+  const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026' || window.location.hostname === 'dev.bigdoc.fr';
   if (!isLocal && !isDev) return;
 
   // Bouton remplir test
