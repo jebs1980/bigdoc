@@ -6,44 +6,44 @@
   <title>Bigdoc — Diagnostic Confort de votre cabinet</title>
   <meta name="description" content="Évaluez la santé de votre cabinet médical en 3 minutes. Score personnalisé, heures perdues, euros récupérables. Gratuit." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Nunito+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --navy:   #0B2545;
-      --navy2:  #163766;
-      --teal:   #1A7A5E;
-      --teal-l: #22A37D;
-      --cream:  #FAF3E0;
-      --warm:   #F4A261;
-      --red:    #C0392B;
-      --grey:   #8A9BB0;
-      --white:  #FFFFFF;
-      --text:   #0B2545;
+      --indigo:   #4F46E5;
+      --indigo-d: #1A1060;
+      --indigo-l: #A5B4FF;
+      --indigo-bg:#F0EDFF;
+      --green:    #10B981;
+      --green-l:  #34D399;
+      --amber:    #F59E0B;
+      --red:      #EF4444;
+      --grey:     #6B7280;
+      --white:    #FFFFFF;
+      --text:     #1A1060;
+      /* compat aliases */
+      --navy:     #1A1060;
+      --navy2:    #312E9E;
+      --teal:     #4F46E5;
+      --teal-l:   #6366F1;
+      --cream:    #F0EDFF;
+      --warm:     #F59E0B;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
+      font-family: 'Nunito Sans', 'Nunito', sans-serif;
+      background: #F5F3FF;
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── NOISE TEXTURE OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0;
-    }
-
     /* ── HEADER ── */
     header {
-      background: var(--navy);
-      padding: 1.2rem 2rem;
+      background: var(--indigo-d);
+      padding: 1rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -51,24 +51,23 @@
     }
 
     .logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--cream);
-      letter-spacing: 0.02em;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.5px;
     }
 
-    .logo span { color: var(--warm); }
+    .logo span { color: var(--indigo-l); }
 
     nav a {
-      color: var(--grey);
+      color: rgba(200,200,255,.5);
       text-decoration: none;
       font-size: 0.85rem;
-      font-weight: 300;
-      letter-spacing: 0.04em;
+      font-weight: 600;
       transition: color .2s;
     }
-    nav a:hover { color: var(--cream); }
+    nav a:hover { color: white; }
 
     /* ── HERO ── */
     .hero {
@@ -80,39 +79,50 @@
     }
 
     .pill {
-      display: inline-block;
-      background: rgba(26,122,94,.15);
-      border: 1px solid rgba(26,122,94,.3);
-      color: var(--teal);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99,102,241,.12);
+      border: 1px solid rgba(99,102,241,.25);
+      color: var(--indigo);
       font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
+      font-weight: 700;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       padding: .3rem 1rem;
       border-radius: 999px;
       margin-bottom: 1.5rem;
     }
 
+    .pill::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--indigo);
+      display: inline-block;
+    }
+
     h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
-      font-weight: 600;
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
       line-height: 1.15;
-      color: var(--navy);
+      color: var(--indigo-d);
       margin-bottom: 1rem;
+      letter-spacing: -1px;
     }
 
     h1 em {
-      font-style: italic;
-      color: var(--teal);
+      font-style: normal;
+      color: var(--indigo);
     }
 
     .tagline {
       font-size: 1.05rem;
       color: var(--grey);
-      font-weight: 300;
+      font-weight: 400;
       margin-bottom: 2.5rem;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
     /* ── STATS LIVE ── */
@@ -127,24 +137,24 @@
     .stat-item { text-align: center; }
 
     .stat-number {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 2rem;
-      font-weight: 600;
-      color: var(--navy);
+      font-weight: 900;
+      color: var(--indigo-d);
+      letter-spacing: -1px;
     }
 
     .stat-label {
       font-size: 0.75rem;
       color: var(--grey);
-      font-weight: 300;
-      letter-spacing: 0.04em;
+      font-weight: 400;
     }
 
     /* ── CARD CONTAINER ── */
     .card {
       background: var(--white);
-      border-radius: 16px;
-      box-shadow: 0 4px 40px rgba(11,37,69,.1);
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(79,70,229,.1);
       max-width: 660px;
       margin: 0 auto 4rem;
       overflow: hidden;
@@ -152,14 +162,11 @@
     }
 
     /* ── PROGRESS BAR ── */
-    .progress-bar-track {
-      height: 4px;
-      background: #EEF0F4;
-    }
+    .progress-bar-track { height: 4px; background: #EDE9FE; }
 
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--teal), var(--teal-l));
+      background: linear-gradient(90deg, var(--indigo), #818CF8);
       transition: width .4s ease;
     }
 
@@ -168,110 +175,162 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #F0F2F5;
+      border-bottom: 1px solid #EDE9FE;
     }
 
     .progress-step {
       font-size: 0.78rem;
       color: var(--grey);
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .progress-score-preview {
       font-size: 0.78rem;
-      color: var(--teal);
-      font-weight: 500;
+      color: var(--indigo);
+      font-weight: 700;
       opacity: 0;
       transition: opacity .3s;
     }
 
     .progress-score-preview.visible { opacity: 1; }
 
-    /* ── QUESTION AREA ── */
-    .question-area {
-      padding: 2.5rem 2.5rem 2rem;
+    /* ── BIGDOC BUBBLE ── */
+    .bigdoc-bubble {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      background: #F5F3FF;
+      border-radius: 12px;
+      padding: .7rem 1rem;
+      margin: 0 1.5rem .75rem;
+      border: 1px solid rgba(99,102,241,.15);
     }
 
+    .bigdoc-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--indigo);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bigdoc-speech {
+      font-size: .82rem;
+      color: #4338CA;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    /* ── QUESTION AREA ── */
+    .question-area { padding: 1.25rem 2rem 1.75rem; }
+
     .question-number {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--grey);
-      margin-bottom: .5rem;
+      font-weight: 700;
+      margin-bottom: .4rem;
     }
 
     .question-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 600;
-      color: var(--navy);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--indigo-d);
       line-height: 1.3;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     /* ── OPTIONS ── */
-    .options { display: flex; flex-direction: column; gap: .75rem; }
+    .options { display: flex; flex-direction: column; gap: .6rem; }
 
     .option-btn {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 1rem 1.25rem;
-      border: 2px solid #E8EBF0;
-      border-radius: 10px;
+      padding: .9rem 1.1rem;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
       background: var(--white);
       cursor: pointer;
       text-align: left;
       transition: all .18s ease;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 0.92rem;
-      color: var(--text);
+      color: #374151;
       line-height: 1.4;
+      font-weight: 500;
     }
 
     .option-btn:hover {
-      border-color: var(--teal);
-      background: rgba(26,122,94,.04);
+      border-color: var(--indigo);
+      background: #F5F3FF;
       transform: translateX(3px);
     }
 
     .option-btn.selected {
-      border-color: var(--teal);
-      background: rgba(26,122,94,.08);
-      color: var(--navy);
-      font-weight: 500;
+      border-color: var(--indigo);
+      background: #EEF2FF;
+      color: var(--indigo-d);
+      font-weight: 700;
     }
 
     .option-dot {
       width: 18px; height: 18px;
       border-radius: 50%;
-      border: 2px solid #D0D5DE;
+      border: 2px solid #D1D5DB;
       flex-shrink: 0;
       transition: all .18s;
     }
 
     .option-btn.selected .option-dot {
-      border-color: var(--teal);
-      background: var(--teal);
-      box-shadow: 0 0 0 4px rgba(26,122,94,.15);
+      border-color: var(--indigo);
+      background: var(--indigo);
+      box-shadow: 0 0 0 4px rgba(99,102,241,.2);
+    }
+
+    /* ── CHECKBOX multi-select ── */
+    .option-check {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      border: 2px solid #D1D5DB;
+      flex-shrink: 0;
+      transition: all .18s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .option-btn.selected .option-check {
+      border-color: var(--indigo);
+      background: var(--indigo);
+    }
+
+    .option-btn.selected .option-check::after {
+      content: '✓';
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
     }
 
     /* ── TEXTE LIBRE ── */
-    .texte-libre-area { padding: 0 2.5rem 2rem; }
+    .texte-libre-area { padding: 0 2rem 1.75rem; }
 
     .texte-libre-label {
       font-size: 0.82rem;
       color: var(--grey);
       margin-bottom: .5rem;
       display: block;
+      font-weight: 600;
     }
 
     textarea {
       width: 100%;
       padding: .9rem 1rem;
-      border: 2px solid #E8EBF0;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 0.9rem;
       resize: vertical;
       min-height: 100px;
@@ -281,55 +340,55 @@
 
     textarea:focus {
       outline: none;
-      border-color: var(--teal);
+      border-color: var(--indigo);
     }
 
     /* ── LEAD CAPTURE ── */
-    .lead-area { padding: 2.5rem; }
+    .lead-area { padding: 2rem; }
 
-    .score-partial {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+    .score-partial { text-align: center; margin-bottom: 1.75rem; }
 
     .score-circle {
-      width: 110px; height: 110px;
+      width: 100px; height: 100px;
       border-radius: 50%;
-      background: var(--navy);
+      background: var(--indigo-d);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       margin: 0 auto 1rem;
-      box-shadow: 0 8px 30px rgba(11,37,69,.2);
+      box-shadow: 0 8px 30px rgba(79,70,229,.3);
     }
 
     .score-number {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.4rem;
-      font-weight: 600;
+      font-family: 'Nunito', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
       color: var(--white);
       line-height: 1;
+      letter-spacing: -2px;
     }
 
     .score-label {
       font-size: 0.65rem;
-      color: var(--grey);
+      color: rgba(200,200,255,.6);
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      font-weight: 700;
     }
 
     .score-teaser {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem;
-      color: var(--navy);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--indigo-d);
       margin-bottom: .4rem;
     }
 
     .score-sublabel {
       font-size: 0.85rem;
       color: var(--grey);
-      font-weight: 300;
+      font-weight: 400;
     }
 
     .input-group { margin-bottom: 1rem; }
@@ -339,15 +398,15 @@
       font-size: 0.8rem;
       color: var(--grey);
       margin-bottom: .35rem;
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .input-group input {
       width: 100%;
       padding: .85rem 1rem;
-      border: 2px solid #E8EBF0;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 0.9rem;
       color: var(--text);
       transition: border-color .2s;
@@ -355,7 +414,7 @@
 
     .input-group input:focus {
       outline: none;
-      border-color: var(--teal);
+      border-color: var(--indigo);
     }
 
     .rgpd-note {
@@ -369,32 +428,33 @@
     .btn-primary {
       width: 100%;
       padding: 1rem;
-      background: linear-gradient(135deg, var(--teal), var(--teal-l));
+      background: var(--indigo);
       color: var(--white);
       border: none;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
       font-size: 1rem;
-      font-weight: 500;
+      font-weight: 800;
       cursor: pointer;
       transition: all .2s;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.2px;
     }
 
     .btn-primary:hover {
+      background: #4338CA;
       transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(26,122,94,.3);
+      box-shadow: 0 8px 20px rgba(79,70,229,.35);
     }
 
     .btn-primary:disabled {
-      opacity: .5;
+      opacity: .4;
       cursor: not-allowed;
       transform: none;
     }
 
     /* ── NAVIGATION QUESTION ── */
     .question-nav {
-      padding: 1rem 2.5rem 2rem;
+      padding: .75rem 2rem 1.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -404,137 +464,119 @@
       background: none;
       border: none;
       color: var(--grey);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
       padding: .5rem;
       transition: color .2s;
     }
 
-    .btn-back:hover { color: var(--navy); }
+    .btn-back:hover { color: var(--indigo-d); }
 
     .btn-next {
       padding: .7rem 1.8rem;
-      background: var(--navy);
+      background: var(--indigo-d);
       color: var(--white);
       border: none;
-      border-radius: 8px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
       font-size: 0.9rem;
-      font-weight: 500;
+      font-weight: 800;
       cursor: pointer;
       transition: all .2s;
     }
 
-    .btn-next:hover { background: var(--navy2); }
+    .btn-next:hover { background: var(--indigo); }
     .btn-next:disabled { opacity: .3; cursor: not-allowed; }
-
-    /* ── LOADING ── */
-    .loading-area {
-      padding: 4rem 2.5rem;
-      text-align: center;
-    }
-
-    .pulse-circle {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--navy), var(--teal));
-      margin: 0 auto 2rem;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50%       { transform: scale(1.08); opacity: .8; }
-    }
-
-    .loading-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
-      color: var(--navy);
-      margin-bottom: .5rem;
-    }
-
-    .loading-sub {
-      font-size: 0.85rem;
-      color: var(--grey);
-      font-weight: 300;
-    }
-
-    /* ── SECTIONS / ÉCRANS ── */
-    .screen { display: none; }
-    .screen.active { display: block; }
-
-    /* ── ALERTE URGENTE ── */
-    .alerte {
-      background: rgba(192,57,43,.08);
-      border-left: 3px solid var(--red);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      margin: 0 2.5rem 1.5rem;
-      font-size: 0.88rem;
-      color: var(--red);
-      line-height: 1.5;
-    }
 
     /* ── HERO CTA ── */
     .hero-cta {
       display: inline-block;
-      background: linear-gradient(135deg, var(--teal), var(--teal-l));
+      background: var(--indigo);
       color: var(--white);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1rem;
-      font-weight: 500;
+      font-weight: 800;
       padding: 1rem 2.5rem;
-      border-radius: 10px;
+      border-radius: 999px;
       border: none;
       cursor: pointer;
       transition: all .25s;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.2px;
       margin-bottom: .75rem;
     }
 
     .hero-cta:hover {
+      background: #4338CA;
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(26,122,94,.3);
+      box-shadow: 0 12px 30px rgba(79,70,229,.35);
     }
 
     .hero-sub {
       display: block;
       font-size: 0.78rem;
       color: var(--grey);
-      font-weight: 300;
+      font-weight: 400;
+    }
+
+    /* ── LOADING ── */
+    .loading-area { padding: 3.5rem 2.5rem; text-align: center; }
+
+    .loading-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--indigo-d);
+      margin-bottom: .5rem;
+    }
+
+    .loading-sub {
+      font-size: 0.85rem;
+      color: var(--grey);
+      font-weight: 400;
+    }
+
+    .step-icon { transition: all .3s; }
+
+    /* ── SECTIONS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── ALERTE ── */
+    .alerte {
+      background: rgba(239,68,68,.08);
+      border-left: 3px solid var(--red);
+      border-radius: 0 10px 10px 0;
+      padding: 1rem 1.25rem;
+      margin: 0 2rem 1.5rem;
+      font-size: 0.88rem;
+      color: #DC2626;
+      line-height: 1.5;
+      font-weight: 600;
     }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
-      .question-area { padding: 2rem 1.5rem 1.5rem; }
-      .question-nav  { padding: 1rem 1.5rem 1.5rem; }
-      .lead-area     { padding: 1.5rem; }
+      .question-area { padding: 1.25rem 1.25rem 1.5rem; }
+      .question-nav  { padding: .75rem 1.25rem 1.5rem; }
+      .lead-area     { padding: 1.25rem; }
       .live-stats    { gap: 1.5rem; }
-      .alerte        { margin: 0 1.5rem 1.5rem; }
+      .alerte        { margin: 0 1.25rem 1.25rem; }
+      .bigdoc-bubble { margin: 0 1rem .75rem; }
     }
 
-    /* ── FADE ANIMATION ── */
-    .fade-in {
-      animation: fadeIn .3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes writing {
-      0%,100% { transform: rotate(-8deg) translateY(0); }
-      50% { transform: rotate(8deg) translateY(-2px); }
-    }
-    @keyframes pulse-beat {
-      0%,100% { transform: scale(1); }
-      50% { transform: scale(1.25); }
-    }
-    @keyframes spin-coin {
-      0% { transform: rotateY(0deg); }
-      100% { transform: rotateY(360deg); }
-    }
+    /* ── ANIMATIONS ── */
+    .fade-in { animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes writing { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg) translateY(-2px)} }
+    @keyframes pulse-beat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+    @keyframes bd-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+    @keyframes bd-blink { 0%,88%,100%{transform:scaleY(1)} 92%,96%{transform:scaleY(0.1)} }
+    @keyframes bd-wave { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(22deg)} 75%{transform:rotate(-6deg)} }
+    @keyframes bd-pulse { 0%,100%{r:4;opacity:1} 50%{r:6;opacity:0.5} }
+    @keyframes bd-trace { 0%{stroke-dashoffset:180} 100%{stroke-dashoffset:-180} }
+    @keyframes bd-heart { 0%,100%{transform:scale(1)} 15%{transform:scale(1.3)} 30%{transform:scale(1)} 45%{transform:scale(1.15)} }
     .step-active-pen .pen-icon { animation: writing .5s ease-in-out infinite; }
     .step-active-ecg svg { animation: pulse-beat .8s ease-in-out infinite; }
   </style>
@@ -542,22 +584,11 @@
 <body>
 
 <header>
-  <div style="display:flex;align-items:center;gap:12px">
-    <svg width="38" height="38" viewBox="0 0 54 54" fill="none">
-      <rect width="54" height="54" rx="12" fill="#163766"/>
-      <polyline points="4,27 15,27 19,11 23,43 28,20 32,27 50,27"
-                stroke="#FAF3E0" stroke-width="2.2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="19" cy="11" r="3" fill="#F4A261"/>
-    </svg>
-    <div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;line-height:1">
-        <span style="font-weight:300;color:#FAF3E0">big</span><span style="font-weight:700;color:#FAF3E0">doc</span>
-      </div>
-      <div style="font-size:0.52rem;font-weight:300;letter-spacing:0.18em;text-transform:uppercase;color:rgba(250,243,224,.4);margin-top:1px">un service RMS</div>
-    </div>
-  </div>
-  <nav><a href="https://realmedservices.com" style="color:rgba(250,243,224,.4);font-size:.8rem;font-weight:300;text-decoration:none">realmedservices.com</a></nav>
+  <a href="/" style="text-decoration:none">
+    <div class="logo">big<span>doc</span></div>
+    <div style="font-size:.5rem;color:rgba(200,200,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:1px">un service RMS</div>
+  </a>
+  <nav><a href="https://realmedservices.com">realmedservices.com</a></nav>
 </header>
 
 <!-- ── HERO ── -->
@@ -565,11 +596,39 @@
 
   <!-- Hero principal -->
   <div class="hero fade-in">
-    <div class="pill">Diagnostic gratuit · 3 minutes</div>
-    <h1>Vous soignez les gens,<br><em>on soigne vos problèmes.</em></h1>
+
+    <!-- Dr Bigdoc intro card -->
+    <div style="display:inline-flex;align-items:center;gap:12px;background:white;border-radius:999px;padding:.5rem 1.5rem .5rem .5rem;margin-bottom:2rem;box-shadow:0 2px 20px rgba(79,70,229,.12);border:1.5px solid rgba(99,102,241,.15)">
+      <svg width="42" height="42" viewBox="0 0 56 56" fill="none" style="animation:bd-float 3.5s ease-in-out infinite;flex-shrink:0">
+        <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+        <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+        <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/>
+        <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+        <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+        <circle cx="24" cy="22" r="1.3" fill="white"/><circle cx="36" cy="22" r="1.3" fill="white"/>
+        <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+        <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+        <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+        <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+        <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        <path d="M22 8 Q25 6 28 8 Q31 6 34 8" fill="none" stroke="#1A0A00" stroke-width="2" stroke-linecap="round"/>
+        <g style="transform-origin:22px 23px;animation:bd-blink 5s ease-in-out infinite">
+          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="none" stroke="#1A0A00" stroke-width="1.2"/>
+        </g>
+        <g style="transform-origin:34px 23px;animation:bd-blink 5s ease-in-out 0.5s infinite">
+          <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="none" stroke="#1A0A00" stroke-width="1.2"/>
+        </g>
+      </svg>
+      <div style="text-align:left">
+        <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px">Dr Bigdoc · RMS</div>
+        <div style="font-size:.85rem;color:#1A1060;font-weight:700;line-height:1.35">Bonjour ! Je vais analyser votre cabinet<br>avec vous — avec méthode, sans jugement.</div>
+      </div>
+    </div>
+
+    <h1>Vous soignez les gens,<br><em>on gère le reste.</em></h1>
     <p class="tagline">
-      Votre cabinet a peut-être besoin d'une consultation.<br>
-      Découvrez son score de confort — et ce que ça vous coûte vraiment.
+      Bigdoc analyse votre cabinet comme vous analysez vos patients.<br>
+      Score personnalisé, heures perdues, euros récupérables.
     </p>
     <div class="live-stats" id="live-stats">
       <div class="stat-item">
@@ -585,10 +644,13 @@
         <div class="stat-label">Heures perdues/sem en moyenne</div>
       </div>
     </div>
-    <button class="hero-cta" onclick="showChoix()">
-      Consulter mon cabinet — gratuit
-    </button>
-    <span class="hero-sub">Aucune inscription · Score immédiat · Bilan personnalisé</span>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;margin-bottom:.75rem">
+      <button class="hero-cta" onclick="showChoix()">🩺 Je veux mon diagnostic</button>
+      <button onclick="showChoix()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.25);border-radius:999px;padding:.8rem 2rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#4F46E5';this.style.background='#F5F3FF'" onmouseout="this.style.borderColor='rgba(99,102,241,.25)';this.style.background='white'">
+        🏥 Je veux m'installer
+      </button>
+    </div>
+    <span class="hero-sub">Aucune inscription · Résultat immédiat · Gratuit</span>
   </div>
 
   <!-- Section peur de s'installer -->
@@ -893,6 +955,8 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         <span class="progress-step" id="progress-label">Question 1 / 8</span>
         <span class="progress-score-preview" id="score-preview"></span>
       </div>
+
+      <div class="bigdoc-bubble" id="bigdoc-bubble-q" style="display:none;margin-top:.75rem"></div>
 
       <div class="question-area" id="question-area"></div>
 
@@ -1291,6 +1355,36 @@ async function goChatCapture() {
 // ─────────────────────────────────────────
 // QUESTIONNAIRE
 // ─────────────────────────────────────────
+// ── DR BIGDOC speeches par question ──
+const BIGDOC_SPEECHES = {
+  0: "Bonjour ! Je suis le Dr Bigdoc. Commençons par comprendre où vous en êtes dans votre parcours.",
+  1: "Le temps passé hors soins est rarement mesuré. C'est ce que nous allons chiffrer ensemble.",
+  2: "Une panne non résolue génère des pertes de revenus immédiates. Regardons votre situation.",
+  3: "La téléconsultation est souvent la dimension la plus méconnue — et la plus risquée réglementairement.",
+  4: "La trésorerie et la fiscalité réservent souvent de mauvaises surprises. Faisons le point.",
+  5: "Tout ce que vous gérez en dehors des soins a un coût en temps et en énergie. Estimons-le.",
+  6: "Le financement d'un projet médical est un domaine à part. Voyons où vous en êtes.",
+  7: "Le développement de votre cabinet mérite une vraie stratégie. Qu'avez-vous en tête ?",
+};
+
+function bigdocMiniSVG(size = 36) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 56 56" fill="none">
+    <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+    <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+    <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/>
+    <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+    <circle cx="23" cy="24" r="2.8" fill="#1A1060"/>
+    <circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+    <circle cx="24" cy="22" r="1.3" fill="white"/>
+    <circle cx="36" cy="22" r="1.3" fill="white"/>
+    <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+    <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+    <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.55"/>
+    <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.55"/>
+    <path d="M18 19 Q24 15 28 18 Q32 15 38 19 Q33 10 28 12 Q23 10 18 19Z" fill="#1A0A00"/>
+  </svg>`;
+}
+
 function renderQuestion() {
   const q = state.questions[state.currentStep];
   if (!q) return;
@@ -1301,9 +1395,18 @@ function renderQuestion() {
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-label').textContent = `Question ${state.currentStep + 1} / ${total}`;
 
-  // Pas de score partiel affiché — incohérent avec le score IA final
   const el = document.getElementById('score-preview');
   if (el) el.textContent = '';
+
+  // Bulle Dr Bigdoc
+  const speech = BIGDOC_SPEECHES[state.currentStep] || "Répondez à votre rythme — il n'y a pas de mauvaise réponse.";
+  const bubbleEl = document.getElementById('bigdoc-bubble-q');
+  if (bubbleEl) {
+    bubbleEl.innerHTML = `
+      <div class="bigdoc-avatar">${bigdocMiniSVG(32)}</div>
+      <div class="bigdoc-speech">${speech}</div>`;
+    bubbleEl.style.display = 'flex';
+  }
 
   const area = document.getElementById('question-area');
   area.innerHTML = `
