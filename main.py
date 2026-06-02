@@ -1032,8 +1032,8 @@ async def create_checkout(body: CheckoutRequest):
             mode=mode,
             line_items=[line_item],
             customer_email=body.email or None,
-            success_url=f"https://bigdoc.fr/bilan/{body.session_id}?paiement=ok",
-            cancel_url=f"https://bigdoc.fr/bilan/{body.session_id}",
+            success_url=f"https://bigdoc.fr/?session={body.session_id}&paiement=ok",
+            cancel_url=f"https://bigdoc.fr/?session={body.session_id}&paiement=cancel",
             metadata={"session_id": body.session_id, "produit_id": str(product["id"]), "produit_nom": nom}
         )
         return {"checkout_url": session.url}
