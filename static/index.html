@@ -646,7 +646,7 @@
     </div>
     <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;margin-bottom:.75rem">
       <button class="hero-cta" onclick="showChoix()">🩺 Je veux mon diagnostic</button>
-      <button onclick="showChoix()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.25);border-radius:999px;padding:.8rem 2rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#4F46E5';this.style.background='#F5F3FF'" onmouseout="this.style.borderColor='rgba(99,102,241,.25)';this.style.background='white'">
+      <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.25);border-radius:999px;padding:.8rem 2rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#4F46E5';this.style.background='#F5F3FF'" onmouseout="this.style.borderColor='rgba(99,102,241,.25)';this.style.background='white'">
         🏥 Je veux m'installer
       </button>
     </div>
@@ -912,7 +912,96 @@
   </div>
 </div>
 
-<!-- ── CHAT LIBRE ── -->
+<!-- ── MODULE INSTALLATION ── -->
+<div id="screen-installation" class="screen">
+  <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
+    <div class="card fade-in">
+
+      <div style="background:#1A1060;padding:1.5rem 2rem;display:flex;align-items:center;gap:.75rem">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none" style="flex-shrink:0">
+          <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+          <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/><ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+          <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+          <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+          <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+          <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        </svg>
+        <div>
+          <div style="font-size:.6rem;font-weight:800;color:#A5B4FF;letter-spacing:1.5px;text-transform:uppercase">Dr Bigdoc · Module Installation</div>
+          <div style="font-size:.88rem;color:white;font-weight:600">Décrivez votre projet — je croise avec les données territoriales.</div>
+        </div>
+      </div>
+
+      <div style="padding:2rem">
+        <div class="question-number">Votre projet d'installation</div>
+        <div class="question-text">Parlez-moi de votre projet.</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+          <div class="input-group">
+            <label>Spécialité *</label>
+            <input type="text" id="install-specialite" placeholder="Ex : Médecine générale" autocomplete="off"/>
+          </div>
+          <div class="input-group">
+            <label>Zone cible *</label>
+            <input type="text" id="install-zone" placeholder="Ville ou département" autocomplete="off"/>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+          <div class="input-group">
+            <label>Type d'exercice souhaité</label>
+            <select id="install-type" style="width:100%;padding:.85rem 1rem;border:2px solid #E5E7EB;border-radius:14px;font-family:'Nunito Sans',sans-serif;font-size:.9rem;color:#1A1060;background:white;">
+              <option value="">Choisir…</option>
+              <option value="seul">Cabinet seul</option>
+              <option value="groupe">Cabinet de groupe</option>
+              <option value="msp">MSP / maison de santé</option>
+              <option value="cpts">CPTS existante</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Horizon de temps</label>
+            <select id="install-horizon" style="width:100%;padding:.85rem 1rem;border:2px solid #E5E7EB;border-radius:14px;font-family:'Nunito Sans',sans-serif;font-size:.9rem;color:#1A1060;background:white;">
+              <option value="">Choisir…</option>
+              <option value="6mois">Dans les 6 mois</option>
+              <option value="1an">Dans l'année</option>
+              <option value="2ans">D'ici 2 ans</option>
+              <option value="reflexion">En réflexion</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Vos principales inquiétudes</label>
+          <textarea id="install-inquietudes" placeholder="Ex : Je ne sais pas comment constituer le dossier bancaire, je ne connais pas les aides disponibles, j'ai peur de me retrouver seul à gérer l'admin…" style="min-height:90px"></textarea>
+        </div>
+
+        <div class="input-group">
+          <label>Email pour recevoir votre analyse *</label>
+          <input type="email" id="install-email" placeholder="dr.dupont@cabinet.fr"/>
+        </div>
+
+        <p class="rgpd-note">Données utilisées uniquement pour générer votre analyse. Hébergées en France.</p>
+
+        <button class="btn-primary" id="btn-install-submit" onclick="submitInstallation()">
+          Analyser mon projet →
+        </button>
+      </div>
+      <div style="padding:0 2rem 1.5rem;text-align:center">
+        <button class="btn-back" onclick="showScreen('hero')">← Retour</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RÉSULTAT INSTALLATION ── -->
+<div id="screen-installation-result" class="screen">
+  <div style="width:100%;max-width:100%;padding:1.5rem 2rem 4rem;">
+    <div class="card fade-in" id="install-result-card" style="border-radius:16px;overflow:hidden;max-width:1000px;margin:0 auto"></div>
+  </div>
+</div>
+
+<!-- ── QUESTIONNAIRE ── -->
 <div id="screen-chat" class="screen">
   <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
     <div class="card fade-in">
@@ -1349,6 +1438,117 @@ function startDiagnostic() {
   state.currentStep = 0;
   renderQuestion();
   showScreen('questionnaire');
+}
+
+function startInstallation() {
+  showScreen('installation');
+}
+
+async function submitInstallation() {
+  const specialite = document.getElementById('install-specialite').value.trim();
+  const zone       = document.getElementById('install-zone').value.trim();
+  const email      = document.getElementById('install-email').value.trim();
+  const type       = document.getElementById('install-type').value;
+  const horizon    = document.getElementById('install-horizon').value;
+  const inquietudes= document.getElementById('install-inquietudes').value.trim();
+
+  if (!specialite || !zone || !email || !email.includes('@')) {
+    if (!specialite) document.getElementById('install-specialite').style.borderColor = '#EF4444';
+    if (!zone) document.getElementById('install-zone').style.borderColor = '#EF4444';
+    if (!email || !email.includes('@')) document.getElementById('install-email').style.borderColor = '#EF4444';
+    return;
+  }
+
+  const btn = document.getElementById('btn-install-submit');
+  btn.disabled = true;
+  btn.textContent = 'Analyse en cours…';
+  showScreen('loading');
+  startLoadingAnimation();
+
+  try {
+    const resp = await fetch('/api/installation', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        session_id: state.sessionId,
+        email, specialite, zone, type_exercice: type, horizon, inquietudes
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.detail || 'Erreur');
+    renderInstallationResult(data);
+    showScreen('installation-result');
+  } catch(e) {
+    showScreen('installation');
+    btn.disabled = false;
+    btn.textContent = 'Analyser mon projet →';
+    alert('Erreur : ' + e.message);
+  }
+}
+
+function renderInstallationResult(data) {
+  const card = document.getElementById('install-result-card');
+  const r = data.analyse || {};
+  card.innerHTML = `
+    <div style="background:#1A1060;padding:2rem 2.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+      <div>
+        <div style="font-size:.6rem;font-weight:800;color:#A5B4FF;letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem">Analyse d'installation · Dr Bigdoc</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:white">${r.titre || 'Votre projet analysé'}</div>
+      </div>
+    </div>
+    <div style="padding:2rem 2.5rem">
+      <!-- Message principal -->
+      <div style="background:#F5F3FF;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;border:1px solid #EDE9FE">
+        <p style="font-size:.92rem;color:#1A1060;line-height:1.7;margin:0;font-weight:500">${r.message || ''}</p>
+      </div>
+      <!-- Opportunités territoire -->
+      ${r.territoire ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">ANALYSE TERRITORIALE</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem">
+          ${(r.territoire.stats||[]).map(s=>`
+            <div style="background:white;border-radius:10px;padding:.85rem 1rem;border:1px solid #EDE9FE">
+              <div style="font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:${s.color||'#6366F1'};letter-spacing:-1px">${s.val}</div>
+              <div style="font-size:.78rem;color:#1A1060;font-weight:600;margin:.15rem 0">${s.label}</div>
+              <div style="font-size:.62rem;color:#9CA3AF">${s.source}</div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+      <!-- Aides disponibles -->
+      ${r.aides && r.aides.length ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">AIDES DISPONIBLES</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          ${r.aides.map(a=>`
+            <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:#F0FDF4;border-radius:10px;border:1px solid #BBF7D0">
+              <span style="color:#10B981;font-weight:900;flex-shrink:0">✓</span>
+              <div>
+                <strong style="font-size:.85rem;color:#065F46">${a.nom}</strong>
+                <span style="color:#059669;font-size:.82rem;font-weight:700"> — ${a.montant}</span>
+                <p style="font-size:.75rem;color:#6B7280;margin:.15rem 0 0;line-height:1.45">${a.condition}</p>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+      <!-- Checklist -->
+      ${r.checklist && r.checklist.length ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">CHECKLIST D'INSTALLATION</div>
+        ${r.checklist.map((item,i)=>`
+          <div style="display:flex;gap:.6rem;align-items:flex-start;padding:.5rem 0;${i>0?'border-top:1px solid #EDE9FE':''}">
+            <div style="min-width:20px;height:20px;border-radius:50%;background:#6366F1;color:white;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+            <span style="font-size:.82rem;color:#374151;line-height:1.5">${item}</span>
+          </div>`).join('')}
+      </div>` : ''}
+      <!-- CTA -->
+      <div style="text-align:center;background:#F5F3FF;border-radius:12px;padding:1.25rem;border:1px solid #EDE9FE">
+        <p style="font-size:.85rem;color:#374151;margin-bottom:.75rem;font-weight:500">RMS vous accompagne sur l'ensemble des démarches d'installation.</p>
+        <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
+          Prendre contact avec RMS →
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 function showChoix() {
