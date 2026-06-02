@@ -241,10 +241,10 @@ Arrondir à la centaine.
 ═══════════════════════════════════════
 INTERPRÉTATION DU SCORE GLOBAL
 ═══════════════════════════════════════
-0-25  : Cabinet en détresse — soins urgents
-26-50 : Cabinet fragile — frictions significatives
-51-75 : Cabinet passable — optimisations importantes disponibles
-76-100: Cabinet confortable — ajustements fins recommandés
+0-25  : Cabinet sous tension — intervention prioritaire recommandée
+26-50 : Cabinet en transition — des leviers clairs sont identifiés
+51-75 : Cabinet en progression — des optimisations significatives sont accessibles
+76-100: Cabinet bien structuré — des ajustements ciblés peuvent encore libérer du temps et des revenus
 
 ═══════════════════════════════════════
 AIGUILLAGE VERS LES SERVICES RMS
@@ -269,7 +269,7 @@ Pas de texte avant. Pas de texte après. Pas de markdown. JSON pur uniquement.
 {
   "phase": "installation|consolidation|croissance|transmission",
   "score_global": 0,
-  "niveau": "Cabinet en détresse|Cabinet fragile|Cabinet passable|Cabinet confortable",
+  "niveau": "Cabinet sous tension|Cabinet en transition|Cabinet en progression|Cabinet bien structuré",
   "dimensions": {
     "administration":  {"score": 0, "commentaire": "2-3 phrases concrètes, chiffrées"},
     "achats_materiel": {"score": 0, "commentaire": ""},
