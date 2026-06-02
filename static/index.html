@@ -1059,7 +1059,7 @@ const state = {
 // ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
-async function generateUUID() {
+function generateUUID() {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     return crypto.randomUUID();
   }
