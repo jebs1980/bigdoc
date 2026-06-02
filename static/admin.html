@@ -270,6 +270,11 @@
             <label>Clé secrète (sk_)</label>
             <input type="password" id="s-sk" placeholder="sk_test_…">
           </div>
+          <div class="input-group" style="grid-column:1/-1">
+            <label>Webhook Secret (whsec_)</label>
+            <input type="password" id="s-webhook" placeholder="whsec_…">
+            <span class="input-hint">Stripe → Développeurs → Webhooks → ton endpoint</span>
+          </div>
         </div>
 
         <div class="section-title">Contact & RDV</div>
@@ -621,6 +626,7 @@ async function loadSettings() {
     document.getElementById('s-mode').value = settings.stripe_mode||'test';
     document.getElementById('s-pk').value = settings.stripe_pk||'';
     document.getElementById('s-sk').value = settings.stripe_sk||'';
+    document.getElementById('s-webhook').value = settings.stripe_webhook_secret||'';
     document.getElementById('s-calendly').value = settings.calendly_url||'';
     document.getElementById('s-email-contact').value = settings.email_contact||'bonjour@bigdoc.fr';
     document.getElementById('s-tel').value = settings.telephone||'';
@@ -633,6 +639,7 @@ async function saveSettings() {
     stripe_mode: document.getElementById('s-mode').value,
     stripe_pk: document.getElementById('s-pk').value,
     stripe_sk: document.getElementById('s-sk').value,
+    stripe_webhook_secret: document.getElementById('s-webhook').value,
     calendly_url: document.getElementById('s-calendly').value,
     email_contact: document.getElementById('s-email-contact').value,
     telephone: document.getElementById('s-tel').value,
