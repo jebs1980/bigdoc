@@ -510,6 +510,7 @@ async function initDashboard() {
   loadStats();
   loadStripeStats();
   loadSettings();
+  await loadProducts(); // nécessaire pour le modal devis
 }
 
 async function loadStats() {
@@ -843,8 +844,10 @@ async function loadQuotes() {
   }
 }
 
-function openQuoteModal(lead = null) {
-  // Remplir la liste des produits
+async function openQuoteModal(lead = null) {
+  // Charger les produits si pas encore fait
+  if (!allProducts.length) await loadProducts();
+
   const sel = document.getElementById('qm-produit');
   sel.innerHTML = '<option value="">Sélectionner…</option>' +
     allProducts.filter(p=>p.actif).map(p =>
