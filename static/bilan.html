@@ -236,8 +236,32 @@ function renderBilan(b) {
         </div>
       </div>
 
-      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5;text-align:center">
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.25rem;text-align:left">Profil radar de votre cabinet</h3>
+      <!-- MASCOTTE BIGDOC -->
+      <div style="padding:1.5rem 2.5rem;background:linear-gradient(135deg,rgba(11,37,69,.03),rgba(26,122,94,.05));border-bottom:1px solid #F0F2F5">
+        <div style="display:flex;align-items:flex-start;gap:1rem">
+          <!-- Personnage ECG animé -->
+          <div style="flex-shrink:0">
+            <div style="width:52px;height:52px;background:var(--navy);border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(11,37,69,.2)">
+              <svg width="32" height="32" viewBox="0 0 54 54" fill="none">
+                <polyline points="4,27 12,27 16,11 20,43 25,20 29,27 50,27"
+                          stroke="#FAF3E0" stroke-width="2.2" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                  <animate attributeName="stroke-dasharray" values="0,100;60,100;0,100" dur="2s" repeatCount="indefinite"/>
+                </polyline>
+                <circle cx="16" cy="11" r="3" fill="#F4A261">
+                  <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+                </circle>
+              </svg>
+            </div>
+            <div style="text-align:center;font-size:.55rem;font-weight:700;color:var(--grey);margin-top:.3rem;letter-spacing:.05em">BIGDOC</div>
+          </div>
+          <!-- Bulle de dialogue -->
+          <div style="flex:1;background:white;border-radius:12px 12px 12px 4px;padding:1rem 1.25rem;border:1px solid rgba(11,37,69,.08);position:relative;box-shadow:0 2px 8px rgba(11,37,69,.06)">
+            <div style="font-size:.72rem;font-weight:600;color:var(--teal);margin-bottom:.35rem;letter-spacing:.05em">MON ANALYSE</div>
+            <p id="bigdoc-speech" style="font-size:.88rem;color:var(--navy);line-height:1.65;margin:0;font-style:italic">${b.message_bilan || ''}</p>
+          </div>
+        </div>
+      </div>
         ${renderRadar(b.dimensions||{})}
       </div>
 
