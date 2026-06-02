@@ -113,12 +113,16 @@ CHIRURGIEN
 
 MÉDECIN EN ZONE RURALE / DÉSERT MÉDICAL
 → MSP, DAC, CPTS → forte pertinence
-→ Aides à l'installation (zonage ARS)
+→ Aides à l'installation (zonage ARS) — CAIM jusqu'à 50 000€
 → Téléconsultation = accès aux soins, pas juste confort
 
-CONTEXTE GÉOGRAPHIQUE
-→ Paris / grandes métropoles : secteur 2 très pertinent, concurrence forte
-→ Zone rurale / désert médical : MSP, DAC, aides installation ARS
+CONTEXTE GÉOGRAPHIQUE — RÈGLE FONDAMENTALE
+Il n'existe pas de zone "saturée" en France. Les besoins sont non couverts PARTOUT.
+→ 6,7M de patients sans médecin traitant en France (Ameli 2023), y compris dans les grandes villes
+→ Délai moyen spécialiste : 49 jours même en Île-de-France
+→ Zone à densité élevée (Paris, Lyon, Bordeaux) = opportunité de spécialisation et file active rapide, pas de concurrence
+→ NE JAMAIS décourager une installation au motif de la densité — toujours orienter vers la différenciation
+→ Zone rurale / désert médical : MSP, DAC, aides ARS, patientèle garantie
 → DOM-TOM : réglementation spécifique CGSS (pas CPAM)
 
 

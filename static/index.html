@@ -595,41 +595,69 @@
 <div id="screen-hero" class="screen active">
 
   <!-- Hero principal -->
-  <div class="hero fade-in">
+  <div class="hero fade-in" style="padding-top:3rem;padding-bottom:3rem">
 
-    <!-- Dr Bigdoc intro card -->
-    <div style="display:inline-flex;align-items:center;gap:12px;background:white;border-radius:999px;padding:.5rem 1.5rem .5rem .5rem;margin-bottom:2rem;box-shadow:0 2px 20px rgba(79,70,229,.12);border:1.5px solid rgba(99,102,241,.15)">
-      <svg width="42" height="42" viewBox="0 0 56 56" fill="none" style="animation:bd-float 3.5s ease-in-out infinite;flex-shrink:0">
-        <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
-        <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
-        <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/>
-        <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
-        <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
-        <circle cx="24" cy="22" r="1.3" fill="white"/><circle cx="36" cy="22" r="1.3" fill="white"/>
-        <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
-        <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
-        <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
-        <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
-        <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
-        <path d="M22 8 Q25 6 28 8 Q31 6 34 8" fill="none" stroke="#1A0A00" stroke-width="2" stroke-linecap="round"/>
-        <g style="transform-origin:22px 23px;animation:bd-blink 5s ease-in-out infinite">
-          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="none" stroke="#1A0A00" stroke-width="1.2"/>
-        </g>
-        <g style="transform-origin:34px 23px;animation:bd-blink 5s ease-in-out 0.5s infinite">
-          <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="none" stroke="#1A0A00" stroke-width="1.2"/>
-        </g>
-      </svg>
-      <div style="text-align:left">
-        <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px">Dr Bigdoc · RMS</div>
-        <div style="font-size:.85rem;color:#1A1060;font-weight:700;line-height:1.35">Bonjour ! Je vais analyser votre cabinet<br>avec vous — avec méthode, sans jugement.</div>
+    <!-- Layout split : Dr Bigdoc grand à gauche, texte à droite -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:3rem;max-width:900px;margin:0 auto 2.5rem;flex-wrap:wrap">
+
+      <!-- DR BIGDOC GRAND -->
+      <div style="flex-shrink:0;text-align:center">
+        <svg width="160" height="200" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 12px 32px rgba(79,70,229,.35))">
+          <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
+          <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+          <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
+          <text x="59" y="151" text-anchor="middle" font-family="Nunito,Arial" font-size="6.5" font-weight="800" fill="white">Dr Bigdoc</text>
+          <path d="M96 144 Q112 148 113 162 Q114 174 106 176 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="97" cy="168" r="6" fill="none" stroke="#6366F1" stroke-width="2.5"/>
+          <circle cx="97" cy="168" r="3" fill="#6366F1"/>
+          <rect x="68" y="112" width="24" height="20" rx="8" fill="#F5D5A8"/>
+          <!-- Cheveux coupe dégradée -->
+          <ellipse cx="80" cy="68" rx="44" ry="30" fill="#3D2314"/>
+          <ellipse cx="50" cy="84" rx="18" ry="14" fill="#3D2314"/>
+          <ellipse cx="110" cy="82" rx="16" ry="12" fill="#3D2314"/>
+          <path d="M52 80 Q58 90 62 97" stroke="#3D2314" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <path d="M60 77 Q65 87 67 95" stroke="#3D2314" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <!-- Tête -->
+          <ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/>
+          <ellipse cx="43" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+          <ellipse cx="117" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+          <ellipse cx="66" cy="85" rx="12" ry="13" fill="white"/>
+          <ellipse cx="94" cy="85" rx="12" ry="13" fill="white"/>
+          <circle cx="66" cy="87" r="8" fill="#1A1060"/>
+          <circle cx="94" cy="87" r="8" fill="#1A1060"/>
+          <circle cx="63" cy="83" r="3.5" fill="white"/>
+          <circle cx="91" cy="83" r="3.5" fill="white"/>
+          <path d="M55 73 Q66 68 77 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M83 72 Q94 68 105 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="80" cy="98" rx="4.5" ry="3.5" fill="#E8B896"/>
+          <path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M66 110 Q80 122 94 110 Q80 120 66 110Z" fill="white"/>
+          <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
+          <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
+        </svg>
+        <div style="margin-top:.5rem;font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase">Dr Bigdoc · RMS</div>
+      </div>
+
+      <!-- TEXTE HERO -->
+      <div style="text-align:left;flex:1;min-width:260px">
+        <div style="font-size:.72rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem;background:#EEF2FF;display:inline-block;padding:.3rem .75rem;border-radius:999px">Bonjour ! Je vais analyser votre cabinet.</div>
+        <h1 style="text-align:left;font-size:2.4rem;margin-bottom:1rem;line-height:1.15">Vous soignez les gens,<br><em>on gère le reste.</em></h1>
+        <p class="tagline" style="text-align:left;margin-bottom:1.5rem">
+          Bigdoc analyse votre cabinet comme vous analysez vos patients.<br>
+          Score personnalisé, heures perdues, euros récupérables.
+        </p>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <button onclick="showChoix()" style="display:inline-flex;align-items:center;gap:.6rem;background:#4F46E5;color:white;border:none;border-radius:999px;padding:.9rem 1.6rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap">
+            <span style="background:white;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0">🩺</span>
+            Je veux mon diagnostic
+          </button>
+          <button onclick="startInstallation()" style="display:inline-flex;align-items:center;gap:.6rem;background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:.9rem 1.6rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap">
+            <span style="background:#EEF2FF;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0">🏥</span>
+            M'installer
+          </button>
+        </div>
       </div>
     </div>
-
-    <h1>Vous soignez les gens,<br><em>on gère le reste.</em></h1>
-    <p class="tagline">
-      Bigdoc analyse votre cabinet comme vous analysez vos patients.<br>
-      Score personnalisé, heures perdues, euros récupérables.
-    </p>
     <div class="live-stats" id="live-stats">
       <div class="stat-item">
         <div class="stat-number" id="stat-total">—</div>
@@ -643,12 +671,6 @@
         <div class="stat-number" id="stat-hours">—</div>
         <div class="stat-label">Heures perdues/sem en moyenne</div>
       </div>
-    </div>
-    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;margin-bottom:.75rem">
-      <button class="hero-cta" onclick="showChoix()">🩺 Je veux mon diagnostic</button>
-      <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.25);border-radius:999px;padding:.8rem 2rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#4F46E5';this.style.background='#F5F3FF'" onmouseout="this.style.borderColor='rgba(99,102,241,.25)';this.style.background='white'">
-        🏥 Je veux m'installer
-      </button>
     </div>
     <span class="hero-sub">Aucune inscription · Résultat immédiat · Gratuit</span>
   </div>
@@ -1331,6 +1353,54 @@ function injectTestButton() {
   btn2.style.cssText = 'position:fixed;bottom:1rem;right:8rem;z-index:9999;background:#6366F1;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
   btn2.onclick = showTestBilan;
   document.body.appendChild(btn2);
+
+  // Bouton installation test
+  const btn3 = document.createElement('button');
+  btn3.textContent = '🏥 Test install';
+  btn3.style.cssText = 'position:fixed;bottom:1rem;right:15rem;z-index:9999;background:#10B981;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+  btn3.onclick = fillInstallationTest;
+  document.body.appendChild(btn3);
+}
+
+function fillInstallationTest() {
+  // Scénarios rotatifs — change à chaque appui
+  const scenarios = [
+    {
+      specialite: 'Médecine générale',
+      zone: 'Lot-et-Garonne (47)',
+      type: 'msp',
+      horizon: '6mois',
+      inquietudes: "Je ne sais pas par où commencer. J'ai regardé les aides ARS mais je ne comprends pas le CAIM. Mon banquier me demande un prévisionnel mais je n'ai aucune idée de mes futurs revenus. J'ai aussi peur d'être seul à gérer l'admin."
+    },
+    {
+      specialite: 'Gynécologie médicale',
+      zone: 'Lyon 6e (69006)',
+      type: 'seul',
+      horizon: '1an',
+      inquietudes: "Je veux me spécialiser en endométriose et ménopause. La zone est sur-dotée mais je pense qu'il y a un créneau. Je ne sais pas quel secteur choisir (1 ou 2) ni comment fixer mes honoraires. Et la recherche d'un local est un mystère total."
+    },
+    {
+      specialite: 'Psychiatrie',
+      zone: 'Rennes (35000)',
+      type: 'groupe',
+      horizon: '2ans',
+      inquietudes: "Je sors d'un CMP, je ne connais rien à la gestion libérale. CARMF, URSSAF, tout ça me fait peur. Je veux rejoindre un cabinet existant mais je ne sais pas comment évaluer si c'est une bonne affaire financièrement."
+    }
+  ];
+
+  // Rotation par compteur
+  window._installTestIdx = ((window._installTestIdx || 0) + 1) % scenarios.length;
+  const s = scenarios[window._installTestIdx];
+
+  showScreen('installation');
+  setTimeout(() => {
+    document.getElementById('install-specialite').value = s.specialite;
+    document.getElementById('install-zone').value = s.zone;
+    document.getElementById('install-type').value = s.type;
+    document.getElementById('install-horizon').value = s.horizon;
+    document.getElementById('install-inquietudes').value = s.inquietudes;
+    document.getElementById('install-email').value = 'dr.test@bigdoc.fr';
+  }, 100);
 }
 
 function showTestBilan() {
@@ -1693,7 +1763,7 @@ function renderQuestion() {
   const area = document.getElementById('question-area');
   area.innerHTML = `
     <div class="question-number">Question ${state.currentStep + 1}</div>
-    <div class="question-text">${q.question}</div>
+    <div class="question-text">${q.question}${q.type === 'multi_select' ? ' <span style="font-size:.65rem;font-weight:700;color:#6366F1;background:#EEF2FF;padding:.15rem .5rem;border-radius:999px;vertical-align:middle;letter-spacing:.5px">Plusieurs réponses possibles</span>' : ''}</div>
     <div class="options" id="options-list"></div>
   `;
 
@@ -2090,16 +2160,36 @@ function renderResult() {
         </div>
       </div>
       <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;max-width:340px;border:1px solid rgba(255,255,255,.1);flex:1">
-        <svg width="32" height="32" viewBox="0 0 56 56" fill="none" style="flex-shrink:0">
-          <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
-          <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
-          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/><ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
-          <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
-          <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
-          <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
-          <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
-          <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
-          <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        <svg width="72" height="90" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
+          <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
+          <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+          <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
+          <text x="59" y="151" text-anchor="middle" font-family="Nunito,Arial" font-size="6.5" font-weight="800" fill="white">Dr Bigdoc</text>
+          <path d="M96 144 Q112 148 113 162 Q114 174 106 176 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <circle cx="97" cy="168" r="6" fill="none" stroke="#A5B4FF" stroke-width="2.5"/>
+          <circle cx="97" cy="168" r="3" fill="#A5B4FF"/>
+          <rect x="68" y="112" width="24" height="20" rx="8" fill="#F5D5A8"/>
+          <ellipse cx="80" cy="68" rx="44" ry="30" fill="#3D2314"/>
+          <ellipse cx="50" cy="84" rx="18" ry="14" fill="#3D2314"/>
+          <ellipse cx="110" cy="82" rx="16" ry="12" fill="#3D2314"/>
+          <path d="M52 80 Q58 90 62 97" stroke="#3D2314" stroke-width="8" stroke-linecap="round" fill="none"/>
+          <path d="M60 77 Q65 87 67 95" stroke="#3D2314" stroke-width="6" stroke-linecap="round" fill="none"/>
+          <ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/>
+          <ellipse cx="43" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+          <ellipse cx="117" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+          <ellipse cx="66" cy="85" rx="12" ry="13" fill="white"/>
+          <ellipse cx="94" cy="85" rx="12" ry="13" fill="white"/>
+          <circle cx="66" cy="87" r="8" fill="#1A1060"/>
+          <circle cx="94" cy="87" r="8" fill="#1A1060"/>
+          <circle cx="63" cy="83" r="3.5" fill="white"/>
+          <circle cx="91" cy="83" r="3.5" fill="white"/>
+          <path d="M55 73 Q66 68 77 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M83 72 Q94 68 105 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="80" cy="98" rx="4.5" ry="3.5" fill="#E8B896"/>
+          <path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M66 110 Q80 122 94 110 Q80 120 66 110Z" fill="white"/>
+          <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
+          <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
         </svg>
         <p style="font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.55;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,160)}…</p>
       </div>
