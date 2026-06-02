@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Votre bilan Bigdoc</title>
   <meta name="description" content="Votre ordonnance personnalisée pour votre cabinet médical."/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --navy:#0B2545;--navy2:#163766;--teal:#1A7A5E;--teal-l:#22A37D;
@@ -173,6 +173,74 @@ function renderRadar(dims) {
     </svg>`;
 }
 
+function contextStats(dims) {
+  const ALL_STATS = {
+    administration: [
+      { val: "71%", label: "des médecins jugent leur charge admin excessive", source: "URPS IDF 2023 — 3 420 médecins", color: "#EF4444" },
+      { val: "11,4h", label: "perdues/sem en moyenne sur des tâches non médicales", source: "CNOM Atlas 2023", color: "#F59E0B" },
+      { val: "185€", label: "coût moyen d'un rejet CPAM non traité", source: "CPAM — Rapport contrôle médical 2022", color: "#F59E0B" },
+    ],
+    informatique_teleconsult: [
+      { val: "18%", label: "des téléconsultations se font sur plateforme non agréée", source: "Ameli Open Data 2023", color: "#EF4444" },
+      { val: "62%", label: "des cabinets n'ont pas de logiciel certifié HDS", source: "ANS — Observatoire numérique 2023", color: "#F59E0B" },
+      { val: "+22%", label: "de croissance des téléconsultations en 2023", source: "Ameli — 18,2M d'actes", color: "#10B981" },
+    ],
+    comptabilite_finances: [
+      { val: "54%", label: "des médecins estiment leur revenu insuffisant", source: "URPS IDF + Occitanie 2022-2023", color: "#EF4444" },
+      { val: "42%", label: "du BNC part en charges sociales en moyenne", source: "CARMF 2023", color: "#F59E0B" },
+    ],
+    charge_mentale: [
+      { val: "50%", label: "des médecins libéraux en risque élevé de burnout", source: "FMF / CNOM 2023", color: "#EF4444" },
+      { val: "46%", label: "envisagent une réduction d'activité dans les 5 ans", source: "URPS IDF 2023", color: "#F59E0B" },
+    ],
+    achats_materiel: [
+      { val: "23%", label: "des cabinets ont une panne majeure par an", source: "URPS enquêtes régionales 2022", color: "#F59E0B" },
+      { val: "8,5 ans", label: "âge moyen du parc équipement en libéral", source: "URPS 2022", color: "#6366F1" },
+    ],
+    developpement_croissance: [
+      { val: "903", label: "CPTS actives — 92% du territoire couvert", source: "DGOS — Ma Santé 2022 — oct. 2023", color: "#10B981" },
+      { val: "38%", label: "des médecins envisagent de rejoindre une CPTS", source: "URPS IDF 2023", color: "#6366F1" },
+      { val: "6,7M", label: "de patients sans médecin traitant en France", source: "Ameli — Q3 2023", color: "#EF4444" },
+    ],
+    financement_investissements: [
+      { val: "50 000€", label: "d'aide CAIM en zone sous-dotée (5 ans)", source: "ARS — Contrat d'Aide à l'Installation 2024", color: "#10B981" },
+      { val: "85 000€", label: "coût moyen d'installation d'un cabinet libéral", source: "CNOM Atlas 2023", color: "#6366F1" },
+    ],
+  };
+
+  // Sélectionner les stats des dimensions les plus critiques (score ≤ 12)
+  const critical = Object.entries(dims)
+    .filter(([,d]) => (d.score||0) <= 12)
+    .sort(([,a],[,b]) => (a.score||0) - (b.score||0))
+    .slice(0, 3)
+    .map(([k]) => k);
+
+  // Si aucune dimension critique, prendre les 2 plus faibles
+  const keys = critical.length > 0 ? critical :
+    Object.entries(dims)
+      .sort(([,a],[,b]) => (a.score||0) - (b.score||0))
+      .slice(0, 2)
+      .map(([k]) => k);
+
+  const stats = [];
+  keys.forEach(k => {
+    const s = ALL_STATS[k];
+    if (s) stats.push(...s.slice(0, 2));
+  });
+
+  // Toujours ajouter une stat positive si peu de stats
+  if (stats.length < 3) {
+    stats.push({ val: "49j", label: "délai moyen d'accès à un spécialiste en France", source: "Ameli — Observatoire accès aux soins 2023", color: "#6366F1" });
+  }
+
+  return stats.slice(0, 6).map(s => `
+    <div style="background:white;border-radius:12px;padding:.9rem 1rem;border:1px solid #EDE9FE">
+      <div style="font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:${s.color};line-height:1;letter-spacing:-1px;margin-bottom:.25rem">${s.val}</div>
+      <div style="font-size:.8rem;color:#1A1060;font-weight:600;line-height:1.35;margin-bottom:.35rem">${s.label}</div>
+      <div style="font-size:.65rem;color:#9CA3AF;font-weight:500">${s.source}</div>
+    </div>`).join('');
+}
+
 function renderBilan(b) {
   const score = b.score_global;
   const scoreColor = score<=25?'#C0392B':score<=50?'#E67E22':score<=75?'#F4A261':'#1A7A5E';
@@ -210,79 +278,122 @@ function renderBilan(b) {
 
   document.getElementById('content').innerHTML = `
     <div class="card">
-      ${isPartage?`<div style="background:rgba(26,122,94,.06);padding:.75rem 1.5rem;text-align:center;font-size:.8rem;color:var(--teal)">
-        Ce bilan a été partagé avec vous · <a href="/" style="color:var(--teal)">Faire mon propre diagnostic →</a>
+      ${isPartage?`<div style="background:rgba(99,102,241,.08);padding:.75rem 1.5rem;text-align:center;font-size:.8rem;color:#4F46E5;font-weight:600">
+        Ce bilan a été partagé avec vous · <a href="/" style="color:#4F46E5">Faire mon propre diagnostic →</a>
       </div>`:''}
 
-      <div style="background:var(--navy);padding:2.5rem;text-align:center">
-        <div style="width:110px;height:110px;border-radius:50%;border:4px solid ${scoreColor};display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.25rem">
-          <span style="font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:600;color:${scoreColor};line-height:1">${score}</span>
-          <span style="font-size:.65rem;color:#8A9BB0;letter-spacing:.08em">/100</span>
+      <!-- HEADER SCORE -->
+      <div style="background:#1A1060;padding:2.5rem 2rem 2rem;text-align:center">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:120px;height:120px;border-radius:50%;border:5px solid ${scoreColor};background:rgba(255,255,255,.06);margin-bottom:1.25rem">
+          <div>
+            <div style="font-family:'Nunito',sans-serif;font-size:3rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
+            <div style="font-size:.65rem;color:rgba(200,200,255,.5);letter-spacing:2px;font-weight:700;text-transform:uppercase">/100</div>
+          </div>
         </div>
-        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--white);margin-bottom:.5rem">${b.niveau}</h2>
-        <p style="font-size:.85rem;color:#8A9BB0;font-weight:300;max-width:480px;margin:0 auto;line-height:1.6">${b.message_bilan||''}</p>
+        <div style="font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:white;margin-bottom:1.25rem;letter-spacing:-.5px">${b.niveau}</div>
+        <div style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap">
+          <div style="background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);border-radius:10px;padding:.6rem 1.1rem;min-width:100px">
+            <div style="font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:#FCA5A5;line-height:1;letter-spacing:-1px">${b.heures_perdues_semaine}h</div>
+            <div style="font-size:.68rem;color:rgba(252,165,165,.8);font-weight:600;margin-top:2px">perdues / semaine</div>
+          </div>
+          <div style="background:rgba(245,158,11,.2);border:1px solid rgba(245,158,11,.4);border-radius:10px;padding:.6rem 1.1rem;min-width:100px">
+            <div style="font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:#FCD34D;line-height:1;letter-spacing:-1px">${(b.euros_evitables_an||0).toLocaleString('fr')} €</div>
+            <div style="font-size:.68rem;color:rgba(252,211,77,.8);font-weight:600;margin-top:2px">récupérables / an</div>
+          </div>
+        </div>
       </div>
 
-      ${b.alerte_urgente?`<div class="alerte">⚠️ ${b.alerte_urgente}</div>`:''}
-
-      <div style="padding:2rem 2.5rem;display:flex;gap:1.5rem;border-bottom:1px solid #F0F2F5;flex-wrap:wrap">
-        <div style="flex:1;min-width:130px;text-align:center">
-          <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${b.heures_perdues_semaine}h</div>
-          <div style="font-size:.75rem;color:var(--grey)">perdues par semaine</div>
-        </div>
-        <div style="flex:1;min-width:130px;text-align:center">
-          <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €</div>
-          <div style="font-size:.75rem;color:var(--grey)">récupérables par an</div>
+      <!-- DR BIGDOC MESSAGE — fond blanc, texte lisible -->
+      <div style="padding:1.5rem 2rem;background:white;border-bottom:1px solid #EDE9FE;display:flex;align-items:flex-start;gap:1rem">
+        <svg width="44" height="44" viewBox="0 0 56 56" fill="none" style="flex-shrink:0;margin-top:2px">
+          <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+          <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/><ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+          <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+          <circle cx="24" cy="22" r="1.3" fill="white"/><circle cx="36" cy="22" r="1.3" fill="white"/>
+          <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+          <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+          <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+          <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+          <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        </svg>
+        <div style="flex:1">
+          <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:.4rem">Dr Bigdoc · RMS</div>
+          <p style="font-size:.92rem;color:#1A1060;line-height:1.7;margin:0;font-weight:500">${b.message_bilan||''}</p>
         </div>
       </div>
 
-      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5;text-align:center">
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.25rem;text-align:left">Profil radar de votre cabinet</h3>
+      ${b.alerte_urgente?`<div style="background:rgba(239,68,68,.08);border-left:4px solid #EF4444;padding:1rem 1.5rem;margin:0;font-size:.88rem;color:#DC2626;line-height:1.55;font-weight:600">⚠️ ${b.alerte_urgente}</div>`:''}
+
+      <!-- RADAR -->
+      <div style="padding:1.75rem 2rem 1rem;border-bottom:1px solid #EDE9FE;text-align:center">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;text-align:left">PROFIL RADAR</div>
         ${renderRadar(b.dimensions||{})}
       </div>
 
-      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.5rem">Bilan par dimension</h3>
+      <!-- CONTEXTE NATIONAL — stats sourcées selon dimensions critiques -->
+      <div style="padding:1.5rem 2rem;border-bottom:1px solid #EDE9FE;background:#FAFAFE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem">VOUS N'ÊTES PAS SEUL — LES CHIFFRES</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem">
+          ${contextStats(b.dimensions||{})}
+        </div>
+      </div>
+
+      <!-- DIMENSIONS -->
+      <div style="padding:1.75rem 2rem 2rem;border-bottom:1px solid #EDE9FE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.25rem">BILAN PAR DIMENSION</div>
         ${dimsHtml}
       </div>
 
-      <div style="padding:2rem 2.5rem;background:rgba(26,122,94,.04);border-bottom:1px solid #F0F2F5">
-        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem">Ordonnance Bigdoc</div>
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--navy);margin-bottom:.35rem">${b.recommandation_principale?.service||''}</h3>
-        <div style="font-size:.9rem;color:var(--teal);font-weight:500;margin-bottom:.75rem">${b.recommandation_principale?.tarif||''}</div>
-        <p style="font-size:.85rem;color:var(--grey);line-height:1.6;margin-bottom:1.25rem">${b.recommandation_principale?.justification||''}</p>
+      <div style="padding:2rem;background:rgba(99,102,241,.04);border-bottom:1px solid #EDE9FE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">ORDONNANCE BIGDOC</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;color:#1A1060;margin-bottom:.35rem">${b.recommandation_principale?.service||''}</div>
+        <div style="font-size:.88rem;color:#6366F1;font-weight:700;margin-bottom:.75rem">${b.recommandation_principale?.tarif||''}</div>
+        <p style="font-size:.85rem;color:#374151;line-height:1.65;margin-bottom:1.25rem">${b.recommandation_principale?.justification||''}</p>
         ${recoSecHtml}
       </div>
 
-      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1rem">3 actions cette semaine</h3>
+      <div style="padding:2rem;border-bottom:1px solid #EDE9FE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">3 ACTIONS CETTE SEMAINE</div>
         <ul style="list-style:none">${quickHtml}</ul>
       </div>
 
-      <div style="padding:2rem 2.5rem;text-align:center">
-        <p style="font-size:.9rem;color:var(--grey);margin-bottom:1.25rem">Prêt à traiter votre cabinet ?</p>
+      <div style="padding:2rem;text-align:center">
+        <p style="font-size:.9rem;color:#374151;margin-bottom:1.25rem;font-weight:500">Prêt à traiter votre cabinet ?</p>
         <div id="cta-buttons" style="display:flex;flex-direction:column;gap:.75rem;align-items:center;max-width:320px;margin:0 auto">
-          <div style="width:100%;height:44px;background:#EEF0F4;border-radius:10px;animation:pulse 1.5s ease-in-out infinite"></div>
+          <div style="width:100%;height:44px;background:#EEF0F4;border-radius:999px;animation:pulse 1.5s ease-in-out infinite"></div>
         </div>
-        <p style="font-size:.75rem;color:var(--grey);margin-top:1rem" id="cta-sub"></p>
+        <p style="font-size:.75rem;color:#9CA3AF;margin-top:1rem" id="cta-sub"></p>
       </div>
 
-      <div style="padding:1.25rem 2.5rem;background:#FAF3E0;border-top:1px solid rgba(11,37,69,.08);text-align:center">
+      <div style="padding:1.25rem 2rem;background:#F5F3FF;border-top:1px solid #EDE9FE;text-align:center">
         <a id="btn-rapport" href="#" target="_blank"
-          style="display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--teal);text-decoration:none;font-weight:500;padding:.5rem 1rem;border:1px solid rgba(26,122,94,.25);border-radius:7px;transition:all .2s">
+          style="display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;color:#6366F1;text-decoration:none;font-weight:700;padding:.5rem 1rem;border:1.5px solid rgba(99,102,241,.3);border-radius:999px;transition:all .2s">
           📄 Télécharger mon rapport complet (PDF)
         </a>
-        <p style="font-size:.7rem;color:var(--grey);margin-top:.4rem">Motifs de consultation · Opportunités locales · Sources statistiques</p>
+        <p style="font-size:.7rem;color:#9CA3AF;margin-top:.4rem">Motifs de consultation · Opportunités locales · Sources statistiques</p>
       </div>
-        <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:.5rem;font-weight:500">Sources & méthodologie</div>
+
+      <div style="padding:1.25rem 2rem;background:#F9FAFB;border-top:1px solid #EDE9FE">
+        <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF;margin-bottom:.5rem;font-weight:700">Sources & méthodologie</div>
         <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem">
-          ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins','HAS','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:var(--grey)">${s}</span>`).join('')}
+          ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins 2023','FNCS — CPTS 2023','ANS Ségur 2023','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:#6B7280">${s}</span>`).join('')}
         </div>
-        <p style="font-size:.68rem;color:var(--grey);line-height:1.5;margin:0 0 .6rem">
-          Ce bilan croise vos réponses avec les données épidémiologiques nationales et locales,
-          les benchmarks CARMF par spécialité, les motifs de consultation CPAM et les densités médicales RPPS.
-          Les estimations financières sont calculées sur la base des tarifs CCAM/NGAP en vigueur.
+        <p style="font-size:.68rem;color:#9CA3AF;line-height:1.5;margin:0 0 .6rem">
+          Ce bilan croise vos réponses avec les données épidémiologiques nationales, les benchmarks CARMF par spécialité,
+          les enquêtes URPS, les données CPTS/FNCS, les motifs de consultation CPAM et les densités médicales RPPS.
         </p>
+        <div style="border-top:1px solid #E5E7EB;padding-top:.5rem;margin-top:.25rem">
+          <p style="font-size:.63rem;color:#D1D5DB;line-height:1.55;font-style:italic">
+            <strong style="font-style:normal;color:#9CA3AF;font-size:.63rem">Avertissement légal —</strong>
+            Ce diagnostic est fourni à titre purement indicatif et ne constitue ni un avis juridique, ni un avis médical, ni un conseil financier.
+            Les estimations sont des approximations statistiques basées sur des moyennes nationales.
+            Toute décision doit être prise avec un professionnel qualifié.
+          </p>
+        </div>
+      </div>
+
+    </div>`;
         <div style="border-top:1px solid #E8EBF0;padding-top:.5rem">
           <p style="font-size:.63rem;color:#BBBBBB;line-height:1.55;font-style:italic">
             <strong style="font-style:normal;color:#999;font-size:.63rem">Avertissement légal —</strong>

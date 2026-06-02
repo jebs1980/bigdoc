@@ -294,6 +294,81 @@ async def startup():
 # ─────────────────────────────────────────
 # MODÈLES
 # ─────────────────────────────────────────
+class InstallationRequest(BaseModel):
+    session_id: str
+    email: str
+    specialite: str
+    zone: str
+    type_exercice: str = ""
+    horizon: str = ""
+    inquietudes: str = ""
+
+@app.post("/api/installation")
+async def analyse_installation(req: InstallationRequest):
+    """Analyse un projet d'installation médicale."""
+    try:
+        demo = DEMOGRAPHICS or {}
+        aides = demo.get("aides_zones_sous_dotees", [])
+        cpts_info = demo.get("donnees_cpts", {})
+        drees = demo.get("donnees_drees_etat", {})
+
+        prompt = f"""Tu es le Dr Bigdoc, consultant cabinet médical. Un médecin veut s'installer.
+
+PROJET :
+- Spécialité : {req.specialite}
+- Zone cible : {req.zone}
+- Type d'exercice souhaité : {req.type_exercice or 'non précisé'}
+- Horizon : {req.horizon or 'non précisé'}
+- Inquiétudes : {req.inquietudes or 'non précisées'}
+
+DONNÉES DISPONIBLES :
+- Aides installation : {json.dumps(aides[:5], ensure_ascii=False)}
+- CPTS en France : {cpts_info.get('etat_deploiement', {}).get('nombre_cpts_france', 903)} actives
+- Financement CPTS socle : {cpts_info.get('financement', {}).get('dotation_socle_annuelle_euros', 150000)}€/an
+- Déserts médicaux : {drees.get('deserts_medicaux', {}).get('nombre_communes_zip', 5800)} communes ZIP
+
+Réponds UNIQUEMENT en JSON valide :
+{{
+  "titre": "titre accrocheur du projet (10 mots max)",
+  "message": "analyse bienveillante du projet en 3-4 phrases — chiffrer, sourcer, rassurer. Ton Dr Bigdoc.",
+  "territoire": {{
+    "stats": [
+      {{"val": "chiffre clé", "label": "ce que ça signifie", "source": "source", "color": "#10B981 ou #EF4444 ou #6366F1"}},
+      {{"val": "chiffre clé", "label": "ce que ça signifie", "source": "source", "color": "#couleur"}},
+      {{"val": "chiffre clé", "label": "ce que ça signifie", "source": "source", "color": "#couleur"}}
+    ]
+  }},
+  "aides": [
+    {{"nom": "nom aide", "montant": "montant", "condition": "condition d'éligibilité"}},
+    {{"nom": "nom aide", "montant": "montant", "condition": "condition"}}
+  ],
+  "checklist": [
+    "étape 1",
+    "étape 2",
+    "étape 3",
+    "étape 4",
+    "étape 5"
+  ]
+}}"""
+
+        message = anthropic_client.messages.create(
+            model=ANTHROPIC_MODEL,
+            max_tokens=2000,
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        raw = message.content[0].text.strip()
+        if raw.startswith("```"):
+            raw = raw.split("```")[1]
+            if raw.startswith("json"):
+                raw = raw[4:]
+        analyse = json.loads(raw)
+        return {"analyse": analyse}
+
+    except Exception as e:
+        logger.error(f"❌ Erreur installation : {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 class DiagnosticRequest(BaseModel):
     session_id: str
     reponses: dict

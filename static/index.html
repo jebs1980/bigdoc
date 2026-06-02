@@ -6,44 +6,44 @@
   <title>Bigdoc — Diagnostic Confort de votre cabinet</title>
   <meta name="description" content="Évaluez la santé de votre cabinet médical en 3 minutes. Score personnalisé, heures perdues, euros récupérables. Gratuit." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Nunito+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --navy:   #0B2545;
-      --navy2:  #163766;
-      --teal:   #1A7A5E;
-      --teal-l: #22A37D;
-      --cream:  #FAF3E0;
-      --warm:   #F4A261;
-      --red:    #C0392B;
-      --grey:   #8A9BB0;
-      --white:  #FFFFFF;
-      --text:   #0B2545;
+      --indigo:   #4F46E5;
+      --indigo-d: #1A1060;
+      --indigo-l: #A5B4FF;
+      --indigo-bg:#F0EDFF;
+      --green:    #10B981;
+      --green-l:  #34D399;
+      --amber:    #F59E0B;
+      --red:      #EF4444;
+      --grey:     #6B7280;
+      --white:    #FFFFFF;
+      --text:     #1A1060;
+      /* compat aliases */
+      --navy:     #1A1060;
+      --navy2:    #312E9E;
+      --teal:     #4F46E5;
+      --teal-l:   #6366F1;
+      --cream:    #F0EDFF;
+      --warm:     #F59E0B;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: var(--cream);
+      font-family: 'Nunito Sans', 'Nunito', sans-serif;
+      background: #F5F3FF;
       color: var(--text);
       min-height: 100vh;
       overflow-x: hidden;
     }
 
-    /* ── NOISE TEXTURE OVERLAY ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0;
-    }
-
     /* ── HEADER ── */
     header {
-      background: var(--navy);
-      padding: 1.2rem 2rem;
+      background: var(--indigo-d);
+      padding: 1rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -51,24 +51,23 @@
     }
 
     .logo {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
-      font-weight: 600;
-      color: var(--cream);
-      letter-spacing: 0.02em;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.5px;
     }
 
-    .logo span { color: var(--warm); }
+    .logo span { color: var(--indigo-l); }
 
     nav a {
-      color: var(--grey);
+      color: rgba(200,200,255,.5);
       text-decoration: none;
       font-size: 0.85rem;
-      font-weight: 300;
-      letter-spacing: 0.04em;
+      font-weight: 600;
       transition: color .2s;
     }
-    nav a:hover { color: var(--cream); }
+    nav a:hover { color: white; }
 
     /* ── HERO ── */
     .hero {
@@ -80,39 +79,50 @@
     }
 
     .pill {
-      display: inline-block;
-      background: rgba(26,122,94,.15);
-      border: 1px solid rgba(26,122,94,.3);
-      color: var(--teal);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(99,102,241,.12);
+      border: 1px solid rgba(99,102,241,.25);
+      color: var(--indigo);
       font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
+      font-weight: 700;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
       padding: .3rem 1rem;
       border-radius: 999px;
       margin-bottom: 1.5rem;
     }
 
+    .pill::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--indigo);
+      display: inline-block;
+    }
+
     h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
-      font-weight: 600;
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
       line-height: 1.15;
-      color: var(--navy);
+      color: var(--indigo-d);
       margin-bottom: 1rem;
+      letter-spacing: -1px;
     }
 
     h1 em {
-      font-style: italic;
-      color: var(--teal);
+      font-style: normal;
+      color: var(--indigo);
     }
 
     .tagline {
       font-size: 1.05rem;
       color: var(--grey);
-      font-weight: 300;
+      font-weight: 400;
       margin-bottom: 2.5rem;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
     /* ── STATS LIVE ── */
@@ -127,24 +137,24 @@
     .stat-item { text-align: center; }
 
     .stat-number {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 2rem;
-      font-weight: 600;
-      color: var(--navy);
+      font-weight: 900;
+      color: var(--indigo-d);
+      letter-spacing: -1px;
     }
 
     .stat-label {
       font-size: 0.75rem;
       color: var(--grey);
-      font-weight: 300;
-      letter-spacing: 0.04em;
+      font-weight: 400;
     }
 
     /* ── CARD CONTAINER ── */
     .card {
       background: var(--white);
-      border-radius: 16px;
-      box-shadow: 0 4px 40px rgba(11,37,69,.1);
+      border-radius: 20px;
+      box-shadow: 0 4px 32px rgba(79,70,229,.1);
       max-width: 660px;
       margin: 0 auto 4rem;
       overflow: hidden;
@@ -152,14 +162,11 @@
     }
 
     /* ── PROGRESS BAR ── */
-    .progress-bar-track {
-      height: 4px;
-      background: #EEF0F4;
-    }
+    .progress-bar-track { height: 4px; background: #EDE9FE; }
 
     .progress-bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--teal), var(--teal-l));
+      background: linear-gradient(90deg, var(--indigo), #818CF8);
       transition: width .4s ease;
     }
 
@@ -168,110 +175,162 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #F0F2F5;
+      border-bottom: 1px solid #EDE9FE;
     }
 
     .progress-step {
       font-size: 0.78rem;
       color: var(--grey);
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .progress-score-preview {
       font-size: 0.78rem;
-      color: var(--teal);
-      font-weight: 500;
+      color: var(--indigo);
+      font-weight: 700;
       opacity: 0;
       transition: opacity .3s;
     }
 
     .progress-score-preview.visible { opacity: 1; }
 
-    /* ── QUESTION AREA ── */
-    .question-area {
-      padding: 2.5rem 2.5rem 2rem;
+    /* ── BIGDOC BUBBLE ── */
+    .bigdoc-bubble {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      background: #F5F3FF;
+      border-radius: 12px;
+      padding: .7rem 1rem;
+      margin: 0 1.5rem .75rem;
+      border: 1px solid rgba(99,102,241,.15);
     }
 
+    .bigdoc-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--indigo);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bigdoc-speech {
+      font-size: .82rem;
+      color: #4338CA;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    /* ── QUESTION AREA ── */
+    .question-area { padding: 1.25rem 2rem 1.75rem; }
+
     .question-number {
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--grey);
-      margin-bottom: .5rem;
+      font-weight: 700;
+      margin-bottom: .4rem;
     }
 
     .question-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.6rem;
-      font-weight: 600;
-      color: var(--navy);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--indigo-d);
       line-height: 1.3;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
     }
 
     /* ── OPTIONS ── */
-    .options { display: flex; flex-direction: column; gap: .75rem; }
+    .options { display: flex; flex-direction: column; gap: .6rem; }
 
     .option-btn {
       display: flex;
       align-items: center;
       gap: 1rem;
-      padding: 1rem 1.25rem;
-      border: 2px solid #E8EBF0;
-      border-radius: 10px;
+      padding: .9rem 1.1rem;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
       background: var(--white);
       cursor: pointer;
       text-align: left;
       transition: all .18s ease;
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 0.92rem;
-      color: var(--text);
+      color: #374151;
       line-height: 1.4;
+      font-weight: 500;
     }
 
     .option-btn:hover {
-      border-color: var(--teal);
-      background: rgba(26,122,94,.04);
+      border-color: var(--indigo);
+      background: #F5F3FF;
       transform: translateX(3px);
     }
 
     .option-btn.selected {
-      border-color: var(--teal);
-      background: rgba(26,122,94,.08);
-      color: var(--navy);
-      font-weight: 500;
+      border-color: var(--indigo);
+      background: #EEF2FF;
+      color: var(--indigo-d);
+      font-weight: 700;
     }
 
     .option-dot {
       width: 18px; height: 18px;
       border-radius: 50%;
-      border: 2px solid #D0D5DE;
+      border: 2px solid #D1D5DB;
       flex-shrink: 0;
       transition: all .18s;
     }
 
     .option-btn.selected .option-dot {
-      border-color: var(--teal);
-      background: var(--teal);
-      box-shadow: 0 0 0 4px rgba(26,122,94,.15);
+      border-color: var(--indigo);
+      background: var(--indigo);
+      box-shadow: 0 0 0 4px rgba(99,102,241,.2);
+    }
+
+    /* ── CHECKBOX multi-select ── */
+    .option-check {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      border: 2px solid #D1D5DB;
+      flex-shrink: 0;
+      transition: all .18s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .option-btn.selected .option-check {
+      border-color: var(--indigo);
+      background: var(--indigo);
+    }
+
+    .option-btn.selected .option-check::after {
+      content: '✓';
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
     }
 
     /* ── TEXTE LIBRE ── */
-    .texte-libre-area { padding: 0 2.5rem 2rem; }
+    .texte-libre-area { padding: 0 2rem 1.75rem; }
 
     .texte-libre-label {
       font-size: 0.82rem;
       color: var(--grey);
       margin-bottom: .5rem;
       display: block;
+      font-weight: 600;
     }
 
     textarea {
       width: 100%;
       padding: .9rem 1rem;
-      border: 2px solid #E8EBF0;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 0.9rem;
       resize: vertical;
       min-height: 100px;
@@ -281,55 +340,55 @@
 
     textarea:focus {
       outline: none;
-      border-color: var(--teal);
+      border-color: var(--indigo);
     }
 
     /* ── LEAD CAPTURE ── */
-    .lead-area { padding: 2.5rem; }
+    .lead-area { padding: 2rem; }
 
-    .score-partial {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
+    .score-partial { text-align: center; margin-bottom: 1.75rem; }
 
     .score-circle {
-      width: 110px; height: 110px;
+      width: 100px; height: 100px;
       border-radius: 50%;
-      background: var(--navy);
+      background: var(--indigo-d);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       margin: 0 auto 1rem;
-      box-shadow: 0 8px 30px rgba(11,37,69,.2);
+      box-shadow: 0 8px 30px rgba(79,70,229,.3);
     }
 
     .score-number {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 2.4rem;
-      font-weight: 600;
+      font-family: 'Nunito', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
       color: var(--white);
       line-height: 1;
+      letter-spacing: -2px;
     }
 
     .score-label {
       font-size: 0.65rem;
-      color: var(--grey);
+      color: rgba(200,200,255,.6);
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      font-weight: 700;
     }
 
     .score-teaser {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.3rem;
-      color: var(--navy);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--indigo-d);
       margin-bottom: .4rem;
     }
 
     .score-sublabel {
       font-size: 0.85rem;
       color: var(--grey);
-      font-weight: 300;
+      font-weight: 400;
     }
 
     .input-group { margin-bottom: 1rem; }
@@ -339,15 +398,15 @@
       font-size: 0.8rem;
       color: var(--grey);
       margin-bottom: .35rem;
-      font-weight: 400;
+      font-weight: 600;
     }
 
     .input-group input {
       width: 100%;
       padding: .85rem 1rem;
-      border: 2px solid #E8EBF0;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border: 2px solid #E5E7EB;
+      border-radius: 14px;
+      font-family: 'Nunito Sans', sans-serif;
       font-size: 0.9rem;
       color: var(--text);
       transition: border-color .2s;
@@ -355,7 +414,7 @@
 
     .input-group input:focus {
       outline: none;
-      border-color: var(--teal);
+      border-color: var(--indigo);
     }
 
     .rgpd-note {
@@ -369,32 +428,33 @@
     .btn-primary {
       width: 100%;
       padding: 1rem;
-      background: linear-gradient(135deg, var(--teal), var(--teal-l));
+      background: var(--indigo);
       color: var(--white);
       border: none;
-      border-radius: 10px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
       font-size: 1rem;
-      font-weight: 500;
+      font-weight: 800;
       cursor: pointer;
       transition: all .2s;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.2px;
     }
 
     .btn-primary:hover {
+      background: #4338CA;
       transform: translateY(-1px);
-      box-shadow: 0 8px 20px rgba(26,122,94,.3);
+      box-shadow: 0 8px 20px rgba(79,70,229,.35);
     }
 
     .btn-primary:disabled {
-      opacity: .5;
+      opacity: .4;
       cursor: not-allowed;
       transform: none;
     }
 
     /* ── NAVIGATION QUESTION ── */
     .question-nav {
-      padding: 1rem 2.5rem 2rem;
+      padding: .75rem 2rem 1.75rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -404,137 +464,119 @@
       background: none;
       border: none;
       color: var(--grey);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
       padding: .5rem;
       transition: color .2s;
     }
 
-    .btn-back:hover { color: var(--navy); }
+    .btn-back:hover { color: var(--indigo-d); }
 
     .btn-next {
       padding: .7rem 1.8rem;
-      background: var(--navy);
+      background: var(--indigo-d);
       color: var(--white);
       border: none;
-      border-radius: 8px;
-      font-family: 'DM Sans', sans-serif;
+      border-radius: 999px;
+      font-family: 'Nunito', sans-serif;
       font-size: 0.9rem;
-      font-weight: 500;
+      font-weight: 800;
       cursor: pointer;
       transition: all .2s;
     }
 
-    .btn-next:hover { background: var(--navy2); }
+    .btn-next:hover { background: var(--indigo); }
     .btn-next:disabled { opacity: .3; cursor: not-allowed; }
-
-    /* ── LOADING ── */
-    .loading-area {
-      padding: 4rem 2.5rem;
-      text-align: center;
-    }
-
-    .pulse-circle {
-      width: 80px; height: 80px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--navy), var(--teal));
-      margin: 0 auto 2rem;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50%       { transform: scale(1.08); opacity: .8; }
-    }
-
-    .loading-text {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: 1.4rem;
-      color: var(--navy);
-      margin-bottom: .5rem;
-    }
-
-    .loading-sub {
-      font-size: 0.85rem;
-      color: var(--grey);
-      font-weight: 300;
-    }
-
-    /* ── SECTIONS / ÉCRANS ── */
-    .screen { display: none; }
-    .screen.active { display: block; }
-
-    /* ── ALERTE URGENTE ── */
-    .alerte {
-      background: rgba(192,57,43,.08);
-      border-left: 3px solid var(--red);
-      border-radius: 8px;
-      padding: 1rem 1.25rem;
-      margin: 0 2.5rem 1.5rem;
-      font-size: 0.88rem;
-      color: var(--red);
-      line-height: 1.5;
-    }
 
     /* ── HERO CTA ── */
     .hero-cta {
       display: inline-block;
-      background: linear-gradient(135deg, var(--teal), var(--teal-l));
+      background: var(--indigo);
       color: var(--white);
-      font-family: 'DM Sans', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 1rem;
-      font-weight: 500;
+      font-weight: 800;
       padding: 1rem 2.5rem;
-      border-radius: 10px;
+      border-radius: 999px;
       border: none;
       cursor: pointer;
       transition: all .25s;
-      letter-spacing: 0.01em;
+      letter-spacing: -0.2px;
       margin-bottom: .75rem;
     }
 
     .hero-cta:hover {
+      background: #4338CA;
       transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(26,122,94,.3);
+      box-shadow: 0 12px 30px rgba(79,70,229,.35);
     }
 
     .hero-sub {
       display: block;
       font-size: 0.78rem;
       color: var(--grey);
-      font-weight: 300;
+      font-weight: 400;
+    }
+
+    /* ── LOADING ── */
+    .loading-area { padding: 3.5rem 2.5rem; text-align: center; }
+
+    .loading-text {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--indigo-d);
+      margin-bottom: .5rem;
+    }
+
+    .loading-sub {
+      font-size: 0.85rem;
+      color: var(--grey);
+      font-weight: 400;
+    }
+
+    .step-icon { transition: all .3s; }
+
+    /* ── SECTIONS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ── ALERTE ── */
+    .alerte {
+      background: rgba(239,68,68,.08);
+      border-left: 3px solid var(--red);
+      border-radius: 0 10px 10px 0;
+      padding: 1rem 1.25rem;
+      margin: 0 2rem 1.5rem;
+      font-size: 0.88rem;
+      color: #DC2626;
+      line-height: 1.5;
+      font-weight: 600;
     }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
-      .question-area { padding: 2rem 1.5rem 1.5rem; }
-      .question-nav  { padding: 1rem 1.5rem 1.5rem; }
-      .lead-area     { padding: 1.5rem; }
+      .question-area { padding: 1.25rem 1.25rem 1.5rem; }
+      .question-nav  { padding: .75rem 1.25rem 1.5rem; }
+      .lead-area     { padding: 1.25rem; }
       .live-stats    { gap: 1.5rem; }
-      .alerte        { margin: 0 1.5rem 1.5rem; }
+      .alerte        { margin: 0 1.25rem 1.25rem; }
+      .bigdoc-bubble { margin: 0 1rem .75rem; }
     }
 
-    /* ── FADE ANIMATION ── */
-    .fade-in {
-      animation: fadeIn .3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes writing {
-      0%,100% { transform: rotate(-8deg) translateY(0); }
-      50% { transform: rotate(8deg) translateY(-2px); }
-    }
-    @keyframes pulse-beat {
-      0%,100% { transform: scale(1); }
-      50% { transform: scale(1.25); }
-    }
-    @keyframes spin-coin {
-      0% { transform: rotateY(0deg); }
-      100% { transform: rotateY(360deg); }
-    }
+    /* ── ANIMATIONS ── */
+    .fade-in { animation: fadeIn .3s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes writing { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg) translateY(-2px)} }
+    @keyframes pulse-beat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+    @keyframes bd-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+    @keyframes bd-blink { 0%,88%,100%{transform:scaleY(1)} 92%,96%{transform:scaleY(0.1)} }
+    @keyframes bd-wave { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(22deg)} 75%{transform:rotate(-6deg)} }
+    @keyframes bd-pulse { 0%,100%{r:4;opacity:1} 50%{r:6;opacity:0.5} }
+    @keyframes bd-trace { 0%{stroke-dashoffset:180} 100%{stroke-dashoffset:-180} }
+    @keyframes bd-heart { 0%,100%{transform:scale(1)} 15%{transform:scale(1.3)} 30%{transform:scale(1)} 45%{transform:scale(1.15)} }
     .step-active-pen .pen-icon { animation: writing .5s ease-in-out infinite; }
     .step-active-ecg svg { animation: pulse-beat .8s ease-in-out infinite; }
   </style>
@@ -542,22 +584,11 @@
 <body>
 
 <header>
-  <div style="display:flex;align-items:center;gap:12px">
-    <svg width="38" height="38" viewBox="0 0 54 54" fill="none">
-      <rect width="54" height="54" rx="12" fill="#163766"/>
-      <polyline points="4,27 15,27 19,11 23,43 28,20 32,27 50,27"
-                stroke="#FAF3E0" stroke-width="2.2" fill="none"
-                stroke-linecap="round" stroke-linejoin="round"/>
-      <circle cx="19" cy="11" r="3" fill="#F4A261"/>
-    </svg>
-    <div>
-      <div style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;line-height:1">
-        <span style="font-weight:300;color:#FAF3E0">big</span><span style="font-weight:700;color:#FAF3E0">doc</span>
-      </div>
-      <div style="font-size:0.52rem;font-weight:300;letter-spacing:0.18em;text-transform:uppercase;color:rgba(250,243,224,.4);margin-top:1px">un service RMS</div>
-    </div>
-  </div>
-  <nav><a href="https://realmedservices.com" style="color:rgba(250,243,224,.4);font-size:.8rem;font-weight:300;text-decoration:none">realmedservices.com</a></nav>
+  <a href="/" style="text-decoration:none">
+    <div class="logo">big<span>doc</span></div>
+    <div style="font-size:.5rem;color:rgba(200,200,255,.35);letter-spacing:2px;text-transform:uppercase;margin-top:1px">un service RMS</div>
+  </a>
+  <nav><a href="https://realmedservices.com">realmedservices.com</a></nav>
 </header>
 
 <!-- ── HERO ── -->
@@ -565,11 +596,39 @@
 
   <!-- Hero principal -->
   <div class="hero fade-in">
-    <div class="pill">Diagnostic gratuit · 3 minutes</div>
-    <h1>Vous soignez les gens,<br><em>on soigne vos problèmes.</em></h1>
+
+    <!-- Dr Bigdoc intro card -->
+    <div style="display:inline-flex;align-items:center;gap:12px;background:white;border-radius:999px;padding:.5rem 1.5rem .5rem .5rem;margin-bottom:2rem;box-shadow:0 2px 20px rgba(79,70,229,.12);border:1.5px solid rgba(99,102,241,.15)">
+      <svg width="42" height="42" viewBox="0 0 56 56" fill="none" style="animation:bd-float 3.5s ease-in-out infinite;flex-shrink:0">
+        <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+        <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+        <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/>
+        <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+        <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+        <circle cx="24" cy="22" r="1.3" fill="white"/><circle cx="36" cy="22" r="1.3" fill="white"/>
+        <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+        <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+        <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+        <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+        <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        <path d="M22 8 Q25 6 28 8 Q31 6 34 8" fill="none" stroke="#1A0A00" stroke-width="2" stroke-linecap="round"/>
+        <g style="transform-origin:22px 23px;animation:bd-blink 5s ease-in-out infinite">
+          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="none" stroke="#1A0A00" stroke-width="1.2"/>
+        </g>
+        <g style="transform-origin:34px 23px;animation:bd-blink 5s ease-in-out 0.5s infinite">
+          <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="none" stroke="#1A0A00" stroke-width="1.2"/>
+        </g>
+      </svg>
+      <div style="text-align:left">
+        <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px">Dr Bigdoc · RMS</div>
+        <div style="font-size:.85rem;color:#1A1060;font-weight:700;line-height:1.35">Bonjour ! Je vais analyser votre cabinet<br>avec vous — avec méthode, sans jugement.</div>
+      </div>
+    </div>
+
+    <h1>Vous soignez les gens,<br><em>on gère le reste.</em></h1>
     <p class="tagline">
-      Votre cabinet a peut-être besoin d'une consultation.<br>
-      Découvrez son score de confort — et ce que ça vous coûte vraiment.
+      Bigdoc analyse votre cabinet comme vous analysez vos patients.<br>
+      Score personnalisé, heures perdues, euros récupérables.
     </p>
     <div class="live-stats" id="live-stats">
       <div class="stat-item">
@@ -585,19 +644,70 @@
         <div class="stat-label">Heures perdues/sem en moyenne</div>
       </div>
     </div>
-    <button class="hero-cta" onclick="showChoix()">
-      Consulter mon cabinet — gratuit
-    </button>
-    <span class="hero-sub">Aucune inscription · Score immédiat · Bilan personnalisé</span>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:.75rem;margin-bottom:.75rem">
+      <button class="hero-cta" onclick="showChoix()">🩺 Je veux mon diagnostic</button>
+      <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.25);border-radius:999px;padding:.8rem 2rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='#4F46E5';this.style.background='#F5F3FF'" onmouseout="this.style.borderColor='rgba(99,102,241,.25)';this.style.background='white'">
+        🏥 Je veux m'installer
+      </button>
+    </div>
+    <span class="hero-sub">Aucune inscription · Résultat immédiat · Gratuit</span>
+  </div>
+
+  <!-- Section peur de s'installer -->
+  <div style="background:#1A1060;padding:3.5rem 2rem">
+    <div style="max-width:760px;margin:0 auto;text-align:center">
+      <div style="font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#A5B4FF;font-weight:800;margin-bottom:.75rem">Vous pensez à vous installer ?</div>
+      <h2 style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:white;margin-bottom:1rem;line-height:1.25;letter-spacing:-.5px">
+        La peur de tout ce qu'on ne vous<br>a pas appris à la fac.
+      </h2>
+      <p style="font-size:.95rem;color:rgba(200,200,255,.65);font-weight:400;max-width:580px;margin:0 auto 2.5rem;line-height:1.75;font-family:'Nunito Sans',sans-serif">
+        Le bail professionnel. La CPAM. L'URSSAF. La CARMF. Le business plan pour la banque.
+        L'informatique conforme. Le matériel.<br>
+        <strong style="color:white;font-weight:700">Pas une heure de cours là-dessus en six ans d'études.</strong>
+      </p>
+
+      <!-- Cards peurs -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2.5rem;text-align:left">
+        <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:1.25rem 1.1rem;border:1px solid rgba(165,180,255,.15)">
+          <div style="font-size:1.3rem;margin-bottom:.6rem">😰</div>
+          <div style="font-size:.88rem;font-weight:800;color:white;margin-bottom:.4rem;font-family:'Nunito',sans-serif">"Je ne sais pas par où commencer"</div>
+          <p style="font-size:.78rem;color:rgba(200,200,255,.55);line-height:1.55;margin:0;font-family:'Nunito Sans',sans-serif">Local, formalités, financement — l'ordre des étapes est un mystère pour la plupart des jeunes médecins.</p>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:1.25rem 1.1rem;border:1px solid rgba(165,180,255,.15)">
+          <div style="font-size:1.3rem;margin-bottom:.6rem">💸</div>
+          <div style="font-size:.88rem;font-weight:800;color:white;margin-bottom:.4rem;font-family:'Nunito',sans-serif">"J'ai peur de me planter financièrement"</div>
+          <p style="font-size:.78rem;color:rgba(200,200,255,.55);line-height:1.55;margin:0;font-family:'Nunito Sans',sans-serif">Un prévisionnel mal fait, un dossier bancaire incomplet — et la banque dit non, ou oui à de mauvaises conditions.</p>
+        </div>
+        <div style="background:rgba(255,255,255,.06);border-radius:14px;padding:1.25rem 1.1rem;border:1px solid rgba(165,180,255,.15)">
+          <div style="font-size:1.3rem;margin-bottom:.6rem">📋</div>
+          <div style="font-size:.88rem;font-weight:800;color:white;margin-bottom:.4rem;font-family:'Nunito',sans-serif">"La gestion au quotidien m'angoisse"</div>
+          <p style="font-size:.78rem;color:rgba(200,200,255,.55);line-height:1.55;margin:0;font-family:'Nunito Sans',sans-serif">CPAM, rejets, mutuelles, URSSAF, CARMF. Des heures chaque semaine sur des choses qui n'ont rien à voir avec la médecine.</p>
+        </div>
+      </div>
+
+      <div style="background:rgba(99,102,241,.2);border:1px solid rgba(165,180,255,.25);border-radius:14px;padding:1.75rem 2rem;margin-bottom:2rem;text-align:left;max-width:560px;margin-left:auto;margin-right:auto">
+        <div style="font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:#A5B4FF;margin-bottom:.5rem;font-weight:800;font-family:'Nunito',sans-serif">Ce que fait RMS</div>
+        <p style="font-size:.92rem;color:white;line-height:1.65;margin:0;font-family:'Nunito Sans',sans-serif;font-weight:500">
+          Tout ce qui vous fait peur, c'est exactement notre métier.<br>
+          Bigdoc commence par <strong style="font-weight:800">mesurer ce qui vous coûte</strong> — puis RMS s'occupe du reste.
+          Vous soignez. On gère.
+        </p>
+      </div>
+
+      <button class="hero-cta" onclick="showChoix()" style="margin-bottom:.75rem">
+        Faire mon diagnostic — gratuit →
+      </button>
+      <div style="font-size:.72rem;color:rgba(200,200,255,.35);font-family:'Nunito Sans',sans-serif">3 minutes · Sans inscription · Résultat immédiat</div>
+    </div>
   </div>
 
   <!-- Comment ça fonctionne -->
-  <div style="background:var(--white);padding:4rem 2rem;border-top:1px solid rgba(11,37,69,.06)">
+  <div style="background:white;padding:4rem 2rem;border-top:1px solid #EDE9FE">
     <div style="max-width:760px;margin:0 auto">
       <div style="text-align:center;margin-bottom:3rem">
-        <div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);font-weight:600;margin-bottom:.6rem">Comment ça marche</div>
-        <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:600;color:var(--navy)">Pas une boîte noire. Une méthode.</h2>
-        <p style="font-size:.9rem;color:var(--grey);font-weight:300;margin-top:.5rem;line-height:1.6">
+        <div style="font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:#6366F1;font-weight:800;margin-bottom:.6rem;font-family:'Nunito',sans-serif">Comment ça marche</div>
+        <h2 style="font-family:'Nunito',sans-serif;font-size:1.9rem;font-weight:900;color:#1A1060;letter-spacing:-.5px">Pas une boîte noire. Une méthode.</h2>
+        <p style="font-size:.9rem;color:#6B7280;font-weight:400;margin-top:.5rem;line-height:1.6;font-family:'Nunito Sans',sans-serif">
           Bigdoc croise vos réponses avec des données médicales publiées — pas des algorithmes opaques.
         </p>
       </div>
@@ -802,7 +912,102 @@
   </div>
 </div>
 
-<!-- ── CHAT LIBRE ── -->
+<!-- ── MODULE INSTALLATION ── -->
+<div id="screen-installation" class="screen">
+  <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
+    <div class="card fade-in">
+
+      <div style="background:#1A1060;padding:1.5rem 2rem;display:flex;align-items:center;gap:.75rem">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none" style="flex-shrink:0">
+          <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+          <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/><ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+          <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+          <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+          <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+          <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        </svg>
+        <div>
+          <div style="font-size:.6rem;font-weight:800;color:#A5B4FF;letter-spacing:1.5px;text-transform:uppercase">Dr Bigdoc · Module Installation</div>
+          <div style="font-size:.88rem;color:white;font-weight:600">Décrivez votre projet — je croise avec les données territoriales.</div>
+        </div>
+      </div>
+
+      <div style="padding:2rem">
+        <div class="question-number">Votre projet d'installation</div>
+        <div class="question-text">Parlez-moi de votre projet.</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+          <div class="input-group" style="position:relative">
+            <label>Spécialité *</label>
+            <input type="text" id="install-specialite" placeholder="Ex : Médecine générale" autocomplete="off"
+                   oninput="filterSpecialite(this.value,'install-specialite','drop-install-specialite')"
+                   onblur="setTimeout(()=>closeDropdown('drop-install-specialite'),200)"/>
+            <div id="drop-install-specialite" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:100;max-height:200px;overflow-y:auto"></div>
+          </div>
+          <div class="input-group" style="position:relative">
+            <label>Zone cible *</label>
+            <input type="text" id="install-zone" placeholder="Ville ou département" autocomplete="off"
+                   oninput="searchVilleInstall(this.value)"
+                   onblur="setTimeout(()=>closeDropdown('drop-install-zone'),200)"/>
+            <div id="drop-install-zone" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:100;max-height:200px;overflow-y:auto"></div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
+          <div class="input-group">
+            <label>Type d'exercice souhaité</label>
+            <select id="install-type" style="width:100%;padding:.85rem 1rem;border:2px solid #E5E7EB;border-radius:14px;font-family:'Nunito Sans',sans-serif;font-size:.9rem;color:#1A1060;background:white;">
+              <option value="">Choisir…</option>
+              <option value="seul">Cabinet seul</option>
+              <option value="groupe">Cabinet de groupe</option>
+              <option value="msp">MSP / maison de santé</option>
+              <option value="cpts">CPTS existante</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Horizon de temps</label>
+            <select id="install-horizon" style="width:100%;padding:.85rem 1rem;border:2px solid #E5E7EB;border-radius:14px;font-family:'Nunito Sans',sans-serif;font-size:.9rem;color:#1A1060;background:white;">
+              <option value="">Choisir…</option>
+              <option value="6mois">Dans les 6 mois</option>
+              <option value="1an">Dans l'année</option>
+              <option value="2ans">D'ici 2 ans</option>
+              <option value="reflexion">En réflexion</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label>Vos principales inquiétudes</label>
+          <textarea id="install-inquietudes" placeholder="Ex : Je ne sais pas comment constituer le dossier bancaire, je ne connais pas les aides disponibles, j'ai peur de me retrouver seul à gérer l'admin…" style="min-height:90px"></textarea>
+        </div>
+
+        <div class="input-group">
+          <label>Email pour recevoir votre analyse *</label>
+          <input type="email" id="install-email" placeholder="dr.dupont@cabinet.fr"/>
+        </div>
+
+        <p class="rgpd-note">Données utilisées uniquement pour générer votre analyse. Hébergées en France.</p>
+
+        <button class="btn-primary" id="btn-install-submit" onclick="submitInstallation()">
+          Analyser mon projet →
+        </button>
+      </div>
+      <div style="padding:0 2rem 1.5rem;text-align:center">
+        <button class="btn-back" onclick="showScreen('hero')">← Retour</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RÉSULTAT INSTALLATION ── -->
+<div id="screen-installation-result" class="screen">
+  <div style="width:100%;max-width:100%;padding:1.5rem 2rem 4rem;">
+    <div class="card fade-in" id="install-result-card" style="border-radius:16px;overflow:hidden;max-width:1000px;margin:0 auto"></div>
+  </div>
+</div>
+
+<!-- ── QUESTIONNAIRE ── -->
 <div id="screen-chat" class="screen">
   <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
     <div class="card fade-in">
@@ -846,6 +1051,8 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         <span class="progress-score-preview" id="score-preview"></span>
       </div>
 
+      <div class="bigdoc-bubble" id="bigdoc-bubble-q" style="display:none;margin-top:.75rem"></div>
+
       <div class="question-area" id="question-area"></div>
 
       <div class="question-nav">
@@ -875,7 +1082,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         </div>
       </div>
       <div class="question-nav">
-        <button class="btn-back" onclick="goToStep('questionnaire')">← Retour</button>
+        <button class="btn-back" onclick="showScreen('questionnaire')">← Retour</button>
         <button class="btn-next" onclick="goToCapture()" style="opacity:1">Voir mon score →</button>
       </div>
     </div>
@@ -887,14 +1094,49 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
   <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
     <div class="card fade-in">
       <div class="lead-area">
-        <div class="score-partial">
-          <div class="score-circle">
-            <span class="score-number" id="partial-score">—</span>
-            <span class="score-label">/100</span>
+
+        <!-- Dr Bigdoc teaser — pas de score faux -->
+        <div style="text-align:center;margin-bottom:2rem;">
+          <div style="display:inline-flex;align-items:center;gap:10px;background:#F5F3FF;border-radius:14px;padding:.9rem 1.25rem;margin-bottom:1rem;border:1.5px solid rgba(99,102,241,.2)">
+            <svg width="44" height="44" viewBox="0 0 56 56" fill="none" style="animation:bd-float 3s ease-in-out infinite;flex-shrink:0">
+              <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+              <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+              <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/>
+              <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+              <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+              <circle cx="24" cy="22" r="1.3" fill="white"/><circle cx="36" cy="22" r="1.3" fill="white"/>
+              <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+              <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+              <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+              <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+              <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+            </svg>
+            <div style="text-align:left">
+              <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px">Dr Bigdoc</div>
+              <div style="font-size:.88rem;color:#1A1060;font-weight:700;line-height:1.4">J'ai analysé votre situation.<br>Votre bilan est prêt.</div>
+            </div>
           </div>
-          <div class="score-teaser" id="score-niveau">Votre diagnostic est prêt.</div>
-          <div class="score-sublabel">Recevez votre bilan complet avec ordonnance personnalisée</div>
+
+          <!-- 3 éléments verrouillés -->
+          <div style="display:flex;justify-content:center;gap:.75rem;margin-bottom:1rem;flex-wrap:wrap">
+            <div style="background:#EEF2FF;border-radius:10px;padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem">
+              <span style="font-size:.9rem">🔒</span>
+              <span style="font-size:.78rem;font-weight:700;color:#4338CA">Score /100</span>
+            </div>
+            <div style="background:#EEF2FF;border-radius:10px;padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem">
+              <span style="font-size:.9rem">🔒</span>
+              <span style="font-size:.78rem;font-weight:700;color:#4338CA">Heures perdues</span>
+            </div>
+            <div style="background:#EEF2FF;border-radius:10px;padding:.6rem 1rem;display:flex;align-items:center;gap:.5rem">
+              <span style="font-size:.9rem">🔒</span>
+              <span style="font-size:.78rem;font-weight:700;color:#4338CA">Plan d'action</span>
+            </div>
+          </div>
+          <div style="font-size:.82rem;color:#6B7280;font-weight:500">Entrez votre email pour recevoir votre bilan complet</div>
         </div>
+
+        <!-- Note incohérence détectée -->
+        <div id="incoherence-note" style="display:none;background:#F5F3FF;border:1.5px solid rgba(99,102,241,.2);border-radius:12px;padding:.85rem 1rem;margin-bottom:1.25rem"></div>
 
         <div class="input-group">
           <label>Email professionnel *</label>
@@ -1037,8 +1279,8 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 
 <!-- ── RÉSULTAT ── -->
 <div id="screen-result" class="screen">
-  <div style="max-width:660px;margin:2rem auto 4rem;padding:0 1rem;">
-    <div class="card fade-in" id="result-card"></div>
+  <div style="width:100%;max-width:100%;padding:1.5rem 2rem 4rem;">
+    <div class="card fade-in" id="result-card" style="border-radius:16px;overflow:hidden;max-width:1200px;margin:0 auto"></div>
   </div>
 </div>
 
@@ -1076,17 +1318,58 @@ function injectTestButton() {
   const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026';
   if (!isLocal && !isDev) return;
 
+  // Bouton remplir test
   const btn = document.createElement('button');
   btn.textContent = '🧪 Remplir test';
-  btn.style.cssText = `
-    position:fixed;bottom:1rem;right:1rem;z-index:9999;
-    background:#F4A261;color:white;border:none;border-radius:8px;
-    padding:.5rem 1rem;font-size:.8rem;font-weight:600;
-    cursor:pointer;font-family:'DM Sans',sans-serif;
-    box-shadow:0 4px 12px rgba(0,0,0,.2);
-  `;
+  btn.style.cssText = 'position:fixed;bottom:1rem;right:1rem;z-index:9999;background:#F4A261;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
   btn.onclick = fillTestData;
   document.body.appendChild(btn);
+
+  // Bouton bilan direct
+  const btn2 = document.createElement('button');
+  btn2.textContent = '👁 Voir bilan';
+  btn2.style.cssText = 'position:fixed;bottom:1rem;right:8rem;z-index:9999;background:#6366F1;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+  btn2.onclick = showTestBilan;
+  document.body.appendChild(btn2);
+}
+
+function showTestBilan() {
+  state.bilan = {
+    score_global: 43,
+    niveau: "Cabinet en transition — des leviers clairs sont identifiés",
+    message_bilan: "Vos réponses révèlent trois angles morts simultanés. Premier : 30% de votre activité en téléconsultation non conforme — 21 600€ annuels perdus et responsabilité civile engagée. Deuxième : la charge mentale déclarée contredit les 1-3h d'admin annoncées — vous sous-estimez ce que vous gérez. Troisième : votre projet endométriose est une opportunité réelle, mais il nécessite un cadre structuré. Ces trois leviers sont actionnables dans les 30 jours.",
+    heures_perdues_semaine: 7,
+    euros_evitables_an: 29750,
+    alerte_urgente: "Votre téléconsultation actuelle sur Zoom n'est pas remboursable par la CPAM et engage votre responsabilité civile professionnelle. Avec 30% de votre activité concernée, vous perdez environ 1 800€ par mois de revenus à risque.",
+    dimensions: {
+      administration: { score: 12, commentaire: "Vous déclarez 1 à 3 heures hebdomadaires, mais avec un agenda plein et 30% de téléconsultation Zoom, la charge réelle est probablement sous-estimée — la moyenne nationale est de 11,4h/sem (CNOM 2023)." },
+      achats_materiel: { score: 18, commentaire: "Vos consommables sont disponibles, aucun point bloquant identifié — cette dimension est stable." },
+      informatique_teleconsult: { score: 0, commentaire: "Votre téléconsultation sur Zoom représente 30% de votre activité — soit environ 240 actes par mois à 30€ = 7 200€ mensuels non remboursables par la CPAM et engageant votre responsabilité civile professionnelle selon l'article 53." },
+      comptabilite_finances: { score: 8, commentaire: "Un score de 2/5 révèle une relation comptable probablement insuffisante — avec un BNC moyen de 95 000€ en gynécologie médicale et des charges sociales à 42%, un suivi mensuel évite tout redressement fiscal." },
+      charge_mentale: { score: 6, commentaire: "Vous mentionnez beaucoup de choses qui ne sont pas de la médecine — cette charge représente environ 3 à 5 heures hebdomadaires de médecine non pratiquée, soit 21 150€ annuels récupérables en délégation." },
+      financement_investissements: { score: 14, commentaire: "Aucun projet de financement déclaré, mais votre projet endométriose nécessitera probablement un investissement en formation, communication et temps — un prévisionnel structuré sécurise cette bascule." },
+      developpement_croissance: { score: 16, commentaire: "Votre projet de consultation endométriose est une opportunité majeure — 10% des femmes concernées, délai diagnostic moyen de 7 ans, quasi-absence d'offre spécialisée en ville. Vous êtes en zone sur-dotée, la différenciation par spécialisation est votre levier de croissance." },
+    },
+    recommandation_principale: {
+      service: "Mise en conformité téléconsultation",
+      tarif: "250€",
+      justification: "Cette démarche sécurise 30% de votre activité — soit 7 200€ mensuels actuellement non remboursables — et vous protège juridiquement. Le retour sur investissement est immédiat dès le premier mois de remboursements CPAM récupérés.",
+      palier: "Plan d'action"
+    },
+    recommandations_secondaires: [
+      { service: "Étude de faisabilité consultation endométriose", tarif: "250€", raison: "Votre projet endométriose nécessite un positionnement précis." },
+      { service: "Abonnement Confort", tarif: "250€/mois", raison: "Délègue la gestion courante et libère 3 à 5 heures hebdomadaires." }
+    ],
+    quick_wins: [
+      "Listez tous les actes de téléconsultation facturés via Zoom sur les 6 derniers mois — montant total, nombre d'actes — pour mesurer l'exposition réelle au risque de rejet CPAM.",
+      "Contactez votre expert-comptable cette semaine pour un point mensuel systématique — BNC, charges CARMF, URSSAF, trésorerie — et demandez une projection sur 2025.",
+      "Identifiez 3 confrères gynécologues ou médecins généralistes à Lyon pour échanger sur votre projet endométriose — réseau de prescription et partenariats ville-hôpital."
+    ],
+    message_partage: "86 400€/an de téléconsultations Zoom non remboursables CPAM — j'ai diagnostiqué mon cabinet en 3 min."
+  };
+  state.shareToken = 'test-token-123';
+  showScreen('result');
+  renderResult();
 }
 
 function fillTestData() {
@@ -1161,6 +1444,117 @@ function startDiagnostic() {
   state.currentStep = 0;
   renderQuestion();
   showScreen('questionnaire');
+}
+
+function startInstallation() {
+  showScreen('installation');
+}
+
+async function submitInstallation() {
+  const specialite = document.getElementById('install-specialite').value.trim();
+  const zone       = document.getElementById('install-zone').value.trim();
+  const email      = document.getElementById('install-email').value.trim();
+  const type       = document.getElementById('install-type').value;
+  const horizon    = document.getElementById('install-horizon').value;
+  const inquietudes= document.getElementById('install-inquietudes').value.trim();
+
+  if (!specialite || !zone || !email || !email.includes('@')) {
+    if (!specialite) document.getElementById('install-specialite').style.borderColor = '#EF4444';
+    if (!zone) document.getElementById('install-zone').style.borderColor = '#EF4444';
+    if (!email || !email.includes('@')) document.getElementById('install-email').style.borderColor = '#EF4444';
+    return;
+  }
+
+  const btn = document.getElementById('btn-install-submit');
+  btn.disabled = true;
+  btn.textContent = 'Analyse en cours…';
+  showScreen('loading');
+  startLoadingAnimation();
+
+  try {
+    const resp = await fetch('/api/installation', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        session_id: state.sessionId,
+        email, specialite, zone, type_exercice: type, horizon, inquietudes
+      })
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.detail || 'Erreur');
+    renderInstallationResult(data);
+    showScreen('installation-result');
+  } catch(e) {
+    showScreen('installation');
+    btn.disabled = false;
+    btn.textContent = 'Analyser mon projet →';
+    alert('Erreur : ' + e.message);
+  }
+}
+
+function renderInstallationResult(data) {
+  const card = document.getElementById('install-result-card');
+  const r = data.analyse || {};
+  card.innerHTML = `
+    <div style="background:#1A1060;padding:2rem 2.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+      <div>
+        <div style="font-size:.6rem;font-weight:800;color:#A5B4FF;letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem">Analyse d'installation · Dr Bigdoc</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:white">${r.titre || 'Votre projet analysé'}</div>
+      </div>
+    </div>
+    <div style="padding:2rem 2.5rem">
+      <!-- Message principal -->
+      <div style="background:#F5F3FF;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;border:1px solid #EDE9FE">
+        <p style="font-size:.92rem;color:#1A1060;line-height:1.7;margin:0;font-weight:500">${r.message || ''}</p>
+      </div>
+      <!-- Opportunités territoire -->
+      ${r.territoire ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">ANALYSE TERRITORIALE</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem">
+          ${(r.territoire.stats||[]).map(s=>`
+            <div style="background:white;border-radius:10px;padding:.85rem 1rem;border:1px solid #EDE9FE">
+              <div style="font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:${s.color||'#6366F1'};letter-spacing:-1px">${s.val}</div>
+              <div style="font-size:.78rem;color:#1A1060;font-weight:600;margin:.15rem 0">${s.label}</div>
+              <div style="font-size:.62rem;color:#9CA3AF">${s.source}</div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+      <!-- Aides disponibles -->
+      ${r.aides && r.aides.length ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">AIDES DISPONIBLES</div>
+        <div style="display:flex;flex-direction:column;gap:.5rem">
+          ${r.aides.map(a=>`
+            <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:#F0FDF4;border-radius:10px;border:1px solid #BBF7D0">
+              <span style="color:#10B981;font-weight:900;flex-shrink:0">✓</span>
+              <div>
+                <strong style="font-size:.85rem;color:#065F46">${a.nom}</strong>
+                <span style="color:#059669;font-size:.82rem;font-weight:700"> — ${a.montant}</span>
+                <p style="font-size:.75rem;color:#6B7280;margin:.15rem 0 0;line-height:1.45">${a.condition}</p>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>` : ''}
+      <!-- Checklist -->
+      ${r.checklist && r.checklist.length ? `
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">CHECKLIST D'INSTALLATION</div>
+        ${r.checklist.map((item,i)=>`
+          <div style="display:flex;gap:.6rem;align-items:flex-start;padding:.5rem 0;${i>0?'border-top:1px solid #EDE9FE':''}">
+            <div style="min-width:20px;height:20px;border-radius:50%;background:#6366F1;color:white;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+            <span style="font-size:.82rem;color:#374151;line-height:1.5">${item}</span>
+          </div>`).join('')}
+      </div>` : ''}
+      <!-- CTA -->
+      <div style="text-align:center;background:#F5F3FF;border-radius:12px;padding:1.25rem;border:1px solid #EDE9FE">
+        <p style="font-size:.85rem;color:#374151;margin-bottom:.75rem;font-weight:500">RMS vous accompagne sur l'ensemble des démarches d'installation.</p>
+        <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
+          Prendre contact avec RMS →
+        </button>
+      </div>
+    </div>
+  `;
 }
 
 function showChoix() {
@@ -1243,6 +1637,36 @@ async function goChatCapture() {
 // ─────────────────────────────────────────
 // QUESTIONNAIRE
 // ─────────────────────────────────────────
+// ── DR BIGDOC speeches par question ──
+const BIGDOC_SPEECHES = {
+  0: "Bonjour ! Je suis le Dr Bigdoc. Commençons par comprendre où vous en êtes dans votre parcours.",
+  1: "Le temps passé hors soins est rarement mesuré. C'est ce que nous allons chiffrer ensemble.",
+  2: "Une panne non résolue génère des pertes de revenus immédiates. Regardons votre situation.",
+  3: "La téléconsultation est souvent la dimension la plus méconnue — et la plus risquée réglementairement.",
+  4: "La trésorerie et la fiscalité réservent souvent de mauvaises surprises. Faisons le point.",
+  5: "Tout ce que vous gérez en dehors des soins a un coût en temps et en énergie. Estimons-le.",
+  6: "Le financement d'un projet médical est un domaine à part. Voyons où vous en êtes.",
+  7: "Le développement de votre cabinet mérite une vraie stratégie. Qu'avez-vous en tête ?",
+};
+
+function bigdocMiniSVG(size = 36) {
+  return `<svg width="${size}" height="${size}" viewBox="0 0 56 56" fill="none">
+    <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+    <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+    <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/>
+    <ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+    <circle cx="23" cy="24" r="2.8" fill="#1A1060"/>
+    <circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+    <circle cx="24" cy="22" r="1.3" fill="white"/>
+    <circle cx="36" cy="22" r="1.3" fill="white"/>
+    <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+    <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+    <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.55"/>
+    <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.55"/>
+    <path d="M18 19 Q24 15 28 18 Q32 15 38 19 Q33 10 28 12 Q23 10 18 19Z" fill="#1A0A00"/>
+  </svg>`;
+}
+
 function renderQuestion() {
   const q = state.questions[state.currentStep];
   if (!q) return;
@@ -1253,9 +1677,18 @@ function renderQuestion() {
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-label').textContent = `Question ${state.currentStep + 1} / ${total}`;
 
-  // Pas de score partiel affiché — incohérent avec le score IA final
   const el = document.getElementById('score-preview');
   if (el) el.textContent = '';
+
+  // Bulle Dr Bigdoc
+  const speech = BIGDOC_SPEECHES[state.currentStep] || "Répondez à votre rythme — il n'y a pas de mauvaise réponse.";
+  const bubbleEl = document.getElementById('bigdoc-bubble-q');
+  if (bubbleEl) {
+    bubbleEl.innerHTML = `
+      <div class="bigdoc-avatar">${bigdocMiniSVG(32)}</div>
+      <div class="bigdoc-speech">${speech}</div>`;
+    bubbleEl.style.display = 'flex';
+  }
 
   const area = document.getElementById('question-area');
   area.innerHTML = `
@@ -1359,11 +1792,49 @@ function estimatePartialScore() {
 // CAPTURE & SUBMIT
 // ─────────────────────────────────────────
 function goToCapture() {
-  state.texteLibre = document.getElementById('texte-libre').value;
-  const score = estimatePartialScore();
-  document.getElementById('partial-score').textContent = score === '—' ? '?' : score;
-  const niveau = getScoreLabel(typeof score === 'number' ? score : 50);
-  document.getElementById('score-niveau').textContent = niveau;
+  const tl = document.getElementById('texte-libre');
+  if (tl) state.texteLibre = tl.value;
+
+  // Détection des incohérences évidentes — alerte douce avant soumission
+  const texte = (state.texteLibre || '').toLowerCase();
+  const reponses = state.reponses;
+  const alertes = [];
+
+  // Téléconsultation
+  const mentionneAppelVideo = /zoom|teams|whatsapp|facetime|skype|appel vid|visio/i.test(texte);
+  const ditPasDeTeleconsult = reponses.informatique === 'non' || reponses.informatique === 'aucune';
+  if (mentionneAppelVideo && ditPasDeTeleconsult) {
+    alertes.push("Vous indiquez ne pas faire de téléconsultation, mais mentionnez un outil vidéo. Bigdoc va analyser ce point — les consultations via Zoom ou Teams ne sont généralement pas remboursées par la CPAM.");
+  }
+
+  // Sauvegardes
+  const mentionneSauvegardeProbleme = /pas de sauvegarde|sans sauvegarde|backup|données perdues|perd.*données|données.*perdu/i.test(texte);
+  const ditInformatiqueOK = reponses.informatique === 'agrée' || reponses.informatique === 'conforme';
+  if (mentionneSauvegardeProbleme && ditInformatiqueOK) {
+    alertes.push("Votre logiciel semble opérationnel mais vous mentionnez un problème de sauvegarde. Ce point sera traité dans votre bilan.");
+  }
+
+  // Charge admin sous-estimée
+  const mentionneSurcharge = /tout seul|débordé|submergé|trop de papier|trop d'admin|plus le temps/i.test(texte);
+  const ditAdminFaible = reponses.admin === '0' || reponses.admin === '1';
+  if (mentionneSurcharge && ditAdminFaible) {
+    alertes.push("Vous décrivez une charge importante dans votre texte, mais avez indiqué peu d'heures d'admin. Bigdoc va prendre en compte votre description — elle est souvent plus précise.");
+  }
+
+  // Afficher une note discrète si incohérence détectée
+  const noteEl = document.getElementById('incoherence-note');
+  if (alertes.length > 0 && noteEl) {
+    noteEl.innerHTML = alertes.map(a =>
+      `<div style="display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.5rem">
+        <span style="color:#6366F1;flex-shrink:0">ℹ</span>
+        <span style="font-size:.78rem;color:#374151;line-height:1.5">${a}</span>
+      </div>`
+    ).join('');
+    noteEl.style.display = 'block';
+  } else if (noteEl) {
+    noteEl.style.display = 'none';
+  }
+
   showScreen('capture');
 }
 
@@ -1435,119 +1906,270 @@ async function submitLead() {
 // ─────────────────────────────────────────
 // RÉSULTAT
 // ─────────────────────────────────────────
+function contextStatsResult(dims) {
+  const ALL_STATS = {
+    administration: [
+      { val: "71%", label: "jugent la charge admin excessive", source: "URPS IDF 2023", color: "#EF4444" },
+      { val: "11,4h", label: "perdues/sem en moyenne (tâches non médicales)", source: "CNOM Atlas 2023", color: "#F59E0B" },
+    ],
+    informatique_teleconsult: [
+      { val: "18%", label: "des téléconsults sur plateforme non agréée", source: "Ameli Open Data 2023", color: "#EF4444" },
+      { val: "+22%", label: "de croissance téléconsultation en 2023", source: "Ameli — 18,2M d'actes", color: "#10B981" },
+    ],
+    informatique: [
+      { val: "18%", label: "des téléconsults sur plateforme non agréée", source: "Ameli Open Data 2023", color: "#EF4444" },
+      { val: "62%", label: "sans logiciel certifié HDS", source: "ANS 2023", color: "#F59E0B" },
+    ],
+    comptabilite_finances: [
+      { val: "54%", label: "estiment leur revenu insuffisant", source: "URPS IDF 2023", color: "#EF4444" },
+      { val: "42%", label: "du BNC en charges sociales en moyenne", source: "CARMF 2023", color: "#F59E0B" },
+    ],
+    comptabilite: [
+      { val: "54%", label: "estiment leur revenu insuffisant", source: "URPS IDF 2023", color: "#EF4444" },
+      { val: "42%", label: "du BNC en charges sociales en moyenne", source: "CARMF 2023", color: "#F59E0B" },
+    ],
+    charge_mentale: [
+      { val: "50%", label: "en risque élevé de burnout", source: "FMF / CNOM 2023", color: "#EF4444" },
+      { val: "46%", label: "envisagent réduire leur activité", source: "URPS IDF 2023", color: "#F59E0B" },
+    ],
+    achats_materiel: [
+      { val: "23%", label: "subissent une panne majeure/an", source: "URPS 2022", color: "#F59E0B" },
+      { val: "8,5 ans", label: "âge moyen du parc équipement", source: "URPS 2022", color: "#6366F1" },
+    ],
+    developpement_croissance: [
+      { val: "903", label: "CPTS actives — 92% du territoire", source: "DGOS 2023", color: "#10B981" },
+      { val: "6,7M", label: "patients sans médecin traitant", source: "Ameli Q3 2023", color: "#EF4444" },
+    ],
+    developpement: [
+      { val: "903", label: "CPTS actives — 92% du territoire", source: "DGOS 2023", color: "#10B981" },
+      { val: "49 jours", label: "délai moyen accès spécialiste", source: "Ameli 2023", color: "#6366F1" },
+    ],
+    financement_investissements: [
+      { val: "50 000€", label: "aide CAIM en zone sous-dotée", source: "ARS 2024", color: "#10B981" },
+      { val: "85 000€", label: "coût moyen installation cabinet", source: "CNOM 2023", color: "#6366F1" },
+    ],
+    financement: [
+      { val: "50 000€", label: "aide CAIM en zone sous-dotée", source: "ARS 2024", color: "#10B981" },
+    ],
+  };
+
+  const critical = Object.entries(dims)
+    .filter(([,d]) => (d.score||0) <= 12)
+    .sort(([,a],[,b]) => (a.score||0) - (b.score||0))
+    .slice(0, 3).map(([k]) => k);
+
+  const keys = critical.length > 0 ? critical :
+    Object.entries(dims).sort(([,a],[,b]) => (a.score||0) - (b.score||0)).slice(0, 2).map(([k]) => k);
+
+  const stats = [];
+  keys.forEach(k => { const s = ALL_STATS[k]; if (s) stats.push(...s.slice(0,2)); });
+  if (stats.length < 3) stats.push({ val: "11,4h", label: "perdues/sem en moyenne nationale", source: "CNOM Atlas 2023", color: "#6366F1" });
+
+  return stats.slice(0, 6).map(s => `
+    <div style="background:white;border-radius:12px;padding:.9rem 1rem;border:1px solid #EDE9FE">
+      <div style="font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:${s.color};line-height:1;letter-spacing:-1px;margin-bottom:.2rem">${s.val}</div>
+      <div style="font-size:.78rem;color:#1A1060;font-weight:600;line-height:1.35;margin-bottom:.25rem">${s.label}</div>
+      <div style="font-size:.62rem;color:#9CA3AF;font-weight:500">${s.source}</div>
+    </div>`).join('');
+}
+
+function renderRadarResult(dims) {
+  const keys = ['administration','achats_materiel','informatique_teleconsult','comptabilite_finances','charge_mentale','financement_investissements','developpement_croissance'];
+  const keysFallback = ['administration','achats_materiel','informatique','comptabilite','charge_mentale','financement','developpement'];
+  const labels = ['Admin','Matériel','Informatique','Comptabilité','Charge','Financement','Développement'];
+  const n = 7;
+  const cx = 160, cy = 155, r = 105;
+
+  const scores = keys.map((k, i) => {
+    const d = dims[k] || dims[keysFallback[i]];
+    return d ? (d.score || 0) / 20 : 0;
+  });
+
+  function polygon(factor) {
+    return keys.map((_, i) => {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      return `${(cx + r * factor * Math.cos(angle)).toFixed(1)},${(cy + r * factor * Math.sin(angle)).toFixed(1)}`;
+    }).join(' ');
+  }
+
+  const scorePts = scores.map((val, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    return `${(cx + r * val * Math.cos(angle)).toFixed(1)},${(cy + r * val * Math.sin(angle)).toFixed(1)}`;
+  }).join(' ');
+
+  const axes = keys.map((_, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    return `<line x1="${cx}" y1="${cy}" x2="${(cx + r * Math.cos(angle)).toFixed(1)}" y2="${(cy + r * Math.sin(angle)).toFixed(1)}" stroke="#E5E7EB" stroke-width="1"/>`;
+  }).join('');
+
+  const labelEls = labels.map((lbl, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const lx = (cx + (r + 24) * Math.cos(angle)).toFixed(1);
+    const ly = (cy + (r + 24) * Math.sin(angle)).toFixed(1);
+    const sc = Math.round(scores[i] * 20);
+    const col = scores[i] <= 0.35 ? '#EF4444' : scores[i] <= 0.65 ? '#F59E0B' : '#10B981';
+    return `<text x="${lx}" y="${parseFloat(ly)-4}" text-anchor="middle" font-family="Nunito,Arial" font-size="8.5" fill="#1A1060" font-weight="700">${lbl}</text>
+            <text x="${lx}" y="${parseFloat(ly)+9}" text-anchor="middle" font-family="Nunito,Arial" font-size="9" fill="${col}" font-weight="800">${sc}/20</text>`;
+  }).join('');
+
+  const dots = scores.map((val, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const col = val <= 0.35 ? '#EF4444' : val <= 0.65 ? '#F59E0B' : '#10B981';
+    return `<circle cx="${(cx + r * val * Math.cos(angle)).toFixed(1)}" cy="${(cy + r * val * Math.sin(angle)).toFixed(1)}" r="4" fill="${col}" stroke="white" stroke-width="1.5"/>`;
+  }).join('');
+
+  return `<svg viewBox="0 0 320 310" width="100%" style="max-width:340px;margin:0 auto;display:block">
+    <polygon points="${polygon(0.25)}" fill="none" stroke="#F3F4F6" stroke-width="1"/>
+    <polygon points="${polygon(0.5)}"  fill="none" stroke="#E5E7EB" stroke-width="1"/>
+    <polygon points="${polygon(0.75)}" fill="none" stroke="#D1D5DB" stroke-width="1"/>
+    <polygon points="${polygon(1)}"    fill="none" stroke="#9CA3AF" stroke-width="1"/>
+    ${axes}
+    <polygon points="${scorePts}" fill="rgba(99,102,241,.12)" stroke="#6366F1" stroke-width="2.5" stroke-linejoin="round"/>
+    ${dots}
+    ${labelEls}
+  </svg>`;
+}
+
 function renderResult() {
   const b = state.bilan;
   const card = document.getElementById('result-card');
   const score = b.score_global;
-  const scoreColor = score <= 25 ? '#C0392B' : score <= 50 ? '#E67E22' : score <= 75 ? '#F4A261' : '#1A7A5E';
+  const scoreColor = score<=25?'#EF4444':score<=50?'#F59E0B':score<=75?'#F4A261':'#10B981';
 
-  // Dimensions
   const dimLabels = {
-    administration: 'Administration & CPAM',
-    achats_materiel: 'Matériel & Stocks',
-    informatique: 'Informatique & Infrastructure',
-    comptabilite: 'Comptabilité & Finances',
-    charge_mentale: 'Charge mentale hors soins',
-    financement: 'Financement & Investissements',
-    developpement: 'Développement & Croissance',
+    administration:'Admin & CPAM', achats_materiel:'Matériel',
+    informatique_teleconsult:'Téléconsult.', informatique:'Informatique',
+    comptabilite_finances:'Comptabilité', comptabilite:'Comptabilité',
+    charge_mentale:'Charge mentale', financement_investissements:'Financement',
+    financement:'Financement', developpement_croissance:'Développement',
+    developpement:'Développement',
   };
 
-  const dimsHtml = Object.entries(b.dimensions || {}).map(([key, dim]) => {
-    const pct = Math.round((dim.score / 20) * 100);
-    const color = pct <= 35 ? '#C0392B' : pct <= 65 ? '#E67E22' : '#1A7A5E';
-    return `
-      <div style="margin-bottom:1.25rem">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
-          <span style="font-size:.82rem;font-weight:500">${dimLabels[key] || key}</span>
-          <span style="font-size:.82rem;color:${color};font-weight:600">${dim.score}/20</span>
-        </div>
-        <div style="height:6px;background:#EEF0F4;border-radius:3px">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .8s"></div>
-        </div>
-        ${dim.commentaire ? `<p style="font-size:.78rem;color:#8A9BB0;margin-top:.3rem;line-height:1.5">${dim.commentaire}</p>` : ''}
+  const dimsHtml = Object.entries(b.dimensions||{}).map(([key,dim])=>{
+    const pct=Math.round((dim.score/20)*100);
+    const col=pct<=35?'#EF4444':pct<=65?'#F59E0B':'#10B981';
+    const bg=pct<=35?'rgba(239,68,68,.06)':pct<=65?'rgba(245,158,11,.06)':'rgba(16,185,129,.06)';
+    return `<div style="background:${bg};border-radius:10px;padding:.75rem .85rem;border:1px solid rgba(0,0,0,.04)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
+        <span style="font-size:.76rem;font-weight:700;color:#1A1060">${dimLabels[key]||key}</span>
+        <span style="font-size:.82rem;font-weight:900;color:${col};font-family:'Nunito',sans-serif">${dim.score}/20</span>
       </div>
-    `;
+      <div style="height:5px;background:rgba(0,0,0,.06);border-radius:999px;margin-bottom:.35rem">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
+      </div>
+      <p style="font-size:.7rem;color:#9CA3AF;line-height:1.4;margin:0">${(dim.commentaire||'').substring(0,90)}${(dim.commentaire||'').length>90?'…':''}</p>
+    </div>`;
   }).join('');
 
-  // Recommandations secondaires
-  const recoSecHtml = (b.recommandations_secondaires || []).slice(0,2).map(r => `
-    <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:#F8F9FA;border-radius:8px;margin-bottom:.5rem">
-      <span style="color:var(--teal);font-size:1rem">→</span>
-      <div>
-        <strong style="font-size:.85rem">${r.service}</strong>
-        <span style="color:var(--grey);font-size:.82rem"> · ${r.tarif}</span>
-        <p style="font-size:.78rem;color:var(--grey);margin-top:.2rem">${r.raison}</p>
-      </div>
-    </div>
-  `).join('');
-
-  // Quick wins
-  const quickHtml = (b.quick_wins || []).map(w =>
-    `<li style="font-size:.85rem;padding:.4rem 0;border-bottom:1px solid #F0F2F5;color:var(--text)">${w}</li>`
-  ).join('');
+  const quickHtml=(b.quick_wins||[]).map((w,i)=>`
+    <div style="display:flex;gap:.5rem;align-items:flex-start;padding:.45rem 0;${i>0?'border-top:1px solid #EDE9FE':''}">
+      <div style="min-width:18px;height:18px;border-radius:50%;background:#6366F1;color:white;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+      <span style="font-size:.78rem;color:#374151;line-height:1.45">${w}</span>
+    </div>`).join('');
 
   card.innerHTML = `
-    <!-- Score global -->
-    <div style="background:var(--navy);padding:2.5rem;text-align:center">
-      <div style="width:120px;height:120px;border-radius:50%;border:4px solid ${scoreColor};display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.25rem">
-        <span style="font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:600;color:${scoreColor};line-height:1">${score}</span>
-        <span style="font-size:.65rem;color:#8A9BB0;letter-spacing:.08em">/100</span>
+    <!-- HEADER COMPACT -->
+    <div style="background:#1A1060;padding:1.75rem 2.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;border:4px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
+        <div style="text-align:center">
+          <div style="font-family:'Nunito',sans-serif;font-size:2.2rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
+          <div style="font-size:.52rem;color:rgba(200,200,255,.45);letter-spacing:2px;font-weight:700">/100</div>
+        </div>
       </div>
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--white);margin-bottom:.5rem">${b.niveau}</h2>
-      <p style="font-size:.85rem;color:#8A9BB0;font-weight:300">${b.message_bilan || ''}</p>
-    </div>
-
-    ${b.alerte_urgente ? `<div class="alerte">⚠️ ${b.alerte_urgente}</div>` : ''}
-
-    <!-- Impact chiffré -->
-    <div style="padding:2rem 2.5rem;display:flex;gap:1.5rem;border-bottom:1px solid #F0F2F5;flex-wrap:wrap">
-      <div style="flex:1;min-width:140px;text-align:center">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${b.heures_perdues_semaine}h</div>
-        <div style="font-size:.75rem;color:var(--grey)">perdues par semaine</div>
+      <div style="flex:1;min-width:180px">
+        <div style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:white;margin-bottom:.4rem">${b.niveau}</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
+            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
+            <span style="font-size:.65rem;color:rgba(252,165,165,.65);margin-left:.25rem">/sem</span>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
+            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
+            <span style="font-size:.65rem;color:rgba(252,211,77,.65);margin-left:.25rem">/an</span>
+          </div>
+        </div>
       </div>
-      <div style="flex:1;min-width:140px;text-align:center">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €</div>
-        <div style="font-size:.75rem;color:var(--grey)">récupérables par an</div>
+      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;max-width:340px;border:1px solid rgba(255,255,255,.1);flex:1">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none" style="flex-shrink:0">
+          <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
+          <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
+          <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/><ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
+          <circle cx="23" cy="24" r="2.8" fill="#1A1060"/><circle cx="35" cy="24" r="2.8" fill="#1A1060"/>
+          <path d="M21 33 Q28 39 35 33" fill="#C07050"/>
+          <path d="M21 33 Q28 38 35 33 Q28 37 21 33Z" fill="white"/>
+          <ellipse cx="18" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+          <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
+          <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
+        </svg>
+        <p style="font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.55;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,160)}…</p>
       </div>
     </div>
 
-    <!-- Dimensions -->
-    <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.5rem">Bilan par dimension</h3>
-      ${dimsHtml}
-    </div>
+    ${b.alerte_urgente?`<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.65rem 2rem;display:flex;gap:.5rem;align-items:center">
+      <span style="flex-shrink:0">⚠️</span>
+      <p style="font-size:.76rem;color:#991B1B;line-height:1.4;margin:0;font-weight:600">${b.alerte_urgente.substring(0,200)}…</p>
+    </div>`:''}
 
-    <!-- Recommandation principale -->
-    <div style="padding:2rem 2.5rem;background:rgba(26,122,94,.04);border-bottom:1px solid #F0F2F5">
-      <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem">Ordonnance RMS</div>
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--navy);margin-bottom:.35rem">${b.recommandation_principale?.service || ''}</h3>
-      <div style="font-size:.9rem;color:var(--teal);font-weight:500;margin-bottom:.75rem">${b.recommandation_principale?.tarif || ''}</div>
-      <p style="font-size:.85rem;color:var(--grey);line-height:1.6;margin-bottom:1.25rem">${b.recommandation_principale?.justification || ''}</p>
-      ${recoSecHtml}
-    </div>
+    <!-- BODY -->
+    <div style="padding:1.5rem 2rem">
 
-    <!-- Quick wins -->
-    <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1rem">3 actions cette semaine</h3>
-      <ul style="list-style:none">${quickHtml}</ul>
-    </div>
+      <!-- RADAR + DIMENSIONS -->
+      <div style="display:grid;grid-template-columns:260px 1fr;gap:1.5rem;margin-bottom:1.5rem;align-items:start">
+        <div style="flex-shrink:0">
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">RADAR</div>
+          ${renderRadarResult(b.dimensions||{})}
+        </div>
+        <div style="min-width:0;overflow:hidden">
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">7 DIMENSIONS</div>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem">
+            ${dimsHtml}
+          </div>
+        </div>
+      </div>
 
-    <!-- CTA -->
-    <div style="padding:2rem 2.5rem;text-align:center">
-      <p style="font-size:.9rem;color:var(--grey);margin-bottom:1.25rem">Prêt à traiter votre cabinet ?</p>
-      <button onclick="goToStripe()" class="btn-primary" style="max-width:320px;margin:0 auto">
-        Démarrer avec RMS →
-      </button>
-      <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #F0F2F5">
-        <p style="font-size:.78rem;color:var(--grey);margin-bottom:.5rem">${b.message_partage || 'Partagez ce diagnostic à un confrère'}</p>
-        <button onclick="copyShareLink()" style="background:none;border:1px solid #E8EBF0;padding:.5rem 1.25rem;border-radius:8px;font-size:.8rem;cursor:pointer;color:var(--navy);font-family:'DM Sans',sans-serif">
-          📋 Copier le lien de partage
+      <!-- CHIFFRES CLÉS -->
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">EN CHIFFRES</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem">
+          ${contextStatsResult(b.dimensions||{})}
+        </div>
+      </div>
+
+      <!-- ORDONNANCE + ACTIONS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
+        <div style="background:#F5F3FF;border-radius:12px;padding:1.1rem 1.25rem;border:1px solid #EDE9FE">
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">ORDONNANCE</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;color:#1A1060;margin-bottom:.2rem">${b.recommandation_principale?.service||''}</div>
+          <div style="font-size:.8rem;color:#6366F1;font-weight:700;margin-bottom:.5rem">${b.recommandation_principale?.tarif||''}</div>
+          <p style="font-size:.75rem;color:#6B7280;line-height:1.5;margin:0">${(b.recommandation_principale?.justification||'').substring(0,150)}…</p>
+        </div>
+        <div>
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">PRIORITÉS</div>
+          ${quickHtml}
+        </div>
+      </div>
+
+      <!-- CTA compact -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F3FF;border-radius:12px;padding:1rem 1.5rem;border:1px solid #EDE9FE;flex-wrap:wrap;gap:.75rem">
+        <div>
+          <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
+            Démarrer avec RMS →
+          </button>
+        </div>
+        <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.45rem 1rem;border-radius:999px;font-size:.75rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
+          📋 Partager
         </button>
+      </div>
+
+      <!-- SOURCES mini -->
+      <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.25rem;align-items:center">
+        <span style="font-size:.58rem;color:#9CA3AF;margin-right:.25rem">Sources :</span>
+        ${['CNOM 2023','CARMF','DREES','Ameli','IRDES','URPS','FNCS','ANS'].map(s=>`<span style="font-size:.58rem;padding:.1rem .4rem;border-radius:3px;background:#F3F4F6;color:#9CA3AF">${s}</span>`).join('')}
+        <span style="font-size:.58rem;color:#D1D5DB;margin-left:.25rem;font-style:italic">— Indicatif uniquement</span>
       </div>
     </div>
   `;
 }
-
 function goToStripe() {
   if (!state.bilan) return;
   const palier = state.bilan.recommandation_principale?.palier || '';
@@ -1557,7 +2179,8 @@ function goToStripe() {
     'Cabinet libéré': 'cabinet_libere',
     "Plan d'action": 'plan_action',
   };
-  const produit = Object.entries(map).find(([k]) => palier.includes(k))?.[1] || 'plan_action';
+  const found = Object.entries(map).find(([k]) => palier.includes(k));
+  const produit = found ? found[1] : 'plan_action';
   window.location.href = `/api/create-checkout?produit=${produit}&session_id=${state.sessionId}`;
 }
 
@@ -1596,27 +2219,29 @@ function normalizeStr(str) {
     .replace(/[^a-z0-9\s]/g, '');
 }
 
-function filterSpecialite(val) {
-  const drop = document.getElementById('drop-specialite');
+function filterSpecialite(val, inputId, dropId) {
+  inputId = inputId || 'lead-specialite';
+  dropId  = dropId  || 'drop-specialite';
+  const drop = document.getElementById(dropId);
   if (!val || val.length < 2) { drop.style.display = 'none'; return; }
   const norm = normalizeStr(val);
-  const matches = SPECIALITES.filter(s =>
-    normalizeStr(s).includes(norm)
-  ).slice(0, 8);
+  const matches = SPECIALITES.filter(s => normalizeStr(s).includes(norm)).slice(0, 8);
   if (!matches.length) { drop.style.display = 'none'; return; }
   drop.innerHTML = matches.map(s => `
-    <div onclick="selectSpecialite('${s}')" style="
+    <div onclick="selectSpecialite('${s}','${inputId}','${dropId}')" style="
       padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
       border-bottom:1px solid #F0F2F5;transition:background .15s;
-    " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+    " onmouseover="this.style.background='rgba(99,102,241,.06)'"
        onmouseout="this.style.background='white'">${s}</div>
   `).join('');
   drop.style.display = 'block';
 }
 
-function selectSpecialite(val) {
-  document.getElementById('lead-specialite').value = val;
-  document.getElementById('drop-specialite').style.display = 'none';
+function selectSpecialite(val, inputId, dropId) {
+  inputId = inputId || 'lead-specialite';
+  dropId  = dropId  || 'drop-specialite';
+  document.getElementById(inputId).value = val;
+  document.getElementById(dropId).style.display = 'none';
 }
 
 // ─────────────────────────────────────────
@@ -1682,21 +2307,53 @@ async function searchVille(val) {
   }, 250);
 }
 
-function renderDropVille(drop, items) {
+function renderDropVille(drop, items, inputId, dropId) {
+  inputId = inputId || 'lead-ville';
+  dropId  = dropId  || 'drop-ville';
   if (!items.length) { drop.style.display = 'none'; return; }
   drop.innerHTML = items.map(i => `
-    <div onclick="selectVille('${i.value.replace(/'/g,"\\'")}')" style="
+    <div onclick="selectVille('${i.value.replace(/'/g,"\\'")}','${inputId}','${dropId}')" style="
       padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
       border-bottom:1px solid #F0F2F5;transition:background .15s;
-    " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+    " onmouseover="this.style.background='rgba(99,102,241,.06)'"
        onmouseout="this.style.background='white'">${i.label}</div>
   `).join('');
   drop.style.display = 'block';
 }
 
-function selectVille(val) {
-  document.getElementById('lead-ville').value = val;
-  document.getElementById('drop-ville').style.display = 'none';
+function selectVille(val, inputId, dropId) {
+  inputId = inputId || 'lead-ville';
+  dropId  = dropId  || 'drop-ville';
+  document.getElementById(inputId).value = val;
+  document.getElementById(dropId).style.display = 'none';
+}
+
+function searchVilleInstall(val) {
+  // Réutilise searchVille avec les IDs du formulaire installation
+  const drop = document.getElementById('drop-install-zone');
+  if (!val || val.length < 2) { drop.style.display = 'none'; return; }
+  const valLower = val.toLowerCase().trim();
+  clearTimeout(villeTimer);
+  const grand = ['paris','lyon','marseille'].find(g => valLower.startsWith(g) || g.startsWith(valLower));
+  if (grand) {
+    const items = ARRONDISSEMENTS[grand];
+    renderDropVille(drop, items, 'install-zone', 'drop-install-zone');
+    return;
+  }
+  villeTimer = setTimeout(async () => {
+    try {
+      const resp = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&limit=8&type=commune-actuelle`);
+      const villes = await resp.json();
+      const items = villes.flatMap(v => {
+        const dept = v.departement ? ` (${v.departement.code})` : '';
+        return (v.codesPostaux || ['']).slice(0,1).map(cp => ({
+          label: `${v.nom}<span style="color:#9CA3AF;font-size:.78rem"> ${cp}${dept}</span>`,
+          value: `${v.nom} (${cp})`
+        }));
+      });
+      renderDropVille(drop, items, 'install-zone', 'drop-install-zone');
+    } catch(e) { drop.style.display = 'none'; }
+  }, 250);
 }
 
 function closeDropdown(id) {
