@@ -1089,42 +1089,40 @@ function injectTestButton() {
 }
 
 function fillTestData() {
-  // Aller au questionnaire si pas encore là
-  if (document.getElementById('screen-questionnaire').style.display === 'none' ||
-      !document.getElementById('screen-questionnaire').classList.contains('active')) {
-    showChoix();
-    setTimeout(() => { startQuestionnaire(); setTimeout(fillTestData, 300); }, 200);
-    return;
-  }
-
   // Réponses test — gynécologue médicale Lyon
   state.reponses = {
     phase: 'consolidation',
     admin: '3',
     materiel: '4',
     informatique: 'zoom',
-    teleconsult_plateforme: 'zoom',
     compta: '2',
     charge: '1',
     financement: 'non',
     developpement: ['endometriose']
   };
   state.texteLibre = "Je suis gynécologue médicale en secteur 2 à Lyon depuis 12 ans. Je fais des téléconsultations sur Zoom, environ 30% de mon activité. Mon agenda est plein mais je passe beaucoup de temps sur l'admin. Je voudrais développer une consultation endométriose.";
+  state.parcours = 'questionnaire';
 
-  // Passer à la capture email directement
+  // Aller directement à la capture email
   showScreen('capture');
 
-  // Pré-remplir le formulaire lead
-  setTimeout(() => {
+  // Pré-remplir le formulaire lead avec délai pour que le DOM soit prêt
+  const tryFill = (attempts) => {
     const email = document.getElementById('lead-email');
     const prenom = document.getElementById('lead-prenom');
     const spe = document.getElementById('lead-specialite');
     const ville = document.getElementById('lead-ville');
-    if (email)  email.value  = 'test@bigdoc.fr';
-    if (prenom) prenom.value = 'Marie';
-    if (spe)    spe.value    = 'Gynécologie médicale';
-    if (ville)  ville.value  = 'Lyon (69001)';
-  }, 100);
+
+    if (email) {
+      email.value  = 'test@bigdoc.fr';
+      prenom && (prenom.value = 'Marie');
+      spe    && (spe.value   = 'Gynécologie médicale');
+      ville  && (ville.value = 'Lyon (69001)');
+    } else if (attempts > 0) {
+      setTimeout(() => tryFill(attempts - 1), 100);
+    }
+  };
+  setTimeout(() => tryFill(10), 50);
 }
 
 async function init() {
