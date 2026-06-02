@@ -1,18 +1,26 @@
 {
   "_meta": {
-    "version": "2.0",
-    "updated": "2024-01",
+    "version": "3.0",
+    "updated": "2024-06",
     "sources": [
       "Atlas démographie médicale CNOM 2023",
       "CARMF Rapport annuel 2023",
-      "DREES Études et Résultats 2023",
-      "CPAM / Ameli Open Data 2023",
+      "DREES Études et Résultats 2023 — n°1282, 1276, 1265",
+      "CPAM / Ameli Open Data 2023 — Tableau de bord téléconsultation",
       "IRDES — Institut de recherche en économie de la santé 2023",
-      "URPS Médecins — Enquêtes régionales 2022-2023",
-      "HAS — Haute Autorité de Santé",
-      "INSEE — Données population 2023"
+      "URPS Médecins Île-de-France 2023 — Enquête conditions d'exercice",
+      "URPS Médecins Auvergne-Rhône-Alpes 2023",
+      "URPS Médecins Occitanie 2022 — Baromètre libéral",
+      "HAS — Haute Autorité de Santé — Indicateurs qualité 2023",
+      "INSEE — Données population et territoire 2023",
+      "SNDS — Système National des Données de Santé 2022",
+      "FNCS — Fédération Nationale des Communautés Professionnelles de Santé 2023",
+      "ANS — Agence du Numérique en Santé — Mon Espace Santé 2023",
+      "Rapport Ségur de la Santé 2020 — bilan 2023",
+      "Plan Ma Santé 2022 — bilan d'étape DGOS 2023",
+      "ATIH — Agence Technique de l'Information sur l'Hospitalisation 2022"
     ],
-    "note": "Mettre à jour via scripts/update_demographics.py"
+    "note": "Mettre à jour via scripts/update_demographics.py — RPPS mensuel + Ameli trimestriel"
   },
 
   "benchmarks_nationaux": {
@@ -165,6 +173,245 @@
         {"motif": "Cardiopathies ischémiques", "part": 0.12},
         {"motif": "Autres", "part": 0.11}
       ]
+    }
+  },
+
+  "donnees_urps": {
+    "source": "URPS Médecins — enquêtes régionales 2022-2023 (IDF, AuRA, Occitanie, Bretagne)",
+    "conditions_exercice": {
+      "satisfaction_globale_pct": 0.52,
+      "source": "URPS IDF 2023 — 3 420 médecins interrogés",
+      "facteurs_insatisfaction": [
+        {"facteur": "Charge administrative excessive", "pct": 0.71, "source": "URPS IDF 2023"},
+        {"facteur": "Revenus insuffisants / tarifs bloqués", "pct": 0.58, "source": "URPS IDF 2023"},
+        {"facteur": "Difficulté à trouver un successeur", "pct": 0.44, "source": "URPS AuRA 2023"},
+        {"facteur": "Manque de personnel de secrétariat", "pct": 0.42, "source": "URPS Occitanie 2022"},
+        {"facteur": "Complexité du système d'information de santé", "pct": 0.38, "source": "URPS IDF 2023"}
+      ],
+      "temps_admin_par_semaine": {
+        "moins_2h": 0.12,
+        "2_5h": 0.35,
+        "5_10h": 0.38,
+        "plus_10h": 0.15,
+        "source": "URPS AuRA 2023 — 1 850 MG interrogés"
+      },
+      "logiciel_metier": {
+        "part_ayant_logiciel_certifie_HDS": 0.62,
+        "part_utilisant_messagerie_securisee": 0.55,
+        "part_utilisant_dmp": 0.41,
+        "source": "ANS — Observatoire numérique en santé 2023"
+      },
+      "taux_equipement_teleconsultation": {
+        "national": 0.48,
+        "zone_urbaine": 0.61,
+        "zone_rurale": 0.31,
+        "source": "URPS — Baromètre numérique médecins libéraux 2023"
+      }
+    },
+    "revenus_ressentis": {
+      "estiment_revenu_insuffisant": 0.54,
+      "ont_augmente_tarifs_3_ans": 0.31,
+      "envisagent_changement_secteur": 0.18,
+      "source": "URPS IDF + Occitanie 2022-2023"
+    },
+    "projets_evolution": {
+      "envisagent_rejoindre_msp_cpts": 0.38,
+      "envisagent_reduction_activite_5ans": 0.46,
+      "envisagent_arret_activite_5ans": 0.22,
+      "ont_deja_forme_associe": 0.28,
+      "source": "URPS IDF 2023"
+    }
+  },
+
+  "donnees_cpts": {
+    "source": "FNCS — Fédération Nationale des CPTS + DGOS Bilan Ma Santé 2022 — données 2023",
+    "etat_deploiement": {
+      "nombre_cpts_france": 903,
+      "date_reference": "Octobre 2023",
+      "objectif_initial_2022": 1000,
+      "taux_couverture_territoire": 0.92,
+      "source": "DGOS — Direction Générale de l'Offre de Soins 2023"
+    },
+    "adhesion": {
+      "taux_medecins_adherents": 0.32,
+      "medecins_dans_cpts_active": 72000,
+      "progression_annuelle": 0.15,
+      "source": "FNCS 2023"
+    },
+    "financement": {
+      "dotation_socle_annuelle_euros": 150000,
+      "dotation_variable_max_euros": 400000,
+      "criteres_variable": [
+        "Accès au médecin traitant (ACI)",
+        "Organisation des soins non programmés",
+        "Dépistage et prévention",
+        "Qualité et pertinence des soins"
+      ],
+      "source": "Avenant 9 convention médicale + accord conventionnel CPTS 2022"
+    },
+    "benefices_medecin_adherent": {
+      "acces_secretariat_mutualise": true,
+      "formation_continue_collective": true,
+      "protocoles_partages": true,
+      "acces_DAC_prioritaire": true,
+      "reduction_charge_garde": 0.25,
+      "source": "FNCS — Témoignages et enquêtes de terrain 2023"
+    },
+    "indicateurs_qualite_ACI": {
+      "indicateur_1": "Nombre de patients sans médecin traitant pris en charge",
+      "indicateur_2": "Délai d'accès à une consultation non programmée < 24h",
+      "indicateur_3": "Taux de patients avec bilan de prévention réalisé",
+      "indicateur_4": "Taux de médecins participant aux concertations pluriprofessionnelles",
+      "source": "Avenant 9 — Accord cadre CPTS FNCS/CNAM 2022"
+    },
+    "types_activites_principales": [
+      "Permanence des soins et soins non programmés",
+      "Protocoles de coopération (IPA — infirmiers en pratique avancée)",
+      "Dépistage organisé (cancer colorectal, col utérus, sein)",
+      "Coordination ville-hôpital post-hospitalisation",
+      "Prévention santé mentale — partenariat CMP",
+      "Téléconsultation mutualisée"
+    ]
+  },
+
+  "donnees_ameli_cpam": {
+    "source": "Ameli Open Data + CPAM — Tableau de bord national 2023",
+    "teleconsultation": {
+      "actes_total_2023": 18200000,
+      "croissance_vs_2022": 0.22,
+      "part_actes_totaux": 0.08,
+      "plateformes_agreees_nombre": 12,
+      "plateforme_principale": "Doctolib (68% des actes)",
+      "tarifs_en_vigueur": {
+        "G_generaliste_euros": 25,
+        "CS_specialiste_euros": 30,
+        "remarque": "Même tarif consultation présentielle — remboursable uniquement via plateforme HDS agréée"
+      },
+      "par_specialite_2023": {
+        "Médecine générale": {"part": 0.09, "actes_millions": 1.64},
+        "Psychiatrie": {"part": 0.35, "actes_millions": 0.78},
+        "Gynécologie médicale": {"part": 0.12, "actes_millions": 0.18},
+        "Dermatologie": {"part": 0.18, "actes_millions": 0.42},
+        "Neurologie": {"part": 0.15, "actes_millions": 0.24}
+      },
+      "conformite": {
+        "taux_utilisation_plateforme_non_agreee": 0.18,
+        "risque": "Acte non remboursable + responsabilité civile engagée",
+        "source": "Contrôle CPAM + enquête URPS IDF 2023"
+      }
+    },
+    "rejets_cpam": {
+      "taux_rejet_moyen_cabinet_liberal": 0.034,
+      "cout_moyen_rejet_non_traite_euros": 185,
+      "causes_principales": [
+        {"cause": "Défaut de prescription électronique (ordonnance papier)", "part": 0.28},
+        {"cause": "Codage CCAM incorrect", "part": 0.22},
+        {"cause": "Absence d'accord préalable (ALD, appareillage)", "part": 0.18},
+        {"cause": "Coordonnées patient erronées", "part": 0.14},
+        {"cause": "Dépassement plafond ou régime mal identifié", "part": 0.12},
+        {"cause": "Autres", "part": 0.06}
+      ],
+      "source": "CPAM — Rapport activité contrôle médical 2022"
+    },
+    "indicateurs_qualite_IQSS": {
+      "source": "HAS — Indicateurs qualité et sécurité des soins 2023",
+      "taux_vaccination_grippe_60plus": 0.52,
+      "taux_depistage_cancer_colorectal": 0.38,
+      "taux_depistage_col_uterus": 0.61,
+      "taux_depistage_cancer_sein": 0.56,
+      "taux_suivi_HTA_traitement": 0.72,
+      "taux_suivi_diabete_HbA1c": 0.68
+    },
+    "patientele_medecin_traitant": {
+      "patients_sans_medecin_traitant_millions": 6.7,
+      "date": "2023-10",
+      "croissance_vs_2022": 0.12,
+      "source": "Ameli — Tableau de bord accès aux soins Q3 2023",
+      "regions_plus_touchees": ["Île-de-France", "Hauts-de-France", "Centre-Val de Loire", "Bourgogne-Franche-Comté"]
+    }
+  },
+
+  "donnees_drees_etat": {
+    "source": "DREES — Direction de la Recherche, des Études, de l'Évaluation et des Statistiques 2023",
+    "effectifs_medecins": {
+      "total_actifs_france": 227000,
+      "liberaux": 106000,
+      "salaries": 121000,
+      "evolution_10_ans_liberaux_pct": -0.066,
+      "projections": {
+        "2030_liberaux_estimés": 98000,
+        "hypothese": "Sans réforme du numerus clausus — selon projection DREES n°1276"
+      },
+      "source": "DREES Études et Résultats n°1265 — 2023"
+    },
+    "deserts_medicaux": {
+      "definition": "Zones d'Intervention Prioritaire (ZIP) et Zones d'Action Complémentaire (ZAC) — ARS",
+      "part_population_sous_dotee": 0.087,
+      "nombre_communes_zip": 5800,
+      "source": "DREES — Atlas des déserts médicaux 2023",
+      "evolution": "Augmentation de +12% des zones sous-dotées depuis 2019"
+    },
+    "feminisation": {
+      "part_femmes_nouveaux_inscrits_ordre": 0.61,
+      "part_femmes_moins_40_ans_liberaux": 0.54,
+      "impact_activite": "Les femmes médecins travaillent en moyenne 42h/sem vs 49h pour les hommes (DREES 2023)",
+      "source": "DREES — Emploi du temps des médecins libéraux 2023"
+    },
+    "acces_soins": {
+      "delai_moyen_rdv_generaliste_jours": 6,
+      "delai_moyen_rdv_specialiste_jours": 49,
+      "variation_specialites": {
+        "Ophtalmologie": 98,
+        "Psychiatrie": 85,
+        "Gynécologie": 62,
+        "Dermatologie": 55,
+        "Cardiologie": 38
+      },
+      "source": "Ameli — Observatoire des délais d'accès aux soins 2023"
+    },
+    "plan_ma_sante_2022": {
+      "bilan_2023": {
+        "CPTS_creees": 903,
+        "MSP_labellisees": 2950,
+        "IPA_en_exercice": 3200,
+        "structures_exercice_coordonne_total": 4800,
+        "source": "DGOS — Bilan Ma Santé 2022 — juin 2023"
+      },
+      "mesures_phares": [
+        "Numerus apertus — fin du numerus clausus depuis 2020",
+        "Protocoles de coopération IPA",
+        "Service d'Accès aux Soins (SAS) — régulation libérale",
+        "Mon Espace Santé — déploiement 2022-2023",
+        "Financement CPTS renforcé"
+      ]
+    },
+    "segur_numerique": {
+      "source": "ANS — Agence du Numérique en Santé — Bilan Ségur 2023",
+      "logiciels_compatibles_DMP": 0.78,
+      "messageries_securisees_actives_millions": 1.2,
+      "aide_equipement_logiciel_euros": 1500,
+      "mon_espace_sante_comptes_actives_millions": 52,
+      "note": "Aide Ségur numérique jusqu'à 1 500€ pour équipement et formation logiciel certifié"
+    }
+  },
+
+  "donnees_snds": {
+    "source": "SNDS — Système National des Données de Santé — DREES / ATIH 2022",
+    "pathologies_prevalentes": {
+      "HTA_adultes_pct": 0.29,
+      "diabete_adultes_pct": 0.071,
+      "depression_adultes_pct": 0.10,
+      "insuffisance_cardiaque_pct": 0.025,
+      "BPCO_adultes_pct": 0.073,
+      "obesite_adultes_pct": 0.178,
+      "source": "Charges et produits CNAM 2022 — Ameli"
+    },
+    "consommation_soins_medecin_liberal": {
+      "nombre_consultations_par_an_total_millions": 480,
+      "part_realisees_generaliste": 0.52,
+      "part_realisees_specialiste": 0.48,
+      "cout_moyen_consultation_euros": 28,
+      "source": "SNDS — DREES 2022"
     }
   },
 
