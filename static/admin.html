@@ -845,29 +845,32 @@ async function loadQuotes() {
 }
 
 async function openQuoteModal(lead = null) {
-  // Charger les produits si pas encore fait
-  if (!allProducts.length) await loadProducts();
-
-  const sel = document.getElementById('qm-produit');
-  sel.innerHTML = '<option value="">Sélectionner…</option>' +
-    allProducts.filter(p=>p.actif).map(p =>
-      `<option value="${p.id}" data-prix="${p.prix_cents/100}">${p.nom} — ${p.prix_cents>0?(p.prix_cents/100)+'€':'Gratuit'}</option>`
-    ).join('');
-  // Pré-remplir depuis lead si fourni
-  if (lead) {
-    document.getElementById('qm-email').value = lead.email||'';
-    document.getElementById('qm-prenom').value = lead.prenom||'';
-    document.getElementById('qm-nom').value = lead.nom||'';
-    document.getElementById('qm-specialite').value = lead.specialite||'';
-    document.getElementById('qm-ville').value = lead.ville||'';
-    // Pré-sélectionner le palier recommandé
-    if (lead.recommandation_palier) {
-      const opt = [...sel.options].find(o => o.text.toLowerCase().includes(lead.recommandation_palier.toLowerCase()));
-      if (opt) { sel.value = opt.value; fillQuotePrice(); }
+  try {
+    if (!allProducts.length) await loadProducts();
+    const sel = document.getElementById('qm-produit');
+    if (!sel) { alert('Erreur: element qm-produit introuvable'); return; }
+    sel.innerHTML = '<option value="">Sélectionner…</option>' +
+      allProducts.filter(p=>p.actif).map(p =>
+        `<option value="${p.id}" data-prix="${p.prix_cents/100}">${p.nom} — ${p.prix_cents>0?(p.prix_cents/100)+'€':'Gratuit'}</option>`
+      ).join('');
+    if (lead) {
+      document.getElementById('qm-email').value = lead.email||'';
+      document.getElementById('qm-prenom').value = lead.prenom||'';
+      document.getElementById('qm-nom').value = lead.nom||'';
+      document.getElementById('qm-specialite').value = lead.specialite||'';
+      document.getElementById('qm-ville').value = lead.ville||'';
+      if (lead.recommandation_palier) {
+        const opt = [...sel.options].find(o => o.text.toLowerCase().includes(lead.recommandation_palier.toLowerCase()));
+        if (opt) { sel.value = opt.value; fillQuotePrice(); }
+      }
     }
+    updateTTC();
+    const modal = document.getElementById('quote-modal');
+    if (!modal) { alert('Erreur: modal quote-modal introuvable'); return; }
+    modal.classList.add('open');
+  } catch(e) {
+    alert('Erreur openQuoteModal: ' + e.message);
   }
-  updateTTC();
-  document.getElementById('quote-modal').classList.add('open');
 }
 
 function closeQuoteModal() { document.getElementById('quote-modal').classList.remove('open'); }
