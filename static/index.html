@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bigdoc — Diagnostic Confort de votre cabinet</title>
   <meta name="description" content="Évaluez la santé de votre cabinet médical en 3 minutes. Score personnalisé, heures perdues, euros récupérables. Gratuit." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+  <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Nunito+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
@@ -2272,9 +2273,11 @@ function renderResult() {
       <!-- CTA compact -->
       <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F3FF;border-radius:12px;padding:1rem 1.5rem;border:1px solid #EDE9FE;flex-wrap:wrap;gap:.75rem">
         <div>
-          <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
-            Traiter mon cabinet avec RMS →
-          </button>
+          <div style="font-size:.78rem;color:#374151;font-weight:500;margin-bottom:.35rem">Prêt à traiter votre cabinet ?</div>
+          <a href="" onclick="Calendly.initPopupWidget({url:'https://calendly.com/bigdoc-realmedservices/30min'});return false;"
+             style="display:inline-block;background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;text-decoration:none">
+            📅 Prendre rendez-vous avec RMS
+          </a>
         </div>
         <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.45rem 1rem;border-radius:999px;font-size:.75rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
           📋 Partager
