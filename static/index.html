@@ -1040,6 +1040,9 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <div style="font-size:.82rem;color:#6B7280;font-weight:500">Entrez votre email pour recevoir votre bilan complet</div>
         </div>
 
+        <!-- Note incohérence détectée -->
+        <div id="incoherence-note" style="display:none;background:#F5F3FF;border:1.5px solid rgba(99,102,241,.2);border-radius:12px;padding:.85rem 1rem;margin-bottom:1.25rem"></div>
+
         <div class="input-group">
           <label>Email professionnel *</label>
           <input type="email" id="lead-email" placeholder="dr.dupont@cabinet.fr" />
@@ -1544,6 +1547,47 @@ function estimatePartialScore() {
 function goToCapture() {
   const tl = document.getElementById('texte-libre');
   if (tl) state.texteLibre = tl.value;
+
+  // Détection des incohérences évidentes — alerte douce avant soumission
+  const texte = (state.texteLibre || '').toLowerCase();
+  const reponses = state.reponses;
+  const alertes = [];
+
+  // Téléconsultation
+  const mentionneAppelVideo = /zoom|teams|whatsapp|facetime|skype|appel vid|visio/i.test(texte);
+  const ditPasDeTeleconsult = reponses.informatique === 'non' || reponses.informatique === 'aucune';
+  if (mentionneAppelVideo && ditPasDeTeleconsult) {
+    alertes.push("Vous indiquez ne pas faire de téléconsultation, mais mentionnez un outil vidéo. Bigdoc va analyser ce point — les consultations via Zoom ou Teams ne sont généralement pas remboursées par la CPAM.");
+  }
+
+  // Sauvegardes
+  const mentionneSauvegardeProbleme = /pas de sauvegarde|sans sauvegarde|backup|données perdues|perd.*données|données.*perdu/i.test(texte);
+  const ditInformatiqueOK = reponses.informatique === 'agrée' || reponses.informatique === 'conforme';
+  if (mentionneSauvegardeProbleme && ditInformatiqueOK) {
+    alertes.push("Votre logiciel semble opérationnel mais vous mentionnez un problème de sauvegarde. Ce point sera traité dans votre bilan.");
+  }
+
+  // Charge admin sous-estimée
+  const mentionneSurcharge = /tout seul|débordé|submergé|trop de papier|trop d'admin|plus le temps/i.test(texte);
+  const ditAdminFaible = reponses.admin === '0' || reponses.admin === '1';
+  if (mentionneSurcharge && ditAdminFaible) {
+    alertes.push("Vous décrivez une charge importante dans votre texte, mais avez indiqué peu d'heures d'admin. Bigdoc va prendre en compte votre description — elle est souvent plus précise.");
+  }
+
+  // Afficher une note discrète si incohérence détectée
+  const noteEl = document.getElementById('incoherence-note');
+  if (alertes.length > 0 && noteEl) {
+    noteEl.innerHTML = alertes.map(a =>
+      `<div style="display:flex;gap:.5rem;align-items:flex-start;margin-bottom:.5rem">
+        <span style="color:#6366F1;flex-shrink:0">ℹ</span>
+        <span style="font-size:.78rem;color:#374151;line-height:1.5">${a}</span>
+      </div>`
+    ).join('');
+    noteEl.style.display = 'block';
+  } else if (noteEl) {
+    noteEl.style.display = 'none';
+  }
+
   showScreen('capture');
 }
 
