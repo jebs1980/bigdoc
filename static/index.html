@@ -1470,15 +1470,28 @@ function startLoadingAnimation() {
   const circumference = 239;
 
   const steps = [
-    { at: 5,  stepId: 'step-1', title: 'Analyse de vos réponses…', sub: 'Lecture de vos 8 réponses au questionnaire' },
-    { at: 25, stepId: 'step-2', title: 'Calcul du score en cours…', sub: 'Évaluation de vos 7 dimensions de confort' },
-    { at: 50, stepId: 'step-3', title: 'Estimation de l\'impact financier…', sub: 'Calcul des heures perdues et euros récupérables' },
-    { at: 70, stepId: 'step-4', title: 'Identification des points critiques…', sub: 'Détection des risques juridiques et opportunités' },
-    { at: 88, stepId: 'step-5', title: 'Rédaction de votre ordonnance…', sub: 'Personnalisation des recommandations RMS' },
+    { at: 5,  stepId: 'step-1', title: 'Analyse de vos réponses…', sub: 'Lecture de vos réponses au questionnaire' },
+    { at: 22, stepId: 'step-2', title: 'Calcul du score en cours…', sub: 'Évaluation de vos 7 dimensions de confort' },
+    { at: 45, stepId: 'step-3', title: 'Estimation de l\'impact financier…', sub: 'Calcul des heures perdues et euros récupérables' },
+    { at: 65, stepId: 'step-4', title: 'Identification des points critiques…', sub: 'Détection des risques et opportunités de votre cabinet' },
+    { at: 82, stepId: 'step-5', title: 'Rédaction de votre ordonnance…', sub: 'Personnalisation des recommandations Bigdoc' },
+  ];
+
+  // Messages rotatifs pour la phase finale (après 88%)
+  const messagesFinaux = [
+    { title: 'Finalisation du bilan…', sub: 'Votre ordonnance est en cours de rédaction' },
+    { title: 'Croisement des données…', sub: 'Comparaison avec les benchmarks CARMF et CNOM' },
+    { title: 'Analyse des opportunités…', sub: 'Identification des niches sous-dotées dans votre zone' },
+    { title: 'Vérification des chiffres…', sub: 'Les estimations sont basées sur les tarifs CCAM en vigueur' },
+    { title: 'Bilan presque prêt…', sub: 'Merci de patienter — l\'analyse est approfondie' },
+    { title: 'Intelligence artificielle au travail…', sub: 'Votre cabinet mérite une analyse sérieuse' },
+    { title: 'Quelques secondes encore…', sub: 'Nous affinons votre ordonnance personnalisée' },
   ];
 
   let current = 0;
   let stepsActivated = [];
+  let messageIndex = 0;
+  let phaseFinale = false;
 
   // Reset
   for (let i = 1; i <= 5; i++) {
@@ -1490,7 +1503,28 @@ function startLoadingAnimation() {
   }
 
   loadingInterval = setInterval(() => {
-    current = Math.min(current + 0.8, 95);
+    // Progression rapide jusqu'à 88%, puis très lente
+    if (current < 88) {
+      current = Math.min(current + 1.1, 88);
+    } else {
+      // Ralentir fortement après 88%
+      current = Math.min(current + 0.08, 96);
+      if (!phaseFinale) {
+        phaseFinale = true;
+        // Lancer les messages rotatifs toutes les 3.5 secondes
+        const msgInterval = setInterval(() => {
+          if (!document.getElementById('progress-circle')) {
+            clearInterval(msgInterval);
+            return;
+          }
+          const msg = messagesFinaux[messageIndex % messagesFinaux.length];
+          if (title) title.textContent = msg.title;
+          if (sub) sub.textContent = msg.sub;
+          messageIndex++;
+        }, 3500);
+      }
+    }
+
     const offset = circumference - (current / 100) * circumference;
     if (circle) circle.style.strokeDashoffset = offset;
     if (pct) pct.textContent = Math.round(current) + '%';
@@ -1504,11 +1538,13 @@ function startLoadingAnimation() {
           el.style.opacity = '1';
           el.querySelector('.step-dot').style.background = 'var(--teal)';
         }
-        if (title) title.textContent = step.title;
-        if (sub) sub.textContent = step.sub;
+        if (!phaseFinale) {
+          if (title) title.textContent = step.title;
+          if (sub) sub.textContent = step.sub;
+        }
       }
     });
-  }, 150);
+  }, 120);
 }
 
 function stopLoadingAnimation() {
