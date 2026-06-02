@@ -395,6 +395,13 @@ def generate_rapport_html(bilan, lead_info, specialite="", ville=""):
     et les motifs de consultation CPAM. Les estimations financières sont calculées sur la base des tarifs CCAM/NGAP en vigueur.
     Bigdoc est un service Real Med Services — bonjour@bigdoc.fr — bigdoc.fr
   </p>
+  <p style="font-size:6pt;color:#BBBBBB;margin-top:2mm;line-height:1.4;font-style:italic;border-top:0.5pt solid #E8EBF0;padding-top:2mm">
+    Avertissement légal : Ce document est fourni à titre purement indicatif et ne constitue ni un avis juridique, ni un conseil financier ou médical.
+    Les estimations de gains, d'heures perdues et d'euros récupérables sont des approximations statistiques basées sur des moyennes nationales
+    et peuvent différer significativement de votre situation réelle. Les appréciations relatives à la conformité réglementaire
+    (téléconsultation, CPAM, facturation) sont données à titre informatif uniquement et n'engagent pas la responsabilité de Real Med Services.
+    Toute décision doit être prise en concertation avec un professionnel qualifié (avocat, expert-comptable, médecin conseil CPAM).
+  </p>
 </div>
 
 <div class="footer">
