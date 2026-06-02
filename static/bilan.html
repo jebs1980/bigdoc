@@ -173,6 +173,74 @@ function renderRadar(dims) {
     </svg>`;
 }
 
+function contextStats(dims) {
+  const ALL_STATS = {
+    administration: [
+      { val: "71%", label: "des médecins jugent leur charge admin excessive", source: "URPS IDF 2023 — 3 420 médecins", color: "#EF4444" },
+      { val: "11,4h", label: "perdues/sem en moyenne sur des tâches non médicales", source: "CNOM Atlas 2023", color: "#F59E0B" },
+      { val: "185€", label: "coût moyen d'un rejet CPAM non traité", source: "CPAM — Rapport contrôle médical 2022", color: "#F59E0B" },
+    ],
+    informatique_teleconsult: [
+      { val: "18%", label: "des téléconsultations se font sur plateforme non agréée", source: "Ameli Open Data 2023", color: "#EF4444" },
+      { val: "62%", label: "des cabinets n'ont pas de logiciel certifié HDS", source: "ANS — Observatoire numérique 2023", color: "#F59E0B" },
+      { val: "+22%", label: "de croissance des téléconsultations en 2023", source: "Ameli — 18,2M d'actes", color: "#10B981" },
+    ],
+    comptabilite_finances: [
+      { val: "54%", label: "des médecins estiment leur revenu insuffisant", source: "URPS IDF + Occitanie 2022-2023", color: "#EF4444" },
+      { val: "42%", label: "du BNC part en charges sociales en moyenne", source: "CARMF 2023", color: "#F59E0B" },
+    ],
+    charge_mentale: [
+      { val: "50%", label: "des médecins libéraux en risque élevé de burnout", source: "FMF / CNOM 2023", color: "#EF4444" },
+      { val: "46%", label: "envisagent une réduction d'activité dans les 5 ans", source: "URPS IDF 2023", color: "#F59E0B" },
+    ],
+    achats_materiel: [
+      { val: "23%", label: "des cabinets ont une panne majeure par an", source: "URPS enquêtes régionales 2022", color: "#F59E0B" },
+      { val: "8,5 ans", label: "âge moyen du parc équipement en libéral", source: "URPS 2022", color: "#6366F1" },
+    ],
+    developpement_croissance: [
+      { val: "903", label: "CPTS actives — 92% du territoire couvert", source: "DGOS — Ma Santé 2022 — oct. 2023", color: "#10B981" },
+      { val: "38%", label: "des médecins envisagent de rejoindre une CPTS", source: "URPS IDF 2023", color: "#6366F1" },
+      { val: "6,7M", label: "de patients sans médecin traitant en France", source: "Ameli — Q3 2023", color: "#EF4444" },
+    ],
+    financement_investissements: [
+      { val: "50 000€", label: "d'aide CAIM en zone sous-dotée (5 ans)", source: "ARS — Contrat d'Aide à l'Installation 2024", color: "#10B981" },
+      { val: "85 000€", label: "coût moyen d'installation d'un cabinet libéral", source: "CNOM Atlas 2023", color: "#6366F1" },
+    ],
+  };
+
+  // Sélectionner les stats des dimensions les plus critiques (score ≤ 12)
+  const critical = Object.entries(dims)
+    .filter(([,d]) => (d.score||0) <= 12)
+    .sort(([,a],[,b]) => (a.score||0) - (b.score||0))
+    .slice(0, 3)
+    .map(([k]) => k);
+
+  // Si aucune dimension critique, prendre les 2 plus faibles
+  const keys = critical.length > 0 ? critical :
+    Object.entries(dims)
+      .sort(([,a],[,b]) => (a.score||0) - (b.score||0))
+      .slice(0, 2)
+      .map(([k]) => k);
+
+  const stats = [];
+  keys.forEach(k => {
+    const s = ALL_STATS[k];
+    if (s) stats.push(...s.slice(0, 2));
+  });
+
+  // Toujours ajouter une stat positive si peu de stats
+  if (stats.length < 3) {
+    stats.push({ val: "49j", label: "délai moyen d'accès à un spécialiste en France", source: "Ameli — Observatoire accès aux soins 2023", color: "#6366F1" });
+  }
+
+  return stats.slice(0, 6).map(s => `
+    <div style="background:white;border-radius:12px;padding:.9rem 1rem;border:1px solid #EDE9FE">
+      <div style="font-family:'Nunito',sans-serif;font-size:1.5rem;font-weight:900;color:${s.color};line-height:1;letter-spacing:-1px;margin-bottom:.25rem">${s.val}</div>
+      <div style="font-size:.8rem;color:#1A1060;font-weight:600;line-height:1.35;margin-bottom:.35rem">${s.label}</div>
+      <div style="font-size:.65rem;color:#9CA3AF;font-weight:500">${s.source}</div>
+    </div>`).join('');
+}
+
 function renderBilan(b) {
   const score = b.score_global;
   const scoreColor = score<=25?'#C0392B':score<=50?'#E67E22':score<=75?'#F4A261':'#1A7A5E';
@@ -268,6 +336,14 @@ function renderBilan(b) {
       <div style="padding:1.75rem 2rem 1rem;border-bottom:1px solid #EDE9FE;text-align:center">
         <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem;text-align:left">PROFIL RADAR</div>
         ${renderRadar(b.dimensions||{})}
+      </div>
+
+      <!-- CONTEXTE NATIONAL — stats sourcées selon dimensions critiques -->
+      <div style="padding:1.5rem 2rem;border-bottom:1px solid #EDE9FE;background:#FAFAFE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:1rem">VOUS N'ÊTES PAS SEUL — LES CHIFFRES</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem">
+          ${contextStats(b.dimensions||{})}
+        </div>
       </div>
 
       <!-- DIMENSIONS -->
