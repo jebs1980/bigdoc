@@ -109,6 +109,7 @@
 <nav>
   <button class="nav-btn active" onclick="showTab('leads',this)">👥 Leads</button>
   <button class="nav-btn" onclick="showTab('stats',this)">📊 Stats</button>
+  <button class="nav-btn" onclick="showTab('devis',this)">📄 Devis</button>
   <button class="nav-btn" onclick="showTab('catalogue',this)">🛍 Produits</button>
   <button class="nav-btn" onclick="showTab('settings',this)">⚙️ Paramètres</button>
 </nav>
@@ -201,7 +202,25 @@
     </div>
   </div>
 
-  <!-- ── CATALOGUE ── -->
+  <!-- ── DEVIS ── -->
+  <div class="tab" id="tab-devis">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Devis Stripe</span>
+        <button class="btn btn-primary" onclick="openQuoteModal()">+ Nouveau devis</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Client</th><th>Email</th><th>Prestation</th><th>Montant HT</th><th>Statut</th><th></th>
+          </tr></thead>
+          <tbody id="quotes-tbody"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
   <div class="tab" id="tab-catalogue">
     <div class="card">
       <div class="card-header">
@@ -298,7 +317,63 @@
   </div>
 </div>
 
-<!-- ── MODAL PRODUIT ── -->
+<!-- ── MODAL DEVIS ── -->
+<div class="modal" id="quote-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="quote-modal-title">Nouveau devis</div>
+    <div class="form-grid form-grid-2" style="gap:.85rem">
+      <div class="input-group">
+        <label>Prénom</label>
+        <input type="text" id="qm-prenom" placeholder="Marie">
+      </div>
+      <div class="input-group">
+        <label>Nom</label>
+        <input type="text" id="qm-nom" placeholder="Dupont">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Email *</label>
+        <input type="email" id="qm-email" placeholder="dr.dupont@cabinet.fr">
+      </div>
+      <div class="input-group">
+        <label>Spécialité</label>
+        <input type="text" id="qm-specialite" placeholder="Gynécologie">
+      </div>
+      <div class="input-group">
+        <label>Ville</label>
+        <input type="text" id="qm-ville" placeholder="Lyon">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Prestation *</label>
+        <select id="qm-produit" onchange="fillQuotePrice()">
+          <option value="">Sélectionner…</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Prix HT (€) *</label>
+        <input type="number" id="qm-prix" placeholder="250">
+      </div>
+      <div class="input-group">
+        <label>TVA (%)</label>
+        <input type="number" id="qm-tva" value="20">
+      </div>
+      <div class="input-group">
+        <label>Validité (jours)</label>
+        <input type="number" id="qm-expires" value="30">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Note personnalisée</label>
+        <input type="text" id="qm-note" placeholder="Suite à notre échange du…">
+      </div>
+      <div id="qm-ttc" style="grid-column:1/-1;background:var(--lavender);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:var(--navy);font-weight:700"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeQuoteModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="createQuote()">Créer le devis</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal" id="product-modal">
   <div class="modal-box">
     <div class="modal-title" id="product-modal-title">Nouveau service</div>
@@ -382,6 +457,7 @@ function showTab(name, btn) {
   if (btn) btn.classList.add('active');
   if (name === 'leads') loadLeads();
   if (name === 'stats') { loadStats(); loadStripeStats(); }
+  if (name === 'devis') { loadQuotes(); loadProducts(); }
   if (name === 'settings') loadSettings();
   if (name === 'catalogue') loadProducts();
 }
@@ -458,7 +534,7 @@ function renderTable(leads) {
       <td>${l.heures_perdues_semaine?l.heures_perdues_semaine+'h':'—'}</td>
       <td>${l.euros_evitables_an?l.euros_evitables_an.toLocaleString('fr')+'€':'—'}</td>
       <td><span class="tag">${l.recommandation_palier||'—'}</span></td>
-      <td><button class="btn-sm" onclick="showDetail('${l.session_id}')">Voir</button></td>
+      <td><button class="btn-sm" onclick="showDetail('${l.session_id}')">Voir</button> <button class="btn-sm" onclick="openQuoteModal(${JSON.stringify({email:l.email,prenom:l.prenom,nom:l.nom,specialite:l.specialite,ville:l.ville,recommandation_palier:l.recommandation_palier}).replace(/"/g,'&quot;')})">Devis</button></td>
     </tr>`).join('');
 }
 
@@ -682,6 +758,163 @@ async function confirmDeleteProduct(id) {
 
 document.getElementById('product-modal').addEventListener('click', function(e){
   if(e.target===this) closeProductModal();
+});
+
+// ─── DEVIS ───
+const QUOTE_STATUS = {
+  draft: {label:'Brouillon', color:'var(--muted)'},
+  open: {label:'Envoyé', color:'var(--indigo)'},
+  accepted: {label:'Accepté', color:'var(--green)'},
+  canceled: {label:'Annulé', color:'var(--red)'},
+};
+
+async function loadQuotes() {
+  try {
+    const r = await fetch('/api/admin/quotes', {credentials:'include'});
+    if (!r.ok) { document.getElementById('quotes-tbody').innerHTML='<tr><td colspan="7" class="empty">Stripe non configuré</td></tr>'; return; }
+    const quotes = await r.json();
+    const tb = document.getElementById('quotes-tbody');
+    if (!quotes.length) { tb.innerHTML='<tr><td colspan="7" class="empty">Aucun devis</td></tr>'; return; }
+    tb.innerHTML = quotes.map(q => {
+      const st = QUOTE_STATUS[q.status] || {label:q.status, color:'var(--muted)'};
+      const montant = q.amount_total ? (q.amount_total/100).toLocaleString('fr')+'€' : '—';
+      const date = q.created ? new Date(q.created*1000).toLocaleDateString('fr') : '—';
+      const actions = q.status === 'draft'
+        ? `<button class="btn-sm" onclick="finalizeQuote('${q.id}')">Envoyer</button>
+           <button class="btn-sm btn-danger" onclick="cancelQuote('${q.id}')">Annuler</button>`
+        : q.status === 'open'
+        ? `<button class="btn-sm" onclick="acceptQuote('${q.id}')">Accepter</button>
+           <button class="btn-sm btn-danger" onclick="cancelQuote('${q.id}')">Annuler</button>`
+        : '';
+      return `<tr>
+        <td style="color:var(--muted);font-size:.76rem">${date}</td>
+        <td style="font-weight:700">${q.customer_name||'—'}</td>
+        <td style="font-size:.8rem">${q.customer_email||'—'}</td>
+        <td style="font-size:.8rem">${q.description||'—'}</td>
+        <td style="font-weight:700;color:var(--indigo)">${montant}</td>
+        <td><span style="font-size:.78rem;font-weight:700;color:${st.color}">${st.label}</span></td>
+        <td style="white-space:nowrap;display:flex;gap:.35rem">${actions}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('quotes-tbody').innerHTML='<tr><td colspan="7" class="empty">Erreur</td></tr>';
+  }
+}
+
+function openQuoteModal(lead = null) {
+  // Remplir la liste des produits
+  const sel = document.getElementById('qm-produit');
+  sel.innerHTML = '<option value="">Sélectionner…</option>' +
+    allProducts.filter(p=>p.actif).map(p =>
+      `<option value="${p.id}" data-prix="${p.prix_cents/100}">${p.nom} — ${p.prix_cents>0?(p.prix_cents/100)+'€':'Gratuit'}</option>`
+    ).join('');
+  // Pré-remplir depuis lead si fourni
+  if (lead) {
+    document.getElementById('qm-email').value = lead.email||'';
+    document.getElementById('qm-prenom').value = lead.prenom||'';
+    document.getElementById('qm-nom').value = lead.nom||'';
+    document.getElementById('qm-specialite').value = lead.specialite||'';
+    document.getElementById('qm-ville').value = lead.ville||'';
+    // Pré-sélectionner le palier recommandé
+    if (lead.recommandation_palier) {
+      const opt = [...sel.options].find(o => o.text.toLowerCase().includes(lead.recommandation_palier.toLowerCase()));
+      if (opt) { sel.value = opt.value; fillQuotePrice(); }
+    }
+  }
+  updateTTC();
+  document.getElementById('quote-modal').classList.add('open');
+}
+
+function closeQuoteModal() { document.getElementById('quote-modal').classList.remove('open'); }
+
+function fillQuotePrice() {
+  const sel = document.getElementById('qm-produit');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.dataset.prix) {
+    document.getElementById('qm-prix').value = opt.dataset.prix;
+    updateTTC();
+  }
+}
+
+function updateTTC() {
+  const ht = parseFloat(document.getElementById('qm-prix').value||0);
+  const tva = parseFloat(document.getElementById('qm-tva').value||20);
+  const ttc = ht * (1 + tva/100);
+  document.getElementById('qm-ttc').textContent =
+    ht > 0 ? `Total TTC : ${ttc.toFixed(2).replace('.',',')} € (HT : ${ht.toFixed(2).replace('.',',')} € + TVA ${tva}% : ${(ttc-ht).toFixed(2).replace('.',',')} €)` : '';
+}
+
+document.getElementById('qm-prix')?.addEventListener('input', updateTTC);
+document.getElementById('qm-tva')?.addEventListener('input', updateTTC);
+
+async function createQuote() {
+  const email = document.getElementById('qm-email').value.trim();
+  const prix = parseFloat(document.getElementById('qm-prix').value||0);
+  if (!email) { alert('Email obligatoire'); return; }
+  if (!prix) { alert('Prix obligatoire'); return; }
+  const sel = document.getElementById('qm-produit');
+  const produit_nom = sel.options[sel.selectedIndex]?.text?.split(' — ')[0] || document.getElementById('qm-note').value || 'Prestation RMS';
+  const btn = document.querySelector('#quote-modal .btn-primary');
+  btn.disabled=true; btn.textContent='Création…';
+  try {
+    const r = await fetch('/api/admin/quotes', {
+      credentials:'include', method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email,
+        prenom: document.getElementById('qm-prenom').value,
+        nom: document.getElementById('qm-nom').value,
+        specialite: document.getElementById('qm-specialite').value,
+        ville: document.getElementById('qm-ville').value,
+        produit_nom,
+        prix_ht: prix,
+        tva: parseFloat(document.getElementById('qm-tva').value||20),
+        note: document.getElementById('qm-note').value,
+        expires_jours: parseInt(document.getElementById('qm-expires').value||30),
+      })
+    });
+    const data = await r.json();
+    if (r.ok) {
+      closeQuoteModal();
+      loadQuotes();
+    } else {
+      alert('Erreur : ' + (data.detail||'Inconnue'));
+      btn.disabled=false; btn.textContent='Créer le devis';
+    }
+  } catch(e) {
+    alert('Erreur réseau'); btn.disabled=false; btn.textContent='Créer le devis';
+  }
+}
+
+async function finalizeQuote(id) {
+  if (!confirm('Finaliser et envoyer ce devis au client ?')) return;
+  try {
+    const r = await fetch(`/api/admin/quotes/${id}/finalize`, {credentials:'include', method:'POST'});
+    if (r.ok) loadQuotes();
+    else { const d=await r.json(); alert('Erreur : '+(d.detail||'Inconnue')); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+async function acceptQuote(id) {
+  if (!confirm('Marquer ce devis comme accepté et créer la facture ?')) return;
+  try {
+    const r = await fetch(`/api/admin/quotes/${id}/accept`, {credentials:'include', method:'POST'});
+    if (r.ok) loadQuotes();
+    else { const d=await r.json(); alert('Erreur : '+(d.detail||'Inconnue')); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+async function cancelQuote(id) {
+  if (!confirm('Annuler ce devis ?')) return;
+  try {
+    const r = await fetch(`/api/admin/quotes/${id}/cancel`, {credentials:'include', method:'POST'});
+    if (r.ok) loadQuotes();
+    else { const d=await r.json(); alert('Erreur : '+(d.detail||'Inconnue')); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+document.getElementById('quote-modal').addEventListener('click', function(e){
+  if(e.target===this) closeQuoteModal();
 });
 
 // ─── INIT ───
