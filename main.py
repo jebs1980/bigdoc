@@ -35,6 +35,155 @@ ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
 logger = logging.getLogger("bigdoc")
 
 # ─────────────────────────────────────────
+# DONNÉES DÉMOGRAPHIQUES
+# ─────────────────────────────────────────
+DEMOGRAPHICS = {}
+
+def load_demographics():
+    """Charge le fichier demographics.json au démarrage."""
+    global DEMOGRAPHICS
+    demo_path = os.path.join(os.path.dirname(__file__), "data", "demographics.json")
+    if os.path.exists(demo_path):
+        with open(demo_path, "r", encoding="utf-8") as f:
+            DEMOGRAPHICS = json.load(f)
+        logger.info("✅ Données démographiques chargées")
+    else:
+        logger.warning("⚠️  data/demographics.json introuvable — contexte démographique désactivé")
+
+
+def get_dept_from_ville(ville: str) -> str | None:
+    """Extrait le code département depuis une ville formatée (ex: 'Lyon 3e (69003)' → '69')."""
+    if not ville:
+        return None
+    import re
+    # Chercher un code postal dans la ville (format: 75001, 69003, etc.)
+    match = re.search(r'\((\d{5})\)', ville)
+    if match:
+        cp = match.group(1)
+        # Paris → 75, Lyon → 69, Marseille → 13
+        if cp.startswith('75'): return '75'
+        if cp.startswith('69'): return '69'
+        if cp.startswith('13'): return '13'
+        return cp[:2]
+    # Sinon chercher juste un CP 5 chiffres dans la chaîne
+    match = re.search(r'\b(\d{5})\b', ville)
+    if match:
+        return match.group(1)[:2]
+    return None
+
+
+def normalize_specialite(specialite: str) -> str | None:
+    """Normalise la spécialité pour matcher les clés du JSON."""
+    if not specialite:
+        return None
+    spe = specialite.lower()
+    if 'généraliste' in spe or 'médecine générale' in spe or 'generaliste' in spe:
+        return 'Médecine générale'
+    if 'gynéco' in spe or 'gynecologue' in spe:
+        if 'médical' in spe or 'médicale' in spe:
+            return 'Gynécologie médicale'
+        return 'Gynécologie-obstétrique'
+    if 'cardio' in spe:
+        return 'Cardiologie'
+    if 'pédiat' in spe or 'pediat' in spe:
+        return 'Pédiatrie'
+    if 'psychiatr' in spe:
+        return 'Psychiatrie'
+    if 'dermato' in spe:
+        return 'Dermatologie'
+    if 'ophtalmo' in spe or 'ophtalmologie' in spe:
+        return 'Ophtalmologie'
+    if 'orthopédie' in spe or 'orthopéd' in spe or 'chirurgie orthop' in spe:
+        return 'Orthopédie'
+    if 'gastro' in spe:
+        return 'Gastro-entérologie'
+    if 'pneumo' in spe:
+        return 'Pneumologie'
+    if 'neurolog' in spe:
+        return 'Neurologie'
+    if 'rhumato' in spe:
+        return 'Rhumatologie'
+    if 'endocrino' in spe:
+        return 'Endocrinologie'
+    if 'urolog' in spe:
+        return 'Urologie'
+    if 'orl' in spe or 'oto-rhino' in spe:
+        return 'ORL'
+    return None
+
+
+def get_demographic_context(specialite: str, ville: str) -> str:
+    """Génère le contexte démographique à injecter dans le prompt."""
+    if not DEMOGRAPHICS:
+        return ""
+
+    spe_norm = normalize_specialite(specialite)
+    dept = get_dept_from_ville(ville)
+    lines = []
+
+    # Densité nationale de référence
+    densite_nationale = None
+    if spe_norm and spe_norm in DEMOGRAPHICS.get("densites_nationales", {}):
+        densite_nationale = DEMOGRAPHICS["densites_nationales"][spe_norm]
+
+    # Densité locale
+    densite_locale = None
+    dept_info = None
+    if dept and dept in DEMOGRAPHICS.get("departements", {}):
+        dept_info = DEMOGRAPHICS["departements"][dept]
+        if spe_norm and spe_norm in dept_info.get("densites", {}):
+            densite_locale = dept_info["densites"][spe_norm]
+
+    # Construire le contexte
+    if dept_info or densite_nationale:
+        lines.append("CONTEXTE DÉMOGRAPHIQUE MÉDICAL :")
+
+        if dept_info:
+            dept_type = dept_info.get("type", "intermédiaire")
+            dept_nom = dept_info.get("nom", dept)
+            type_labels = {
+                "sous_dote": "ZONE SOUS-DOTÉE",
+                "sur_dote": "Zone sur-dotée",
+                "intermédiaire": "Zone intermédiaire"
+            }
+            lines.append(f"• Département : {dept_nom} ({dept}) — {type_labels.get(dept_type, dept_type)}")
+
+            if dept_type == "sous_dote":
+                lines.append("  → Zone sous-dotée : aides ARS, CAIM, DAC, CPTS disponibles — à valoriser dans le bilan")
+            elif dept_type == "sur_dote":
+                lines.append("  → Zone sur-dotée : concurrence forte — différenciation et spécialisation recommandées")
+
+        if densite_locale and densite_nationale:
+            ratio = densite_locale / densite_nationale
+            if ratio < 0.75:
+                comparaison = f"densité locale FAIBLE ({densite_locale}/100k vs {densite_nationale}/100k national) — opportunité de développement forte"
+            elif ratio > 1.25:
+                comparaison = f"densité locale ÉLEVÉE ({densite_locale}/100k vs {densite_nationale}/100k national) — différenciation nécessaire"
+            else:
+                comparaison = f"densité locale dans la moyenne ({densite_locale}/100k vs {densite_nationale}/100k national)"
+            lines.append(f"• Densité {spe_norm} : {comparaison}")
+        elif densite_nationale and spe_norm:
+            lines.append(f"• Densité nationale {spe_norm} : {densite_nationale} médecins/100k hab")
+
+    # Niches sous-dotées par spécialité
+    if spe_norm and spe_norm in DEMOGRAPHICS.get("niches_sous_dotees", {}):
+        niches = DEMOGRAPHICS["niches_sous_dotees"][spe_norm]
+        if niches:
+            lines.append(f"\nNICHES SOUS-DOTÉES EN {spe_norm.upper()} (à mentionner si pertinent pour ce médecin) :")
+            for niche in niches[:4]:  # Max 4 niches
+                lines.append(f"• {niche['niche']} : {niche['opportunite']}")
+
+    # Aides zones sous-dotées
+    if dept_info and dept_info.get("type") == "sous_dote":
+        aides = DEMOGRAPHICS.get("aides_zones_sous_dotees", [])
+        if aides:
+            lines.append("\nAIDES DISPONIBLES EN ZONE SOUS-DOTÉE :")
+            for aide in aides[:4]:
+                lines.append(f"• {aide}")
+
+    return "\n".join(lines) if lines else ""
+
+# ─────────────────────────────────────────
 app = FastAPI(title="Bigdoc", docs_url=None, redoc_url=None)
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
@@ -56,6 +205,7 @@ anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 async def startup():
     init_db()
     init_products()
+    load_demographics()
     # Vérifier que le modèle Anthropic est accessible
     try:
         test = anthropic_client.messages.create(
@@ -134,6 +284,12 @@ def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = 
         if ville:      ctx.append(f"Ville/zone : {ville}")
         lines.append("PROFIL DU MÉDECIN :")
         lines.extend([f"• {c}" for c in ctx])
+        lines.append("")
+
+    # Contexte démographique
+    demo_context = get_demographic_context(specialite, ville)
+    if demo_context:
+        lines.append(demo_context)
         lines.append("")
 
     # Catalogue dynamique
