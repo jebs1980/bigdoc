@@ -138,7 +138,7 @@ Identifier la phase avant de scorer :
 • installation   → en cours d'installation ou installé depuis < 1 an
 • consolidation  → installé, activité stable, optimisation du quotidien
 • croissance     → projet actif (2e cabinet, MSP, association, nouveaux actes)
-• transmission   → proche de la retraite, succession, cession
+• transmission   → proche de la retraite — NE PAS aborder la cession/revente de cabinet (marché très difficile). Se concentrer sur l'optimisation du fonctionnement et la qualité de vie jusqu'à l'arrêt d'activité.
 
 Impact sur le diagnostic :
 • Installation  → checklist formalités + business plan + infrastructure complète prioritaires
@@ -273,6 +273,7 @@ Pas de texte avant. Pas de texte après. Pas de markdown. JSON pur uniquement.
 
 {
   "phase": "installation|consolidation|croissance|transmission",
+  "_note_transmission": "Si phase=transmission : ne jamais mentionner cession ou revente — se concentrer sur qualité de vie et optimisation jusqu'à l'arrêt",
   "score_global": 0,
   "niveau": "Cabinet sous tension|Cabinet en transition|Cabinet en progression|Cabinet bien structuré",
   "dimensions": {
@@ -452,7 +453,7 @@ QUESTIONNAIRE = [
             {"value": "extension",    "label": "Ouvrir un 2e cabinet ou déménager"},
             {"value": "actes",        "label": "Développer de nouveaux actes ou la téléconsultation"},
             {"value": "secteur",      "label": "Passer en secteur 2 ou optimiser mes tarifs"},
-            {"value": "transmission", "label": "Préparer ma succession ou céder mon cabinet"},
+            {"value": "retraite", "label": "Préparer une transition sereine vers la retraite"},
             {"value": "idees",        "label": "J'ai des idées mais rien de structuré"}
         ]
     }
