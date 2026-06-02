@@ -92,8 +92,34 @@
     .stripe-card{background:var(--lavender);border-radius:12px;padding:.85rem 1rem}
     .stripe-val{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:var(--indigo)}
     .stripe-label{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.15rem}
-    /* ── SAVE STATUS ── */
-    #save-status{font-size:.8rem;font-weight:700;color:var(--green)}
+    /* ── LEAD PANEL ── */
+    .lead-panel{position:fixed;top:0;right:-100%;width:min(520px,100vw);height:100vh;background:white;box-shadow:-8px 0 40px rgba(26,16,96,.15);z-index:500;transition:right .3s ease;display:flex;flex-direction:column;overflow:hidden}
+    .lead-panel.open{right:0}
+    .lead-panel-header{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--navy)}
+    .lead-panel-title{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:white}
+    .lead-panel-sub{font-size:.75rem;color:#A5B4FC;margin-top:.1rem}
+    .lead-panel-body{flex:1;overflow-y:auto;padding:1.25rem}
+    .lead-panel-close{background:rgba(255,255,255,.1);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
+    .panel-section{margin-bottom:1.5rem}
+    .panel-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+    .status-select{padding:.55rem .85rem;border:2px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--navy);outline:none;background:white;width:100%;transition:border .2s}
+    .status-select:focus{border-color:var(--indigo)}
+    .timeline{display:flex;flex-direction:column;gap:.6rem}
+    .tl-item{display:flex;gap:.75rem;align-items:flex-start}
+    .tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+    .tl-dot-note{background:var(--indigo)}
+    .tl-dot-status{background:var(--amber)}
+    .tl-dot-diag{background:var(--green)}
+    .tl-content{flex:1;font-size:.82rem;line-height:1.45}
+    .tl-date{font-size:.7rem;color:var(--muted);margin-top:.1rem}
+    .tl-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:.1rem .3rem;border-radius:4px}
+    .tl-delete:hover{color:var(--red);background:#FEF2F2}
+    .note-input{width:100%;padding:.75rem;border:2px solid var(--border);border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:.85rem;resize:vertical;min-height:70px;outline:none;transition:border .2s}
+    .note-input:focus{border-color:var(--indigo)}
+    .diag-card{background:var(--lavender);border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem}
+    .diag-card-score{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:var(--indigo)}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:499;display:none}
+    .overlay.open{display:block}
   </style>
 </head>
 <body>
@@ -137,7 +163,7 @@
         <table>
           <thead><tr>
             <th>Date</th><th>Email</th><th>Prénom</th><th>Nom</th><th>Spécialité</th><th>Ville</th>
-            <th>Score</th><th>Heures/sem</th><th>€/an</th><th>Palier</th><th></th>
+            <th>Score</th><th>Statut</th><th></th>
           </tr></thead>
           <tbody id="leads-tbody"><tr><td colspan="11" class="empty">Chargement…</td></tr></tbody>
         </table>
@@ -304,7 +330,79 @@
 
 </div>
 
-<!-- ── MODAL DETAIL ── -->
+<!-- ── OVERLAY ── -->
+<div class="overlay" id="panel-overlay" onclick="closeLeadPanel()"></div>
+
+<!-- ── LEAD PANEL ── -->
+<div class="lead-panel" id="lead-panel">
+  <div class="lead-panel-header">
+    <div>
+      <div class="lead-panel-title" id="panel-name">—</div>
+      <div class="lead-panel-sub" id="panel-sub">—</div>
+    </div>
+    <button class="lead-panel-close" onclick="closeLeadPanel()">✕</button>
+  </div>
+  <div class="lead-panel-body">
+
+    <!-- Statut -->
+    <div class="panel-section">
+      <div class="panel-section-title">Statut</div>
+      <select class="status-select" id="panel-status" onchange="updateLeadStatus()">
+        <option value="lead">🔵 Lead</option>
+        <option value="rdv">📅 RDV planifié</option>
+        <option value="devis_envoye">📄 Devis envoyé</option>
+        <option value="devis_accepte">✅ Devis accepté</option>
+        <option value="en_cours">⚙️ En cours</option>
+        <option value="livre">🎉 Livré</option>
+        <option value="cloture">🔒 Clôturé</option>
+        <option value="perdu">❌ Perdu</option>
+      </select>
+    </div>
+
+    <!-- Infos -->
+    <div class="panel-section">
+      <div class="panel-section-title">Infos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <div class="input-group"><label>Prénom</label><input type="text" id="panel-prenom" onchange="updateLeadInfo()"></div>
+        <div class="input-group"><label>Nom</label><input type="text" id="panel-nom" onchange="updateLeadInfo()"></div>
+        <div class="input-group"><label>Spécialité</label><input type="text" id="panel-specialite" onchange="updateLeadInfo()"></div>
+        <div class="input-group"><label>Ville</label><input type="text" id="panel-ville" onchange="updateLeadInfo()"></div>
+      </div>
+      <div class="input-group"><label>N° RPPS</label><input type="text" id="panel-rpps" placeholder="10 chiffres" onchange="updateLeadInfo()"></div>
+    </div>
+
+    <!-- Diagnostics -->
+    <div class="panel-section">
+      <div class="panel-section-title">Diagnostics</div>
+      <div id="panel-diagnostics"><span style="color:var(--muted);font-size:.82rem">Aucun diagnostic</span></div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="panel-section">
+      <div class="panel-section-title">Historique</div>
+      <div class="timeline" id="panel-timeline"></div>
+    </div>
+
+    <!-- Ajouter note -->
+    <div class="panel-section">
+      <div class="panel-section-title">Ajouter une note</div>
+      <textarea class="note-input" id="panel-note-input" placeholder="Compte-rendu RDV, observations…"></textarea>
+      <button class="btn btn-primary" style="margin-top:.5rem;width:100%" onclick="addNote()">Enregistrer la note</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel-section">
+      <div class="panel-section-title">Actions</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-outline" onclick="openQuoteFromPanel()">📄 Créer un devis</button>
+        <button class="btn btn-outline" onclick="openInvoiceFromPanel()">⚡ Facture directe</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 <div class="modal" id="modal">
   <div class="modal-box">
     <div id="modal-content"></div>
@@ -565,6 +663,8 @@ function scoreBadge(s) {
 function renderTable(leads) {
   const tb = document.getElementById('leads-tbody');
   if (!leads.length) { tb.innerHTML = '<tr><td colspan="11" class="empty">Aucun diagnostic pour l\'instant</td></tr>'; return; }
+  const STATUS_LABELS = {lead:'🔵 Lead',rdv:'📅 RDV',devis_envoye:'📄 Devis',devis_accepte:'✅ Accepté',en_cours:'⚙️ En cours',livre:'🎉 Livré',cloture:'🔒 Clôturé',perdu:'❌ Perdu'};
+
   tb.innerHTML = leads.map(l => `
     <tr>
       <td style="color:var(--muted);font-size:.76rem;white-space:nowrap">${(l.date||'').split('T')[0]||'—'}</td>
@@ -574,11 +674,9 @@ function renderTable(leads) {
       <td>${l.specialite||'—'}</td>
       <td>${l.ville||'—'}</td>
       <td>${scoreBadge(l.score_global)}</td>
-      <td>${l.heures_perdues_semaine?l.heures_perdues_semaine+'h':'—'}</td>
-      <td>${l.euros_evitables_an?l.euros_evitables_an.toLocaleString('fr')+'€':'—'}</td>
-      <td><span class="tag">${l.recommandation_palier||'—'}</span></td>
+      <td><span style="font-size:.76rem;font-weight:700">${STATUS_LABELS[l.status||'lead']||'🔵 Lead'}</span></td>
       <td style="white-space:nowrap;display:flex;gap:.35rem">
-        <button class="btn-sm" onclick="showDetail('${l.session_id}')">Voir</button>
+        <button class="btn-sm" onclick="openLeadPanel(${l.id})">📋 Fiche</button>
         <button class="btn-sm" onclick='openQuoteModal(${JSON.stringify({email:l.email,prenom:l.prenom,nom:l.nom,specialite:l.specialite,ville:l.ville,recommandation_palier:l.recommandation_palier})})'>Devis</button>
       </td>
     </tr>`).join('');
@@ -794,7 +892,137 @@ document.getElementById('product-modal').addEventListener('click', function(e){
   if(e.target===this) closeProductModal();
 });
 
-// ─── AUTOCOMPLETE DEVIS ───
+// ─── LEAD PANEL CRM ───
+let currentLead = null;
+
+async function openLeadPanel(leadId) {
+  try {
+    const r = await fetch(`/api/admin/leads/${leadId}`, {credentials:'include'});
+    if (!r.ok) { alert('Erreur chargement fiche'); return; }
+    currentLead = await r.json();
+    renderLeadPanel(currentLead);
+    document.getElementById('lead-panel').classList.add('open');
+    document.getElementById('panel-overlay').classList.add('open');
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+function closeLeadPanel() {
+  document.getElementById('lead-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+  currentLead = null;
+}
+
+function renderLeadPanel(lead) {
+  const nom = [lead.prenom, lead.nom].filter(Boolean).join(' ') || lead.email;
+  document.getElementById('panel-name').textContent = nom ? `Dr. ${nom}` : lead.email;
+  document.getElementById('panel-sub').textContent = [lead.specialite, lead.ville].filter(Boolean).join(' — ') || '—';
+  document.getElementById('panel-status').value = lead.status || 'lead';
+  document.getElementById('panel-prenom').value = lead.prenom || '';
+  document.getElementById('panel-nom').value = lead.nom || '';
+  document.getElementById('panel-specialite').value = lead.specialite || '';
+  document.getElementById('panel-ville').value = lead.ville || '';
+  document.getElementById('panel-rpps').value = lead.rpps || '';
+
+  // Diagnostics
+  const diags = lead.diagnostics || [];
+  document.getElementById('panel-diagnostics').innerHTML = diags.length
+    ? diags.map(d => `
+      <div class="diag-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="diag-card-score">${d.score_global||'—'}/100</div>
+          <span class="tag">${d.recommandation_palier||'—'}</span>
+        </div>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:.25rem">
+          ${(d.created_at||'').split('T')[0]} · ${d.heures_perdues_semaine||'—'}h/sem · ${d.euros_evitables_an?d.euros_evitables_an.toLocaleString('fr')+'€/an':'—'}
+        </div>
+      </div>`).join('')
+    : '<span style="color:var(--muted);font-size:.82rem">Aucun diagnostic</span>';
+
+  // Timeline
+  const events = lead.events || [];
+  document.getElementById('panel-timeline').innerHTML = events.length
+    ? events.map(e => `
+      <div class="tl-item">
+        <div class="tl-dot tl-dot-${e.type === 'note' ? 'note' : e.type === 'status' ? 'status' : 'diag'}"></div>
+        <div class="tl-content">
+          <div>${e.content || ''}</div>
+          <div class="tl-date">${(e.created_at||'').split('T')[0]}</div>
+        </div>
+        ${e.type === 'note' ? `<button class="tl-delete" onclick="deleteNote(${lead.id},${e.id})">✕</button>` : ''}
+      </div>`).join('')
+    : '<span style="color:var(--muted);font-size:.82rem">Aucun historique</span>';
+}
+
+async function updateLeadStatus() {
+  if (!currentLead) return;
+  const status = document.getElementById('panel-status').value;
+  await fetch(`/api/admin/leads/${currentLead.id}/status`, {
+    credentials:'include', method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({status})
+  });
+  // Refresh panel events
+  const r = await fetch(`/api/admin/leads/${currentLead.id}`, {credentials:'include'});
+  currentLead = await r.json();
+  renderLeadPanel(currentLead);
+  loadLeads();
+}
+
+let infoTimer = null;
+function updateLeadInfo() {
+  if (!currentLead) return;
+  clearTimeout(infoTimer);
+  infoTimer = setTimeout(async () => {
+    await fetch(`/api/admin/leads/${currentLead.id}/info`, {
+      credentials:'include', method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prenom: document.getElementById('panel-prenom').value,
+        nom: document.getElementById('panel-nom').value,
+        specialite: document.getElementById('panel-specialite').value,
+        ville: document.getElementById('panel-ville').value,
+        rpps: document.getElementById('panel-rpps').value,
+      })
+    });
+  }, 800);
+}
+
+async function addNote() {
+  if (!currentLead) return;
+  const content = document.getElementById('panel-note-input').value.trim();
+  if (!content) return;
+  await fetch(`/api/admin/leads/${currentLead.id}/notes`, {
+    credentials:'include', method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({content})
+  });
+  document.getElementById('panel-note-input').value = '';
+  const r = await fetch(`/api/admin/leads/${currentLead.id}`, {credentials:'include'});
+  currentLead = await r.json();
+  renderLeadPanel(currentLead);
+}
+
+async function deleteNote(leadId, eventId) {
+  if (!confirm('Supprimer cette note ?')) return;
+  await fetch(`/api/admin/leads/${leadId}/notes/${eventId}`, {credentials:'include', method:'DELETE'});
+  const r = await fetch(`/api/admin/leads/${leadId}`, {credentials:'include'});
+  currentLead = await r.json();
+  renderLeadPanel(currentLead);
+}
+
+function openQuoteFromPanel() {
+  if (!currentLead) return;
+  closeLeadPanel();
+  openQuoteModal(currentLead);
+}
+
+function openInvoiceFromPanel() {
+  if (!currentLead) return;
+  closeLeadPanel();
+  openInvoiceModal(currentLead);
+}
+
+
 const SPECIALITES = [
   "Généraliste","Médecine générale","Gynécologie-obstétrique","Gynécologie médicale",
   "Cardiologie","Pédiatrie","Dermatologie","Ophtalmologie","Psychiatrie","Neurologie",
