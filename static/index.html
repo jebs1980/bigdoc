@@ -1492,13 +1492,34 @@ async function init() {
     }
   } catch(e) {}
 
-  // Questionnaire
-  try {
-    const r = await fetch('/api/questionnaire');
-    const data = await r.json();
-    state.questions = data.questions;
-  } catch(e) {
-    console.error('Erreur chargement questionnaire', e);
+  // Retour Stripe
+  const params = new URLSearchParams(window.location.search);
+  const paiement = params.get('paiement');
+  const sessionId = params.get('session');
+
+  if (paiement === 'ok' && sessionId) {
+    state.sessionId = sessionId;
+    showScreen('loading');
+    try {
+      const resp = await fetch(`/api/bilan/${sessionId}`);
+      const data = await resp.json();
+      if (data.bilan) {
+        state.bilan = data.bilan;
+        state.shareToken = data.share_token || '';
+        showScreen('result');
+        renderResult();
+        const card = document.getElementById('result-card');
+        const banner = document.createElement('div');
+        banner.style.cssText = 'background:#F0FDF4;border-bottom:1px solid #BBF7D0;padding:.85rem 2rem;display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:#065F46;font-weight:700;border-radius:16px 16px 0 0';
+        banner.innerHTML = '✅ Paiement confirmé — bienvenue chez RMS ! Vous allez recevoir un email de confirmation.';
+        card.prepend(banner);
+      }
+    } catch(e) { showScreen('hero'); }
+    return;
+  }
+
+  if (paiement === 'cancel') {
+    showScreen('hero');
   }
 }
 
