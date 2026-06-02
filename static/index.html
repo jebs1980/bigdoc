@@ -1987,68 +1987,6 @@ function renderResult() {
     `<li style="font-size:.85rem;padding:.4rem 0;border-bottom:1px solid #F0F2F5;color:var(--text)">${w}</li>`
   ).join('');
 
-  card.innerHTML = `
-    <!-- Score global -->
-    <div style="background:var(--navy);padding:2.5rem;text-align:center">
-      <div style="width:120px;height:120px;border-radius:50%;border:4px solid ${scoreColor};display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0 auto 1.25rem">
-        <span style="font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:600;color:${scoreColor};line-height:1">${score}</span>
-        <span style="font-size:.65rem;color:#8A9BB0;letter-spacing:.08em">/100</span>
-      </div>
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--white);margin-bottom:.5rem">${b.niveau}</h2>
-      <p style="font-size:.85rem;color:#8A9BB0;font-weight:300">${b.message_bilan || ''}</p>
-    </div>
-
-    ${b.alerte_urgente ? `<div class="alerte">⚠️ ${b.alerte_urgente}</div>` : ''}
-
-    <!-- Impact chiffré -->
-    <div style="padding:2rem 2.5rem;display:flex;gap:1.5rem;border-bottom:1px solid #F0F2F5;flex-wrap:wrap">
-      <div style="flex:1;min-width:140px;text-align:center">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${b.heures_perdues_semaine}h</div>
-        <div style="font-size:.75rem;color:var(--grey)">perdues par semaine</div>
-      </div>
-      <div style="flex:1;min-width:140px;text-align:center">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €</div>
-        <div style="font-size:.75rem;color:var(--grey)">récupérables par an</div>
-      </div>
-    </div>
-
-    <!-- Dimensions -->
-    <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.5rem">Bilan par dimension</h3>
-      ${dimsHtml}
-    </div>
-
-    <!-- Recommandation principale -->
-    <div style="padding:2rem 2.5rem;background:rgba(26,122,94,.04);border-bottom:1px solid #F0F2F5">
-      <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem">Ordonnance RMS</div>
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--navy);margin-bottom:.35rem">${b.recommandation_principale?.service || ''}</h3>
-      <div style="font-size:.9rem;color:var(--teal);font-weight:500;margin-bottom:.75rem">${b.recommandation_principale?.tarif || ''}</div>
-      <p style="font-size:.85rem;color:var(--grey);line-height:1.6;margin-bottom:1.25rem">${b.recommandation_principale?.justification || ''}</p>
-      ${recoSecHtml}
-    </div>
-
-    <!-- Quick wins -->
-    <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-      <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1rem">3 actions cette semaine</h3>
-      <ul style="list-style:none">${quickHtml}</ul>
-    </div>
-
-    <!-- CTA -->
-    <div style="padding:2rem 2.5rem;text-align:center">
-      <p style="font-size:.9rem;color:var(--grey);margin-bottom:1.25rem">Prêt à traiter votre cabinet ?</p>
-      <button onclick="goToStripe()" class="btn-primary" style="max-width:320px;margin:0 auto">
-        Démarrer avec RMS →
-      </button>
-      <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #F0F2F5">
-        <p style="font-size:.78rem;color:var(--grey);margin-bottom:.5rem">${b.message_partage || 'Partagez ce diagnostic à un confrère'}</p>
-        <button onclick="copyShareLink()" style="background:none;border:1px solid #E8EBF0;padding:.5rem 1.25rem;border-radius:8px;font-size:.8rem;cursor:pointer;color:var(--navy);font-family:'DM Sans',sans-serif">
-          📋 Copier le lien de partage
-        </button>
-      </div>
-    </div>
-  `;
-}
-
 function goToStripe() {
   if (!state.bilan) return;
   const palier = state.bilan.recommandation_principale?.palier || '';
