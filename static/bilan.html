@@ -278,11 +278,21 @@ function renderBilan(b) {
         <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem">
           ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins','HAS','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:var(--grey)">${s}</span>`).join('')}
         </div>
-        <p style="font-size:.68rem;color:var(--grey);line-height:1.5;margin:0">
+        <p style="font-size:.68rem;color:var(--grey);line-height:1.5;margin:0 0 .6rem">
           Ce bilan croise vos réponses avec les données épidémiologiques nationales et locales,
           les benchmarks CARMF par spécialité, les motifs de consultation CPAM et les densités médicales RPPS.
           Les estimations financières sont calculées sur la base des tarifs CCAM/NGAP en vigueur.
         </p>
+        <div style="border-top:1px solid #E8EBF0;padding-top:.5rem">
+          <p style="font-size:.63rem;color:#BBBBBB;line-height:1.55;font-style:italic">
+            <strong style="font-style:normal;color:#999;font-size:.63rem">Avertissement légal —</strong>
+            Ce diagnostic est fourni à titre purement indicatif et ne constitue ni un avis juridique, ni un avis médical, ni un conseil financier.
+            Les estimations de gains, d'heures perdues et d'euros récupérables sont des approximations statistiques basées sur des moyennes nationales
+            et peuvent différer de votre situation réelle. Les appréciations relatives à la conformité réglementaire
+            (téléconsultation, CPAM, facturation) sont données à titre informatif uniquement et n'engagent pas la responsabilité de Real Med Services.
+            Toute décision doit être prise en concertation avec un professionnel qualifié (avocat, expert-comptable, médecin conseil CPAM).
+          </p>
+        </div>
       </div>
 
     </div>
