@@ -365,13 +365,19 @@
         <label>Email *</label>
         <input type="email" id="qm-email" placeholder="dr.dupont@cabinet.fr">
       </div>
-      <div class="input-group">
+      <div class="input-group" style="position:relative">
         <label>Spécialité</label>
-        <input type="text" id="qm-specialite" placeholder="Gynécologie">
+        <input type="text" id="qm-specialite" placeholder="Gynécologie…" autocomplete="off"
+               oninput="adminFilterSpe(this.value)"
+               onblur="setTimeout(()=>document.getElementById('drop-qm-spe').style.display='none',200)">
+        <div id="drop-qm-spe" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:300;max-height:180px;overflow-y:auto"></div>
       </div>
-      <div class="input-group">
+      <div class="input-group" style="position:relative">
         <label>Ville</label>
-        <input type="text" id="qm-ville" placeholder="Lyon">
+        <input type="text" id="qm-ville" placeholder="Lyon…" autocomplete="off"
+               oninput="adminSearchVille(this.value)"
+               onblur="setTimeout(()=>document.getElementById('drop-qm-ville').style.display='none',200)">
+        <div id="drop-qm-ville" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:300;max-height:180px;overflow-y:auto"></div>
       </div>
       <div class="input-group" style="grid-column:1/-1">
         <label>Prestation *</label>
@@ -566,7 +572,10 @@ function renderTable(leads) {
       <td>${l.heures_perdues_semaine?l.heures_perdues_semaine+'h':'—'}</td>
       <td>${l.euros_evitables_an?l.euros_evitables_an.toLocaleString('fr')+'€':'—'}</td>
       <td><span class="tag">${l.recommandation_palier||'—'}</span></td>
-      <td><button class="btn-sm" onclick="showDetail('${l.session_id}')">Voir</button> <button class="btn-sm" onclick="openQuoteModal(${JSON.stringify({email:l.email,prenom:l.prenom,nom:l.nom,specialite:l.specialite,ville:l.ville,recommandation_palier:l.recommandation_palier}).replace(/"/g,'&quot;')})">Devis</button></td>
+      <td style="white-space:nowrap;display:flex;gap:.35rem">
+        <button class="btn-sm" onclick="showDetail('${l.session_id}')">Voir</button>
+        <button class="btn-sm" onclick='openQuoteModal(${JSON.stringify({email:l.email,prenom:l.prenom,nom:l.nom,specialite:l.specialite,ville:l.ville,recommandation_palier:l.recommandation_palier})})'>Devis</button>
+      </td>
     </tr>`).join('');
 }
 
@@ -778,7 +787,74 @@ document.getElementById('product-modal').addEventListener('click', function(e){
   if(e.target===this) closeProductModal();
 });
 
-// ─── DEVIS ───
+// ─── AUTOCOMPLETE DEVIS ───
+const SPECIALITES = [
+  "Généraliste","Médecine générale","Gynécologie-obstétrique","Gynécologie médicale",
+  "Cardiologie","Pédiatrie","Dermatologie","Ophtalmologie","Psychiatrie","Neurologie",
+  "Orthopédie","Chirurgie générale","Chirurgie digestive","Chirurgie vasculaire",
+  "Anesthésie-réanimation","Radiologie","Gastro-entérologie","Pneumologie",
+  "Rhumatologie","Endocrinologie","Néphrologie","Urologie","ORL","Stomatologie",
+  "Médecine interne","Infectiologie","Hématologie","Oncologie","Gériatrie",
+  "Médecine du travail","Médecine d'urgence","Médecine vasculaire","Allergologie"
+];
+
+function normalizeStr(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,'');
+}
+
+function adminFilterSpe(val) {
+  const drop = document.getElementById('drop-qm-spe');
+  if (!val || val.length < 2) { drop.style.display='none'; return; }
+  const norm = normalizeStr(val);
+  const matches = SPECIALITES.filter(s => normalizeStr(s).includes(norm)).slice(0,8);
+  if (!matches.length) { drop.style.display='none'; return; }
+  drop.innerHTML = matches.map(s =>
+    `<div onclick="document.getElementById('qm-specialite').value='${s}';document.getElementById('drop-qm-spe').style.display='none'"
+          style="padding:.6rem 1rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border)"
+          onmouseover="this.style.background='var(--lavender)'" onmouseout="this.style.background=''">${s}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+let adminVilleTimer = null;
+const ARRONDISSEMENTS_ADMIN = {
+  paris: Array.from({length:20},(_,i)=>({label:`Paris ${i+1}e arrondissement`,value:`Paris ${i+1}e (750${String(i+1).padStart(2,'0')})`})),
+  lyon: Array.from({length:9},(_,i)=>({label:`Lyon ${i+1}e arrondissement`,value:`Lyon ${i+1}e (6900${i+1})`})),
+  marseille: Array.from({length:16},(_,i)=>{const a=i+1,cp=a<=9?`1300${a}`:`130${a}`;return{label:`Marseille ${a}e arrondissement`,value:`Marseille ${a}e (${cp})`};}),
+};
+
+async function adminSearchVille(val) {
+  const drop = document.getElementById('drop-qm-ville');
+  if (!val || val.length < 2) { drop.style.display='none'; return; }
+  const vl = val.toLowerCase().trim();
+  clearTimeout(adminVilleTimer);
+  const grand = ['paris','lyon','marseille'].find(g => vl.startsWith(g) || g.startsWith(vl));
+  if (grand) {
+    const arr = ARRONDISSEMENTS_ADMIN[grand];
+    const nm = vl.replace(grand,'').trim().match(/\d+/);
+    const filtered = nm ? arr.filter(a=>a.label.includes(nm[0])) : arr;
+    adminRenderVille(drop, filtered.slice(0,12)); return;
+  }
+  adminVilleTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=8`);
+      const villes = await r.json();
+      adminRenderVille(drop, villes.map(v=>({label:`${v.nom} <span style="color:var(--muted);font-size:.75rem">${v.codesPostaux?.[0]||''} — ${v.departement?.nom||''}</span>`,value:`${v.nom} (${v.codesPostaux?.[0]||''})`})));
+    } catch(e) { drop.style.display='none'; }
+  }, 250);
+}
+
+function adminRenderVille(drop, items) {
+  if (!items.length) { drop.style.display='none'; return; }
+  drop.innerHTML = items.map(i =>
+    `<div onclick="document.getElementById('qm-ville').value='${i.value.replace(/'/g,"\\'")}';document.getElementById('drop-qm-ville').style.display='none'"
+          style="padding:.6rem 1rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border)"
+          onmouseover="this.style.background='var(--lavender)'" onmouseout="this.style.background=''">${i.label}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+
 const QUOTE_STATUS = {
   draft: {label:'Brouillon', color:'var(--muted)'},
   open: {label:'Envoyé', color:'var(--indigo)'},
