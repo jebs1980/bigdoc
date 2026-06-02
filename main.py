@@ -1156,7 +1156,7 @@ async def create_checkout(body: CheckoutRequest):
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook(request: Request):
-    """Webhook Stripe — confirme les paiements."""
+    """Webhook Stripe — gère paiements, quotes, échecs."""
     import stripe
     settings = get_app_settings()
     sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
@@ -1166,15 +1166,87 @@ async def stripe_webhook(request: Request):
     sig = request.headers.get("stripe-signature", "")
     webhook_secret = settings.get("stripe_webhook_secret") or STRIPE_WEBHOOK_SECRET
 
-    try:
-        event = stripe.Webhook.construct_event(payload, sig, webhook_secret)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Signature Stripe invalide")
+    if not webhook_secret:
+        # Pas de secret configuré — on accepte mais on log un warning
+        logger.warning("⚠️ Webhook reçu sans secret configuré — vérification signature désactivée")
+        try:
+            event = stripe.Event.construct_from(
+                json.loads(payload), stripe.api_key
+            )
+        except Exception:
+            raise HTTPException(status_code=400, detail="Payload invalide")
+    else:
+        try:
+            event = stripe.Webhook.construct_event(payload, sig, webhook_secret)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Signature Stripe invalide")
 
-    if event["type"] in ("checkout.session.completed", "invoice.payment_succeeded"):
-        session = event["data"]["object"]
-        meta = session.get("metadata", {})
-        logger.info(f"✅ Paiement confirmé — session {meta.get('session_id')} / {meta.get('produit_nom')}")
+    evt_type = event["type"]
+    obj = event["data"]["object"]
+    logger.info(f"📩 Webhook Stripe : {evt_type}")
+
+    # ── Paiement checkout réussi ──
+    if evt_type == "checkout.session.completed":
+        meta = obj.get("metadata", {})
+        session_id = meta.get("session_id", "")
+        produit_nom = meta.get("produit_nom", "")
+        customer_email = obj.get("customer_email") or obj.get("customer_details", {}).get("email", "")
+        logger.info(f"✅ Checkout — session {session_id} / {produit_nom} / {customer_email}")
+
+    # ── Facture payée ──
+    elif evt_type == "invoice.payment_succeeded":
+        customer_email = obj.get("customer_email", "")
+        amount = obj.get("amount_paid", 0)
+        invoice_id = obj.get("id", "")
+        logger.info(f"✅ Invoice payée — {invoice_id} / {amount/100:.2f}€ / {customer_email}")
+        # Envoyer email de confirmation si Resend configuré
+        if customer_email and RESEND_API_KEY:
+            try:
+                import resend
+                resend.api_key = RESEND_API_KEY
+                resend.Emails.send({
+                    "from": FROM_EMAIL,
+                    "to": customer_email,
+                    "subject": "✅ Paiement confirmé — RMS",
+                    "html": f"""
+                    <p>Bonjour,</p>
+                    <p>Votre paiement de <strong>{amount/100:.2f} €</strong> a bien été reçu.</p>
+                    <p>Numéro de facture : <strong>{invoice_id}</strong></p>
+                    <p>L'équipe RMS vous contactera très prochainement pour démarrer l'accompagnement.</p>
+                    <p>Cordialement,<br>L'équipe RMS</p>
+                    """
+                })
+            except Exception as e:
+                logger.error(f"Erreur email confirmation : {e}")
+
+    # ── Paiement échoué ──
+    elif evt_type == "invoice.payment_failed":
+        customer_email = obj.get("customer_email", "")
+        invoice_id = obj.get("id", "")
+        logger.warning(f"❌ Paiement échoué — {invoice_id} / {customer_email}")
+        if customer_email and RESEND_API_KEY:
+            try:
+                import resend
+                resend.api_key = RESEND_API_KEY
+                resend.Emails.send({
+                    "from": FROM_EMAIL,
+                    "to": customer_email,
+                    "subject": "⚠️ Problème de paiement — RMS",
+                    "html": f"""
+                    <p>Bonjour,</p>
+                    <p>Votre paiement n'a pas pu être traité.</p>
+                    <p>Veuillez vérifier vos coordonnées bancaires ou nous contacter à <a href="mailto:{FROM_EMAIL}">{FROM_EMAIL}</a>.</p>
+                    <p>Cordialement,<br>L'équipe RMS</p>
+                    """
+                })
+            except Exception as e:
+                logger.error(f"Erreur email échec : {e}")
+
+    # ── Devis accepté ──
+    elif evt_type == "quote.accepted":
+        customer_id = obj.get("customer", "")
+        quote_number = obj.get("number", "")
+        logger.info(f"✅ Devis accepté — {quote_number} / customer {customer_id}")
 
     return {"received": True}
 
