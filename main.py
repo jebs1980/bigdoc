@@ -150,11 +150,21 @@ def get_demographic_context(specialite: str, ville: str) -> str:
         if dept_type == "sous_dote":
             lines.append("→ Zone sous-dotée ARS : aides CAIM jusqu'à 50 000€, DAC, CPTS — patientèle garantie dès l'ouverture. Valoriser dans le bilan.")
         elif dept_type in ("densite_elevee", "sur_dote"):
-            lines.append("→ Zone dite surdotée — mais cette appellation est trompeuse :")
-            lines.append("  • 6,7M de patients sans médecin traitant en France, y compris dans les grandes villes (Ameli 2023)")
-            lines.append("  • Délai moyen pour un RDV spécialiste : 49 jours même en Île-de-France")
-            lines.append("  • Les besoins non couverts existent partout : créneaux indisponibles, spécialités en tension, patients qui attendent")
-            lines.append("  → Orienter vers la différenciation et les niches sous-couvertes localement — jamais décourager")
+            # Extraire nom de ville propre (ex: "Lyon 6e (69006)" → "Lyon")
+            ville_propre = ville.split('(')[0].strip().split(' ')[0] if ville else "cette zone"
+            # Trouver délai par spécialité
+            delais = DEMOGRAPHICS.get("donnees_drees_etat", {}).get("acces_soins", {}).get("variation_specialites", {})
+            delai_spe = None
+            for key, val in delais.items():
+                if spe_norm and key.lower() in spe_norm.lower() or (spe_norm and spe_norm.lower() in key.lower()):
+                    delai_spe = val
+                    break
+            delai_txt = f"{delai_spe} jours" if delai_spe else "49 jours en moyenne"
+            lines.append(f"→ Zone dite surdotée — mais cette appellation est trompeuse :")
+            lines.append(f"  • Les patients attendent {delai_txt} pour un RDV {spe_norm or 'spécialiste'} même à {ville_propre} (Ameli 2023)")
+            lines.append(f"  • 6,7M de patients sans médecin traitant en France, y compris dans les grandes villes (Ameli 2023)")
+            lines.append(f"  • Les besoins non couverts existent partout : créneaux indisponibles, spécialités en tension")
+            lines.append(f"  → Orienter vers la différenciation et les niches sous-couvertes — jamais décourager l'installation")
 
     if densite_locale and densite_nationale:
         ratio = densite_locale / densite_nationale
