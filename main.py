@@ -1326,6 +1326,56 @@ async def accept_quote(quote_id: str, request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class InvoiceRequest(BaseModel):
+    email: str
+    prenom: str = ""
+    nom: str = ""
+    description: str = ""
+    prix_ht: float = 0
+    tva: float = 20.0
+
+
+@app.post("/api/admin/invoices")
+async def create_direct_invoice(request: Request, body: InvoiceRequest):
+    """Crée et envoie une facture Stripe directement sans devis."""
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        # Créer ou récupérer le customer
+        customers = stripe.Customer.list(email=body.email, limit=1)
+        if customers.data:
+            customer = customers.data[0]
+        else:
+            customer = stripe.Customer.create(
+                email=body.email,
+                name=f"Dr. {body.prenom} {body.nom}".strip(),
+            )
+
+        prix_ht_cents = int(round(body.prix_ht * 100))
+
+        # Créer l'invoice item
+        stripe.InvoiceItem.create(
+            customer=customer.id,
+            amount=prix_ht_cents,
+            currency="eur",
+            description=body.description,
+        )
+
+        # Créer et finaliser l'invoice
+        invoice = stripe.Invoice.create(
+            customer=customer.id,
+            collection_method="send_invoice",
+            days_until_due=30,
+            auto_advance=True,
+        )
+        invoice = stripe.Invoice.finalize_invoice(invoice.id)
+        stripe.Invoice.send_invoice(invoice.id)
+
+        return {"success": True, "invoice_id": invoice.id, "status": invoice.status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/admin/quotes/{quote_id}/cancel")
 async def cancel_quote(quote_id: str, request: Request):
     require_admin(request)
