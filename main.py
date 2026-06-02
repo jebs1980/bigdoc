@@ -160,10 +160,11 @@ def get_demographic_context(specialite: str, ville: str) -> str:
             delai_txt = f"{delai_spe} jours" if delai_spe else "49 jours"
             spe_label = spe_norm if spe_norm else "spécialiste"
             lines.append(f"→ Zone dite surdotée — mais cette appellation est trompeuse :")
-            lines.append(f"  • Délai moyen national pour un RDV {spe_label} : {delai_txt} (Ameli 2023 — moyenne nationale toutes zones confondues)")
-            lines.append(f"  • À {ville_propre}, ce délai est probablement plus court qu'en zone rurale — mais reste significatif : les créneaux sont pris et les besoins non couverts persistent")
+            lines.append(f"  • Délai national moyen pour un RDV {spe_label} : {delai_txt} (Ameli / Doctolib 2025 — moyenne nationale)")
+            lines.append(f"  • Dans les grandes villes comme {ville_propre}, les délais sont généralement plus courts qu'en zone rurale — mais restent significatifs : les créneaux sont pris et les besoins persistent")
             lines.append(f"  • 6,7M de patients sans médecin traitant en France, y compris dans les grandes villes (Ameli 2023)")
-            lines.append(f"  → Présenter {ville_propre} comme une opportunité de spécialisation avec file active rapide — jamais comme une zone à éviter")
+            lines.append(f"  → Ne jamais citer le chiffre national comme étant le chiffre local exact. Dire que le délai est probablement inférieur à {ville_propre} mais reste réel.")
+            lines.append(f"  → Positionner {ville_propre} comme une opportunité : file active plus rapide qu'en rural, patientèle existante, différenciation par spécialisation")
 
     if densite_locale and densite_nationale:
         ratio = densite_locale / densite_nationale
