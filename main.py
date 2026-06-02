@@ -30,7 +30,9 @@ from database import (
     get_app_settings, save_app_settings,
     init_products, get_products, get_product,
     create_product, update_product, delete_product,
-    toggle_product, get_catalogue_for_prompt
+    toggle_product, get_catalogue_for_prompt,
+    get_lead_fiche, update_lead_status, add_lead_note,
+    delete_lead_event, update_lead_info, LEAD_STATUTS
 )
 
 # Modèle Anthropic — configurable dans .env
@@ -906,6 +908,51 @@ async def admin_me(request: Request):
 async def admin_leads(request: Request):
     require_admin(request)
     return get_all_leads()
+
+
+# ── CRM — FICHE LEAD ──
+@app.get("/api/admin/leads/{lead_id}")
+async def get_lead_detail(lead_id: int, request: Request):
+    require_admin(request)
+    fiche = get_lead_fiche(lead_id)
+    if not fiche:
+        raise HTTPException(status_code=404, detail="Lead introuvable")
+    return fiche
+
+@app.patch("/api/admin/leads/{lead_id}/status")
+async def update_status(lead_id: int, request: Request):
+    require_admin(request)
+    data = await request.json()
+    status = data.get("status", "")
+    note = data.get("note", "")
+    if not update_lead_status(lead_id, status, note):
+        raise HTTPException(status_code=400, detail=f"Statut invalide. Valeurs: {LEAD_STATUTS}")
+    return {"success": True}
+
+@app.post("/api/admin/leads/{lead_id}/notes")
+async def add_note(lead_id: int, request: Request):
+    require_admin(request)
+    data = await request.json()
+    content = data.get("content", "").strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="Note vide")
+    event_id = add_lead_note(lead_id, content)
+    return {"success": True, "event_id": event_id}
+
+@app.delete("/api/admin/leads/{lead_id}/notes/{event_id}")
+async def delete_note(lead_id: int, event_id: int, request: Request):
+    require_admin(request)
+    delete_lead_event(event_id)
+    return {"success": True}
+
+@app.patch("/api/admin/leads/{lead_id}/info")
+async def update_info(lead_id: int, request: Request):
+    require_admin(request)
+    data = await request.json()
+    update_lead_info(lead_id, data)
+    return {"success": True}
+
+
 
 
 @app.get("/api/admin/settings")
