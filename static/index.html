@@ -1238,19 +1238,6 @@ function injectTestButton() {
   document.body.appendChild(btn2);
 }
 
-  const btn = document.createElement('button');
-  btn.textContent = '🧪 Remplir test';
-  btn.style.cssText = `
-    position:fixed;bottom:1rem;right:1rem;z-index:9999;
-    background:#F4A261;color:white;border:none;border-radius:8px;
-    padding:.5rem 1rem;font-size:.8rem;font-weight:600;
-    cursor:pointer;font-family:'DM Sans',sans-serif;
-    box-shadow:0 4px 12px rgba(0,0,0,.2);
-  `;
-  btn.onclick = fillTestData;
-  document.body.appendChild(btn);
-}
-
 function showTestBilan() {
   state.bilan = {
     score_global: 43,
