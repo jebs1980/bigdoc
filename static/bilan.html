@@ -81,6 +81,9 @@ async function loadBilan() {
     const data = await r.json();
     renderBilan(data.bilan);
     renderCTA(data.bilan);
+    // Bouton rapport PDF
+    const btnRapport = document.getElementById('btn-rapport');
+    if (btnRapport) btnRapport.href = `/api/rapport/${sessionId}`;
   } catch(e) {
     showError('Ce bilan n\'existe pas ou a expiré.');
   }
@@ -188,7 +191,13 @@ function renderBilan(b) {
         <p style="font-size:.75rem;color:var(--grey);margin-top:1rem" id="cta-sub"></p>
       </div>
 
-      <div style="padding:1.25rem 2.5rem;background:#F8F9FA;border-top:1px solid #F0F2F5">
+      <div style="padding:1.25rem 2.5rem;background:#FAF3E0;border-top:1px solid rgba(11,37,69,.08);text-align:center">
+        <a id="btn-rapport" href="#" target="_blank"
+          style="display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--teal);text-decoration:none;font-weight:500;padding:.5rem 1rem;border:1px solid rgba(26,122,94,.25);border-radius:7px;transition:all .2s">
+          📄 Télécharger mon rapport complet (PDF)
+        </a>
+        <p style="font-size:.7rem;color:var(--grey);margin-top:.4rem">Motifs de consultation · Opportunités locales · Sources statistiques</p>
+      </div>
         <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:.5rem;font-weight:500">Sources & méthodologie</div>
         <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem">
           ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins','HAS','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:var(--grey)">${s}</span>`).join('')}
