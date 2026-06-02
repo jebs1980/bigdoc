@@ -59,4 +59,4 @@ echo.
 start /b cmd /c "timeout /t 2 >nul && start http://localhost:8000"
 
 :: Lancer le serveur
-python -m uvicorn main:app --reload --port 8000
+python -m uvicorn main:app --port 8000 --reload --reload-dir . --reload-include "*.py" --reload-include "*.html"
