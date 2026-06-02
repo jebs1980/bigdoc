@@ -514,9 +514,20 @@
       "variation_specialites": {
         "Ophtalmologie": 98,
         "Psychiatrie": 85,
+        "Gynécologie-obstétrique": 62,
+        "Gynécologie médicale": 62,
         "Gynécologie": 62,
         "Dermatologie": 55,
-        "Cardiologie": 38
+        "Cardiologie": 38,
+        "Neurologie": 52,
+        "Rhumatologie": 44,
+        "Gastro-entérologie": 41,
+        "Pédiatrie": 35,
+        "Endocrinologie": 68,
+        "Pneumologie": 43,
+        "Urologie": 46,
+        "ORL": 39,
+        "Médecine générale": 6
       },
       "source": "Ameli — Observatoire des délais d'accès aux soins 2023"
     },
