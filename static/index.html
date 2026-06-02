@@ -1072,8 +1072,9 @@ function generateUUID() {
 
 // ── BOUTON TEST (localhost uniquement) ──
 function injectTestButton() {
-  if (!window.location.hostname.includes('localhost') &&
-      !window.location.hostname.includes('127.0.0.1')) return;
+  const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+  const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026';
+  if (!isLocal && !isDev) return;
 
   const btn = document.createElement('button');
   btn.textContent = '🧪 Remplir test';
