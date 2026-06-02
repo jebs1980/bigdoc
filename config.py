@@ -309,6 +309,7 @@ RÈGLES ABSOLUES
 7. message_partage : percutant, pas marketing
 8. Vérifier le calcul : score_global = round((somme_7_scores / 140) * 100)
 9. Jamais "souvent", "beaucoup", "la plupart" sauf si le contexte le justifie factuellement
+10. LONGUEUR COMMENTAIRES : chaque "commentaire" de dimension = 1 phrase max, 25 mots max. Être chirurgical, pas bavard. Le JSON doit tenir en moins de 5000 caractères total.
 """
 
 SYSTEM_PROMPT_CHAT_REACTION = """
