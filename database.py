@@ -107,7 +107,7 @@ def init_db():
 def save_diagnostic(session_id: str, bilan: dict, reponses: dict, texte_libre: str = "") -> int:
     conn = get_connection()
     dims = bilan.get("dimensions", {})
-    reco = bilan.get("recommandation_principale", {})
+    reco = bilan.get("recommandation_principale") or {}
 
     conn.execute("""
         INSERT INTO diagnostics (
@@ -126,13 +126,13 @@ def save_diagnostic(session_id: str, bilan: dict, reponses: dict, texte_libre: s
         bilan.get("phase"),
         bilan.get("score_global"),
         bilan.get("niveau"),
-        dims.get("administration", {}).get("score"),
-        dims.get("achats_materiel", {}).get("score"),
-        dims.get("informatique", {}).get("score"),
-        dims.get("comptabilite", {}).get("score"),
-        dims.get("charge_mentale", {}).get("score"),
-        dims.get("financement", {}).get("score"),
-        dims.get("developpement", {}).get("score"),
+        (dims.get("administration") or {}).get("score"),
+        (dims.get("achats_materiel") or {}).get("score"),
+        (dims.get("informatique_teleconsult") or dims.get("informatique") or {}).get("score"),
+        (dims.get("comptabilite_finances") or dims.get("comptabilite") or {}).get("score"),
+        (dims.get("charge_mentale") or {}).get("score"),
+        (dims.get("financement_investissements") or dims.get("financement") or {}).get("score"),
+        (dims.get("developpement_croissance") or dims.get("developpement") or {}).get("score"),
         bilan.get("heures_perdues_semaine"),
         bilan.get("euros_evitables_an"),
         reco.get("palier"),
