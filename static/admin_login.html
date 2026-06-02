@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bigdoc Admin — Connexion</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Nunito',sans-serif; background:#F5F3FF; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .card { background:white; border-radius:20px; padding:2.5rem; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(79,70,229,.12); }
+    .logo { text-align:center; margin-bottom:2rem; }
+    .logo-text { font-size:1.6rem; font-weight:900; color:#1A1060; letter-spacing:-1px; }
+    .logo-sub { font-size:.7rem; font-weight:700; color:#6366F1; letter-spacing:2px; text-transform:uppercase; }
+    h2 { font-size:1.2rem; font-weight:800; color:#1A1060; margin-bottom:1.5rem; text-align:center; }
+    .input-group { margin-bottom:1rem; }
+    label { display:block; font-size:.8rem; font-weight:700; color:#374151; margin-bottom:.35rem; }
+    input { width:100%; padding:.85rem 1rem; border:2px solid #E5E7EB; border-radius:12px; font-family:'Nunito',sans-serif; font-size:.9rem; color:#1A1060; transition:border .2s; outline:none; }
+    input:focus { border-color:#6366F1; }
+    .btn { width:100%; padding:1rem; background:#4F46E5; color:white; border:none; border-radius:999px; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:800; cursor:pointer; transition:all .2s; margin-top:.5rem; }
+    .btn:hover { background:#4338CA; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .error { background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:.75rem 1rem; font-size:.82rem; color:#DC2626; font-weight:600; margin-bottom:1rem; display:none; }
+    .reset-link { text-align:center; margin-top:1.25rem; font-size:.82rem; }
+    .reset-link a { color:#6366F1; font-weight:700; text-decoration:none; }
+    .reset-link a:hover { text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-text">bigdoc</div>
+      <div class="logo-sub">Administration</div>
+    </div>
+    <h2>Connexion</h2>
+    <div class="error" id="error-msg"></div>
+    <div class="input-group">
+      <label>Identifiant ou email</label>
+      <input type="text" id="username" placeholder="admin" autocomplete="username" />
+    </div>
+    <div class="input-group">
+      <label>Mot de passe</label>
+      <input type="password" id="password" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter') login()" />
+    </div>
+    <button class="btn" onclick="login()" id="btn-login">Se connecter</button>
+    <div class="reset-link">
+      <a href="/admin/reset-password">Mot de passe oublié ou compte bloqué ?</a>
+    </div>
+  </div>
+
+  <script>
+    async function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const err = document.getElementById('error-msg');
+      const btn = document.getElementById('btn-login');
+      err.style.display = 'none';
+      if (!username || !password) { err.textContent = 'Remplissez tous les champs.'; err.style.display='block'; return; }
+      btn.disabled = true; btn.textContent = 'Connexion…';
+      try {
+        const resp = await fetch('/api/admin/login', {
+          method: 'POST', credentials: 'include',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({username, password})
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          window.location.href = '/admin';
+        } else {
+          err.textContent = data.detail || 'Identifiants incorrects';
+          err.style.display = 'block';
+          btn.disabled = false; btn.textContent = 'Se connecter';
+        }
+      } catch(e) {
+        err.textContent = 'Erreur réseau'; err.style.display='block';
+        btn.disabled = false; btn.textContent = 'Se connecter';
+      }
+    }
+  </script>
+</body>
+</html>
