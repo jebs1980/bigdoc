@@ -1337,11 +1337,19 @@ const SPECIALITES = [
   "Homéopathie","Acupuncture","Ostéopathie"
 ];
 
+function normalizeStr(str) {
+  return str.toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s]/g, '');
+}
+
 function filterSpecialite(val) {
   const drop = document.getElementById('drop-specialite');
   if (!val || val.length < 2) { drop.style.display = 'none'; return; }
+  const norm = normalizeStr(val);
   const matches = SPECIALITES.filter(s =>
-    s.toLowerCase().includes(val.toLowerCase())
+    normalizeStr(s).includes(norm)
   ).slice(0, 8);
   if (!matches.length) { drop.style.display = 'none'; return; }
   drop.innerHTML = matches.map(s => `
