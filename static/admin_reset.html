@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bigdoc Admin — Réinitialisation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Nunito',sans-serif; background:#F5F3FF; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .card { background:white; border-radius:20px; padding:2.5rem; width:100%; max-width:400px; box-shadow:0 8px 40px rgba(79,70,229,.12); }
+    .logo { text-align:center; margin-bottom:2rem; }
+    .logo-text { font-size:1.6rem; font-weight:900; color:#1A1060; letter-spacing:-1px; }
+    .logo-sub { font-size:.7rem; font-weight:700; color:#6366F1; letter-spacing:2px; text-transform:uppercase; }
+    h2 { font-size:1.1rem; font-weight:800; color:#1A1060; margin-bottom:.5rem; text-align:center; }
+    p.desc { font-size:.82rem; color:#6B7280; text-align:center; margin-bottom:1.5rem; line-height:1.5; }
+    .input-group { margin-bottom:1rem; }
+    label { display:block; font-size:.8rem; font-weight:700; color:#374151; margin-bottom:.35rem; }
+    input { width:100%; padding:.85rem 1rem; border:2px solid #E5E7EB; border-radius:12px; font-family:'Nunito',sans-serif; font-size:.9rem; color:#1A1060; transition:border .2s; outline:none; }
+    input:focus { border-color:#6366F1; }
+    .btn { width:100%; padding:1rem; background:#4F46E5; color:white; border:none; border-radius:999px; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:800; cursor:pointer; transition:all .2s; margin-top:.5rem; }
+    .btn:hover { background:#4338CA; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .msg { border-radius:10px; padding:.75rem 1rem; font-size:.82rem; font-weight:600; margin-bottom:1rem; display:none; }
+    .msg.error { background:#FEF2F2; border:1px solid #FECACA; color:#DC2626; }
+    .msg.success { background:#F0FDF4; border:1px solid #BBF7D0; color:#065F46; }
+    .back-link { text-align:center; margin-top:1.25rem; font-size:.82rem; }
+    .back-link a { color:#6366F1; font-weight:700; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">
+      <div class="logo-text">bigdoc</div>
+      <div class="logo-sub">Administration</div>
+    </div>
+
+    <!-- Step 1 : demande email -->
+    <div id="step-request">
+      <h2>Mot de passe oublié</h2>
+      <p class="desc">Entrez votre email admin. Vous recevrez un lien de réinitialisation valable 1 heure.</p>
+      <div class="msg" id="msg-request"></div>
+      <div class="input-group">
+        <label>Email admin</label>
+        <input type="email" id="reset-email" placeholder="admin@bigdoc.fr"
+               onkeydown="if(event.key==='Enter') requestReset()" />
+      </div>
+      <button class="btn" onclick="requestReset()" id="btn-request">Envoyer le lien</button>
+    </div>
+
+    <!-- Step 2 : nouveau mot de passe (si token dans URL) -->
+    <div id="step-newpwd" style="display:none">
+      <h2>Nouveau mot de passe</h2>
+      <p class="desc">Choisissez un nouveau mot de passe (8 caractères minimum).</p>
+      <div class="msg" id="msg-newpwd"></div>
+      <div class="input-group">
+        <label>Nouveau mot de passe</label>
+        <input type="password" id="new-password" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') savePassword()" />
+      </div>
+      <div class="input-group">
+        <label>Confirmer</label>
+        <input type="password" id="confirm-password" placeholder="••••••••"
+               onkeydown="if(event.key==='Enter') savePassword()" />
+      </div>
+      <button class="btn" onclick="savePassword()" id="btn-save">Enregistrer</button>
+    </div>
+
+    <div class="back-link"><a href="/admin/login">← Retour à la connexion</a></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      document.getElementById('step-request').style.display = 'none';
+      document.getElementById('step-newpwd').style.display = 'block';
+    }
+
+    async function requestReset() {
+      const email = document.getElementById('reset-email').value.trim();
+      const msg = document.getElementById('msg-request');
+      const btn = document.getElementById('btn-request');
+      msg.style.display = 'none';
+      if (!email) { msg.className='msg error'; msg.textContent='Entrez votre email.'; msg.style.display='block'; return; }
+      btn.disabled = true; btn.textContent = 'Envoi…';
+      try {
+        const resp = await fetch('/api/admin/reset-request', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({email})
+        });
+        const data = await resp.json();
+        msg.className = 'msg success';
+        msg.textContent = data.message || 'Email envoyé si le compte existe.';
+        msg.style.display = 'block';
+        btn.textContent = 'Envoyé ✓';
+      } catch(e) {
+        msg.className='msg error'; msg.textContent='Erreur réseau'; msg.style.display='block';
+        btn.disabled=false; btn.textContent='Envoyer le lien';
+      }
+    }
+
+    async function savePassword() {
+      const pwd = document.getElementById('new-password').value;
+      const confirm = document.getElementById('confirm-password').value;
+      const msg = document.getElementById('msg-newpwd');
+      const btn = document.getElementById('btn-save');
+      msg.style.display = 'none';
+      if (pwd.length < 8) { msg.className='msg error'; msg.textContent='8 caractères minimum.'; msg.style.display='block'; return; }
+      if (pwd !== confirm) { msg.className='msg error'; msg.textContent='Les mots de passe ne correspondent pas.'; msg.style.display='block'; return; }
+      btn.disabled=true; btn.textContent='Enregistrement…';
+      try {
+        const resp = await fetch('/api/admin/reset-password', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({token, password: pwd})
+        });
+        const data = await resp.json();
+        if (resp.ok) {
+          msg.className='msg success'; msg.textContent='Mot de passe modifié ! Redirection…'; msg.style.display='block';
+          setTimeout(() => window.location.href='/admin/login', 1500);
+        } else {
+          msg.className='msg error'; msg.textContent=data.detail||'Lien invalide ou expiré.'; msg.style.display='block';
+          btn.disabled=false; btn.textContent='Enregistrer';
+        }
+      } catch(e) {
+        msg.className='msg error'; msg.textContent='Erreur réseau'; msg.style.display='block';
+        btn.disabled=false; btn.textContent='Enregistrer';
+      }
+    }
+  </script>
+</body>
+</html>
