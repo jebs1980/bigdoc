@@ -344,45 +344,56 @@ function renderBilan(b) {
         <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:1.25rem">BILAN PAR DIMENSION</div>
         ${dimsHtml}
       </div>
-      </div>
 
-      <div style="padding:2rem 2.5rem;background:rgba(26,122,94,.04);border-bottom:1px solid #F0F2F5">
-        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem">Ordonnance Bigdoc</div>
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--navy);margin-bottom:.35rem">${b.recommandation_principale?.service||''}</h3>
-        <div style="font-size:.9rem;color:var(--teal);font-weight:500;margin-bottom:.75rem">${b.recommandation_principale?.tarif||''}</div>
-        <p style="font-size:.85rem;color:var(--grey);line-height:1.6;margin-bottom:1.25rem">${b.recommandation_principale?.justification||''}</p>
+      <div style="padding:2rem;background:rgba(99,102,241,.04);border-bottom:1px solid #EDE9FE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">ORDONNANCE BIGDOC</div>
+        <div style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;color:#1A1060;margin-bottom:.35rem">${b.recommandation_principale?.service||''}</div>
+        <div style="font-size:.88rem;color:#6366F1;font-weight:700;margin-bottom:.75rem">${b.recommandation_principale?.tarif||''}</div>
+        <p style="font-size:.85rem;color:#374151;line-height:1.65;margin-bottom:1.25rem">${b.recommandation_principale?.justification||''}</p>
         ${recoSecHtml}
       </div>
 
-      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
-        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1rem">3 actions cette semaine</h3>
+      <div style="padding:2rem;border-bottom:1px solid #EDE9FE">
+        <div style="font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">3 ACTIONS CETTE SEMAINE</div>
         <ul style="list-style:none">${quickHtml}</ul>
       </div>
 
-      <div style="padding:2rem 2.5rem;text-align:center">
-        <p style="font-size:.9rem;color:var(--grey);margin-bottom:1.25rem">Prêt à traiter votre cabinet ?</p>
+      <div style="padding:2rem;text-align:center">
+        <p style="font-size:.9rem;color:#374151;margin-bottom:1.25rem;font-weight:500">Prêt à traiter votre cabinet ?</p>
         <div id="cta-buttons" style="display:flex;flex-direction:column;gap:.75rem;align-items:center;max-width:320px;margin:0 auto">
-          <div style="width:100%;height:44px;background:#EEF0F4;border-radius:10px;animation:pulse 1.5s ease-in-out infinite"></div>
+          <div style="width:100%;height:44px;background:#EEF0F4;border-radius:999px;animation:pulse 1.5s ease-in-out infinite"></div>
         </div>
-        <p style="font-size:.75rem;color:var(--grey);margin-top:1rem" id="cta-sub"></p>
+        <p style="font-size:.75rem;color:#9CA3AF;margin-top:1rem" id="cta-sub"></p>
       </div>
 
-      <div style="padding:1.25rem 2.5rem;background:#FAF3E0;border-top:1px solid rgba(11,37,69,.08);text-align:center">
+      <div style="padding:1.25rem 2rem;background:#F5F3FF;border-top:1px solid #EDE9FE;text-align:center">
         <a id="btn-rapport" href="#" target="_blank"
-          style="display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;color:var(--teal);text-decoration:none;font-weight:500;padding:.5rem 1rem;border:1px solid rgba(26,122,94,.25);border-radius:7px;transition:all .2s">
+          style="display:inline-flex;align-items:center;gap:.5rem;font-size:.82rem;color:#6366F1;text-decoration:none;font-weight:700;padding:.5rem 1rem;border:1.5px solid rgba(99,102,241,.3);border-radius:999px;transition:all .2s">
           📄 Télécharger mon rapport complet (PDF)
         </a>
-        <p style="font-size:.7rem;color:var(--grey);margin-top:.4rem">Motifs de consultation · Opportunités locales · Sources statistiques</p>
+        <p style="font-size:.7rem;color:#9CA3AF;margin-top:.4rem">Motifs de consultation · Opportunités locales · Sources statistiques</p>
       </div>
-        <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:.5rem;font-weight:500">Sources & méthodologie</div>
+
+      <div style="padding:1.25rem 2rem;background:#F9FAFB;border-top:1px solid #EDE9FE">
+        <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#9CA3AF;margin-bottom:.5rem;font-weight:700">Sources & méthodologie</div>
         <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem">
-          ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins','HAS','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:var(--grey)">${s}</span>`).join('')}
+          ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins 2023','FNCS — CPTS 2023','ANS Ségur 2023','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:#6B7280">${s}</span>`).join('')}
         </div>
-        <p style="font-size:.68rem;color:var(--grey);line-height:1.5;margin:0 0 .6rem">
-          Ce bilan croise vos réponses avec les données épidémiologiques nationales et locales,
-          les benchmarks CARMF par spécialité, les motifs de consultation CPAM et les densités médicales RPPS.
-          Les estimations financières sont calculées sur la base des tarifs CCAM/NGAP en vigueur.
+        <p style="font-size:.68rem;color:#9CA3AF;line-height:1.5;margin:0 0 .6rem">
+          Ce bilan croise vos réponses avec les données épidémiologiques nationales, les benchmarks CARMF par spécialité,
+          les enquêtes URPS, les données CPTS/FNCS, les motifs de consultation CPAM et les densités médicales RPPS.
         </p>
+        <div style="border-top:1px solid #E5E7EB;padding-top:.5rem;margin-top:.25rem">
+          <p style="font-size:.63rem;color:#D1D5DB;line-height:1.55;font-style:italic">
+            <strong style="font-style:normal;color:#9CA3AF;font-size:.63rem">Avertissement légal —</strong>
+            Ce diagnostic est fourni à titre purement indicatif et ne constitue ni un avis juridique, ni un avis médical, ni un conseil financier.
+            Les estimations sont des approximations statistiques basées sur des moyennes nationales.
+            Toute décision doit être prise avec un professionnel qualifié.
+          </p>
+        </div>
+      </div>
+
+    </div>`;
         <div style="border-top:1px solid #E8EBF0;padding-top:.5rem">
           <p style="font-size:.63rem;color:#BBBBBB;line-height:1.55;font-style:italic">
             <strong style="font-style:normal;color:#999;font-size:.63rem">Avertissement légal —</strong>
