@@ -452,7 +452,7 @@ QUESTIONNAIRE = [
             {"value": "msp",          "label": "Rejoindre ou créer une MSP / CPTS"},
             {"value": "extension",    "label": "Ouvrir un 2e cabinet ou déménager"},
             {"value": "actes",        "label": "Développer de nouveaux actes ou la téléconsultation"},
-            {"value": "secteur",      "label": "Passer en secteur 2 ou optimiser mes tarifs"},
+            {"value": "secteur",      "label": "Changer de secteur ou optimiser mes tarifs"},
             {"value": "retraite", "label": "Préparer une transition sereine vers la retraite"},
             {"value": "idees",        "label": "J'ai des idées mais rien de structuré"}
         ]
