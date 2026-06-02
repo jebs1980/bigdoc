@@ -4,6 +4,7 @@ import httpx
 import os
 import logging
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,6 +24,7 @@ from database import (
     create_partage_token, get_diagnostic_by_token,
     delete_lead_data, get_stats, get_all_leads,
     get_lead_by_session, verify_admin, init_admin,
+    is_admin_setup_done, setup_admin,
     create_admin_session, verify_admin_session,
     delete_admin_session, create_reset_token, reset_admin_password,
     get_app_settings, save_app_settings,
@@ -284,11 +286,7 @@ anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 async def startup():
     init_db()
     init_products()
-    init_admin(
-        email=os.getenv("ADMIN_EMAIL", "admin@bigdoc.fr"),
-        username=os.getenv("ADMIN_USERNAME", "admin"),
-        password=os.getenv("ADMIN_PASSWORD", "bigdoc2024!")
-    )
+    init_admin()
     load_demographics()
     # Vérifier que le modèle Anthropic est accessible
     try:
@@ -774,9 +772,39 @@ def require_admin(request: Request) -> dict:
 
 
 @app.get("/admin", response_class=HTMLResponse)
-async def admin_page():
+async def admin_page(request: Request):
+    if not is_admin_setup_done():
+        return RedirectResponse("/admin/setup")
     with open("static/admin.html", "r", encoding="utf-8") as f:
         return f.read()
+
+@app.get("/admin/setup", response_class=HTMLResponse)
+async def admin_setup_page():
+    if is_admin_setup_done():
+        return RedirectResponse("/admin/login")
+    with open("static/admin_setup.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
+class AdminSetupRequest(BaseModel):
+    email: str
+    username: str
+    password: str
+
+
+@app.post("/api/admin/setup")
+async def admin_setup(body: AdminSetupRequest):
+    if is_admin_setup_done():
+        raise HTTPException(status_code=403, detail="Setup déjà effectué")
+    if len(body.password) < 8:
+        raise HTTPException(status_code=400, detail="Mot de passe trop court (8 caractères minimum)")
+    if not "@" in body.email:
+        raise HTTPException(status_code=400, detail="Email invalide")
+    ok = setup_admin(body.email, body.username, body.password)
+    if not ok:
+        raise HTTPException(status_code=403, detail="Setup déjà effectué")
+    return {"success": True}
+
 
 @app.get("/admin/login", response_class=HTMLResponse)
 async def admin_login_page():
