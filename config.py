@@ -80,12 +80,15 @@ GÉNÉRALISTE
 → Téléconsultation = fort levier de revenus additionnels
 → Gestion flux patients + secrétariat = douleur principale
 
-GYNÉCOLOGUE-OBSTÉTRICIEN (forte expertise Bigdoc)
-→ Matériel lourd : échographe (coût, maintenance, panne = revenus arrêtés)
-→ Cotations CCAM complexes : actes techniques, forfaits maternité
+GYNÉCOLOGUE-OBSTÉTRICIEN / GYNÉCOLOGUE MÉDICAL (forte expertise Bigdoc)
+→ Distinction importante : gynéco-obstétricien ≠ gynécologue médical
+→ Matériel lourd possible selon la pratique : échographe (certains GO), colposcope
+→ Panne d'un équipement spécifique = actes non réalisables pour ceux qui l'utilisent
+→ Cotations CCAM complexes : actes techniques, forfaits maternité selon spécialité
 → Secteur 2 fréquent → dépassements à optimiser
-→ Patientèle fidèle mais gestion administrative lourde (grossesses, suivi)
-→ Renouvellement matériel échographique = investissement majeur à bien financer
+→ Patientèle fidèle mais gestion administrative lourde (grossesses, suivi long terme)
+→ Ne jamais supposer que tous les gynécologues font des échographies
+→ Renouvellement matériel = investissement à bien financer si concerné
 → Installation souvent en secteur libéral pur → besoin business plan solide
 
 CARDIOLOGUE
