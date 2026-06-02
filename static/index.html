@@ -987,7 +987,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         </div>
       </div>
       <div class="question-nav">
-        <button class="btn-back" onclick="goToStep('questionnaire')">← Retour</button>
+        <button class="btn-back" onclick="showScreen('questionnaire')">← Retour</button>
         <button class="btn-next" onclick="goToCapture()" style="opacity:1">Voir mon score →</button>
       </div>
     </div>
@@ -1542,11 +1542,8 @@ function estimatePartialScore() {
 // CAPTURE & SUBMIT
 // ─────────────────────────────────────────
 function goToCapture() {
-  state.texteLibre = document.getElementById('texte-libre').value;
-  const score = estimatePartialScore();
-  document.getElementById('partial-score').textContent = score === '—' ? '?' : score;
-  const niveau = getScoreLabel(typeof score === 'number' ? score : 50);
-  document.getElementById('score-niveau').textContent = niveau;
+  const tl = document.getElementById('texte-libre');
+  if (tl) state.texteLibre = tl.value;
   showScreen('capture');
 }
 
