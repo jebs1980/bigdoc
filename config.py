@@ -226,45 +226,51 @@ Service : étude faisabilité MSP/association, business plan extension, audit se
 CALCUL D'IMPACT
 ═══════════════════════════════════════
 ═══════════════════════════════════════
-BENCHMARKS SOURCÉS — À CITER DANS LE BILAN
+DONNÉES À CITER — OBLIGATOIRE PAR DIMENSION
 ═══════════════════════════════════════
-Chaque affirmation chiffrée doit être sourcée et personnalisée.
-Modèle obligatoire : "[chiffre personnalisé] — [explication du calcul] (Source : [référence])"
+Chaque commentaire de dimension DOIT contenir au moins un chiffre sourcé.
+Utiliser les données ci-dessous selon la dimension analysée.
 
-SOURCES DISPONIBLES :
-• CNOM Atlas 2023 — enquête sur 3 847 médecins libéraux français
-  → Charge administrative moyenne : 11,4h/semaine
-  → 62% déclarent envisager une réduction d'activité dans les 5 ans
-  → 28% de la pyramide des âges a plus de 60 ans
+ADMINISTRATION (charge admin) :
+→ "71% des médecins jugent leur charge administrative excessive (URPS IDF 2023 — 3 420 médecins)"
+→ "Vous déclarez X heures/sem — la moyenne nationale est 11,4h (CNOM Atlas 2023)"
+→ "Un rejet CPAM non traité coûte en moyenne 185€ (CPAM — Rapport contrôle médical 2022)"
+→ Causes de rejet les plus fréquentes : défaut prescription électronique (28%), codage CCAM incorrect (22%)
 
-• CARMF Rapport 2023 — données sur 125 400 médecins libéraux cotisants
-  → Revenus moyens BNC par spécialité (voir données démographiques)
-  → Charges sociales moyennes : 42% du BNC
-  → CARMF retraite base : cotisation minimum 3 792€/an
+INFORMATIQUE / TÉLÉCONSULTATION :
+→ "62% des médecins libéraux n'ont pas de logiciel certifié HDS (ANS 2023)"
+→ "18% des téléconsultations se font sur plateforme non agréée CPAM — acte non remboursable (Ameli 2023)"
+→ "Téléconsultation : +22% d'actes en 2023 — 18,2M d'actes nationaux (Ameli Open Data 2023)"
+→ "Plateforme non conforme = responsabilité civile engagée + acte non remboursé (Convention médicale art. 53)"
 
-• CPAM / Ameli Open Data 2023
-  → Taux de téléconsultation national : 8% des consultations
-  → Tarif G : 25€ · CS : 30€ · tarifs spécialistes selon CCAM
-  → Coût moyen d'un rejet CPAM non traité : 185€/dossier
+COMPTABILITÉ / FINANCES :
+→ "BNC moyen [spécialité] : [montant]€ (CARMF 2023) — charges sociales moyennes 42%"
+→ "Cotisation CARMF retraite minimum 2024 : 3 792€/an — variable selon revenus"
+→ "54% des médecins libéraux estiment leur revenu insuffisant (URPS IDF + Occitanie 2022-2023)"
 
-• DREES Études et Résultats 2023
-  → Temps médical disponible en baisse de 3,2%/an
-  → 11% des médecins exercent en zone sous-dotée ARS
+CHARGE MENTALE :
+→ "50% des médecins libéraux sont en risque élevé de burnout (FMF/CNOM 2023)"
+→ "46% envisagent une réduction d'activité dans les 5 ans (URPS IDF 2023)"
+→ "Le temps admin représente en moyenne 11,4h/sem de médecine non pratiquée (CNOM 2023)"
 
-• IRDES 2023 — Institut de recherche en économie de la santé
-  → Délai moyen accès spécialiste : 49 jours
-  → Délai moyen diagnostic endométriose : 7 ans
+DÉVELOPPEMENT / CPTS :
+→ "38% des médecins envisagent de rejoindre une CPTS (URPS IDF 2023)"
+→ "903 CPTS actives en France — 92% du territoire couvert (DGOS 2023)"
+→ "Financement CPTS : 150 000€ de dotation socle + jusqu'à 400 000€ variable (Avenant 9)"
+→ "28% des MG exercent en mode coordonné en 2023 vs 15% en 2019 (CNOM Atlas 2023)"
 
-• URPS Médecins — enquêtes régionales 2022-2023
-  → Age moyen équipement cabinet : 8,5 ans
-  → Taux de panne annuelle : 23% des cabinets
-  → Coût moyen journée d'arrêt : 850€ (MG) / 2 400€ (spécialiste)
+MATÉRIEL :
+→ "23% des cabinets subissent au moins une panne majeure par an (URPS enquêtes 2022)"
+→ "Coût moyen d'une journée d'arrêt : 850€ pour un généraliste, 2 400€ pour un spécialiste"
+→ "Age moyen du parc équipement en libéral : 8,5 ans (URPS 2022)"
 
-RÈGLE DE PERSONNALISATION OBLIGATOIRE :
-→ Ne jamais écrire "les médecins perdent X heures" — écrire "avec [réponse Q2] déclarée, votre charge se situe à X-Y h/sem, au-dessus/dans la moyenne/en-dessous de la moyenne nationale de 11,4h/sem (CNOM 2023)"
-→ Toujours expliquer le calcul : "X heures admin + Y heures informatique = Z heures totales × 90€/h × 47 sem = Euros évitables"
-→ Comparer le médecin à la moyenne nationale de sa spécialité quand la donnée existe
-→ Citer la source entre parenthèses après chaque benchmark utilisé
+FINANCEMENT / INSTALLATION :
+→ "Aide CAIM jusqu'à 50 000€ sur 5 ans en zone sous-dotée (ARS 2024)"
+→ "Coût moyen installation cabinet libéral : 85 000€ (CNOM Atlas 2023)"
+→ "5 800 communes classées Zone d'Intervention Prioritaire (ARS 2023)"
+→ "Délai moyen d'accès généraliste : 6 jours — spécialiste : 49 jours (Ameli 2023)"
+
+
 
 Heures perdues/semaine pour chaque dimension critique (score ≤ 7/20) :
 Admin critique       → 4-6h/sem (prendre la valeur haute si texte libre le confirme)
