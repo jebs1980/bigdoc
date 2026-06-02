@@ -150,11 +150,11 @@ def get_demographic_context(specialite: str, ville: str) -> str:
         if dept_type == "sous_dote":
             lines.append("→ Zone sous-dotée ARS : aides CAIM jusqu'à 50 000€, DAC, CPTS — patientèle garantie dès l'ouverture. Valoriser dans le bilan.")
         elif dept_type in ("densite_elevee", "sur_dote"):
-            lines.append("→ IMPORTANT — Densité élevée ne signifie PAS saturation. En France, il y a des besoins non couverts partout :")
-            lines.append("  • 6,7M de patients sans médecin traitant (Ameli 2023) — y compris dans les grandes villes")
-            lines.append("  • Les délais d'accès aux spécialistes restent longs même en zone dense (49j en moyenne Ameli 2023)")
-            lines.append("  • Une densité plus haute crée des opportunités de spécialisation et de coordination, pas de concurrence")
-            lines.append("  → Ne pas décourager l'installation — orienter vers la différenciation et les niches sous-couvertes localement")
+            lines.append("→ Zone dite surdotée — mais cette appellation est trompeuse :")
+            lines.append("  • 6,7M de patients sans médecin traitant en France, y compris dans les grandes villes (Ameli 2023)")
+            lines.append("  • Délai moyen pour un RDV spécialiste : 49 jours même en Île-de-France")
+            lines.append("  • Les besoins non couverts existent partout : créneaux indisponibles, spécialités en tension, patients qui attendent")
+            lines.append("  → Orienter vers la différenciation et les niches sous-couvertes localement — jamais décourager")
 
     if densite_locale and densite_nationale:
         ratio = densite_locale / densite_nationale
@@ -324,10 +324,12 @@ async def analyse_installation(req: InstallationRequest):
         prompt = f"""Tu es le Dr Bigdoc, consultant cabinet médical. Un médecin veut s'installer.
 
 RÈGLE FONDAMENTALE — NE JAMAIS IGNORER :
-Il n'existe pas de zone "sur-dotée" ou "saturée" en France. Les besoins médicaux sont non couverts PARTOUT.
-6,7M de patients sans médecin traitant (Ameli 2023), y compris à Paris et dans les grandes métropoles.
-Ne jamais décourager une installation. Toujours orienter vers les opportunités de différenciation.
-Zone à densité élevée = opportunité de spécialisation, file active rapide, accès à une patientèle solvable.
+Les zones "dites surdotées" manquent elles aussi de médecins. En France, les besoins médicaux sont non couverts PARTOUT.
+→ 6,7M de patients sans médecin traitant (Ameli 2023), y compris à Paris et dans les grandes métropoles
+→ Délai moyen RDV spécialiste : 49 jours même en Île-de-France — les patients attendent partout
+→ Ne jamais décourager une installation. Toujours montrer les opportunités de différenciation.
+→ Zone à forte densité = file active rapide, patientèle solvable, opportunité de spécialisation
+→ Si la zone est "dite surdotée" : le préciser avec les guillemets et expliquer que les besoins existent quand même
 
 PROJET :
 - Spécialité : {req.specialite}
