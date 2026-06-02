@@ -230,6 +230,9 @@ async function renderCTA(bilan) {
     const emailContact = settings.email_contact || 'bonjour@bigdoc.fr';
     const tel = settings.telephone || '';
 
+    const container = document.getElementById('cta-buttons');
+    const sub = document.getElementById('cta-sub');
+
     // Trouver le produit correspondant à la recommandation
     const recoNom = bilan.recommandation_principale?.service || '';
     const product = products.find(p =>
@@ -237,22 +240,19 @@ async function renderCTA(bilan) {
       recoNom.toLowerCase().includes(p.nom.toLowerCase().slice(0,10))
     ) || products.find(p => p.actif);
 
-    const container = document.getElementById('cta-buttons');
-    const sub = document.getElementById('cta-sub');
-
-    // Déterminer le type de bouton
     const forcerRdv = score < seuilRdv;
     const bouton = product?.bouton || 'rdv';
     const prixCents = product?.prix_cents || 0;
+    const productId = product?.id || null;
 
-    if (bouton === 'payer' && prixCents > 0 && !forcerRdv) {
-      // Bouton paiement direct Stripe
+    // Si Stripe configuré + produit valide + score suffisant → bouton payer
+    if (bouton === 'payer' && prixCents > 0 && productId && !forcerRdv) {
       const prix = (prixCents / 100).toLocaleString('fr') + '€';
       container.innerHTML = `
-        <button onclick="goToStripe('${product?.id || ''}')"
+        <button onclick="goToStripe('${productId}')"
           style="width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
                  color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;
-                 font-size:1rem;font-weight:500;cursor:pointer;transition:all .2s">
+                 font-size:1rem;font-weight:500;cursor:pointer">
           Payer maintenant — ${prix} →
         </button>
         ${calendly ? `<a href="${calendly}" target="_blank"
@@ -261,8 +261,9 @@ async function renderCTA(bilan) {
         </a>` : ''}
       `;
       sub.textContent = 'Paiement sécurisé par Stripe · Satisfaction garantie';
+
+    // Si Calendly configuré → bouton RDV
     } else if (calendly) {
-      // Bouton RDV Calendly
       container.innerHTML = `
         <a href="${calendly}" target="_blank"
           style="display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
@@ -270,27 +271,25 @@ async function renderCTA(bilan) {
                  font-size:1rem;font-weight:500;text-align:center">
           Prendre un RDV gratuit 15 min →
         </a>
-        ${prixCents > 0 ? `<p style="font-size:.8rem;color:var(--grey)">
-          ${recoNom} — ${(prixCents/100).toLocaleString('fr')}€
-        </p>` : ''}
       `;
       sub.textContent = 'Entretien gratuit · Sans engagement · On vous rappelle sous 24h';
+
+    // Fallback → email direct
     } else {
-      // Fallback contact email
       container.innerHTML = `
-        <a href="mailto:${emailContact}"
+        <a href="mailto:${emailContact}?subject=Demande suite diagnostic Bigdoc"
           style="display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
                  color:white;border-radius:10px;text-decoration:none;font-family:'DM Sans',sans-serif;
                  font-size:1rem;font-weight:500;text-align:center">
           Contacter Bigdoc →
         </a>
-        ${tel ? `<a href="tel:${tel}" style="font-size:.85rem;color:var(--teal);text-decoration:none">${tel}</a>` : ''}
+        ${tel ? `<a href="tel:${tel}" style="font-size:.85rem;color:var(--teal);text-decoration:none;margin-top:.25rem;display:block;text-align:center">${tel}</a>` : ''}
       `;
       sub.textContent = emailContact;
     }
   } catch(e) {
     document.getElementById('cta-buttons').innerHTML = `
-      <a href="mailto:bonjour@bigdoc.fr"
+      <a href="mailto:bonjour@bigdoc.fr?subject=Demande suite diagnostic Bigdoc"
         style="display:block;width:100%;padding:1rem;background:linear-gradient(135deg,var(--teal),var(--teal-l));
                color:white;border-radius:10px;text-decoration:none;font-size:1rem;font-weight:500;text-align:center;font-family:'DM Sans',sans-serif">
         Contacter Bigdoc →
