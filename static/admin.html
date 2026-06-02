@@ -266,7 +266,7 @@
             <label>Clé publique (pk_)</label>
             <input type="text" id="s-pk" placeholder="pk_test_…">
           </div>
-          <div class="input-group">
+          <div class="input-group" style="grid-column:1/-1">
             <label>Clé secrète (sk_)</label>
             <input type="password" id="s-sk" placeholder="sk_test_…">
           </div>
@@ -274,7 +274,7 @@
 
         <div class="section-title">Contact & RDV</div>
         <div class="form-grid form-grid-2" style="margin-bottom:1.5rem">
-          <div class="input-group">
+          <div class="input-group" style="grid-column:1/-1">
             <label>URL Calendly</label>
             <input type="text" id="s-calendly" placeholder="https://calendly.com/…">
           </div>
@@ -287,21 +287,10 @@
             <input type="text" id="s-tel" placeholder="+33 6 …">
           </div>
           <div class="input-group">
-            <label>Seuil score → RDV</label>
+            <label>Seuil score → RDV suggéré</label>
             <input type="number" id="s-seuil-rdv" placeholder="50">
-            <span class="input-hint">Score en dessous duquel le RDV est suggéré</span>
+            <span class="input-hint">En dessous de ce score, le RDV est mis en avant</span>
           </div>
-        </div>
-
-        <div class="section-title">Tarifs affichés</div>
-        <div class="form-grid form-grid-2">
-          <div class="input-group"><label>Sérénité (€/mois)</label><input type="number" id="p-serenite"></div>
-          <div class="input-group"><label>Confort (€/mois)</label><input type="number" id="p-confort"></div>
-          <div class="input-group"><label>Cabinet libéré (€/mois)</label><input type="number" id="p-libere"></div>
-          <div class="input-group"><label>Plan d'action (€)</label><input type="number" id="p-plan-action"></div>
-          <div class="input-group"><label>Audit express (€)</label><input type="number" id="p-audit"></div>
-          <div class="input-group"><label>Prestation (€)</label><input type="number" id="p-prestation"></div>
-          <div class="input-group"><label>Business plan (€)</label><input type="number" id="p-bizplan"></div>
         </div>
 
       </div>
@@ -623,13 +612,6 @@ async function loadSettings() {
     document.getElementById('s-mode').value = settings.stripe_mode||'test';
     document.getElementById('s-pk').value = settings.stripe_pk||'';
     document.getElementById('s-sk').value = settings.stripe_sk||'';
-    document.getElementById('p-plan-action').value = settings.prix_plan_action||35;
-    document.getElementById('p-audit').value = settings.prix_audit||39;
-    document.getElementById('p-prestation').value = settings.prix_prestation||250;
-    document.getElementById('p-bizplan').value = settings.prix_bizplan||250;
-    document.getElementById('p-serenite').value = settings.prix_serenite||90;
-    document.getElementById('p-confort').value = settings.prix_confort||250;
-    document.getElementById('p-libere').value = settings.prix_libere||590;
     document.getElementById('s-calendly').value = settings.calendly_url||'';
     document.getElementById('s-email-contact').value = settings.email_contact||'bonjour@bigdoc.fr';
     document.getElementById('s-tel').value = settings.telephone||'';
@@ -642,13 +624,6 @@ async function saveSettings() {
     stripe_mode: document.getElementById('s-mode').value,
     stripe_pk: document.getElementById('s-pk').value,
     stripe_sk: document.getElementById('s-sk').value,
-    prix_plan_action: +document.getElementById('p-plan-action').value,
-    prix_audit: +document.getElementById('p-audit').value,
-    prix_prestation: +document.getElementById('p-prestation').value,
-    prix_bizplan: +document.getElementById('p-bizplan').value,
-    prix_serenite: +document.getElementById('p-serenite').value,
-    prix_confort: +document.getElementById('p-confort').value,
-    prix_libere: +document.getElementById('p-libere').value,
     calendly_url: document.getElementById('s-calendly').value,
     email_contact: document.getElementById('s-email-contact').value,
     telephone: document.getElementById('s-tel').value,
