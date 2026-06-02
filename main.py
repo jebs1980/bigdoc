@@ -113,7 +113,7 @@ def normalize_specialite(specialite: str) -> str | None:
 
 
 def get_demographic_context(specialite: str, ville: str) -> str:
-    """Génère le contexte démographique à injecter dans le prompt."""
+    """Génère le contexte démographique enrichi à injecter dans le prompt."""
     if not DEMOGRAPHICS:
         return ""
 
@@ -121,12 +121,11 @@ def get_demographic_context(specialite: str, ville: str) -> str:
     dept = get_dept_from_ville(ville)
     lines = []
 
-    # Densité nationale de référence
+    # ── Densité locale vs nationale ──
     densite_nationale = None
     if spe_norm and spe_norm in DEMOGRAPHICS.get("densites_nationales", {}):
         densite_nationale = DEMOGRAPHICS["densites_nationales"][spe_norm]
 
-    # Densité locale
     densite_locale = None
     dept_info = None
     if dept and dept in DEMOGRAPHICS.get("departements", {}):
@@ -134,52 +133,110 @@ def get_demographic_context(specialite: str, ville: str) -> str:
         if spe_norm and spe_norm in dept_info.get("densites", {}):
             densite_locale = dept_info["densites"][spe_norm]
 
-    # Construire le contexte
     if dept_info or densite_nationale:
-        lines.append("CONTEXTE DÉMOGRAPHIQUE MÉDICAL :")
+        lines.append("═══ CONTEXTE DÉMOGRAPHIQUE ET ÉPIDÉMIOLOGIQUE ═══")
 
-        if dept_info:
-            dept_type = dept_info.get("type", "intermédiaire")
-            dept_nom = dept_info.get("nom", dept)
-            type_labels = {
-                "sous_dote": "ZONE SOUS-DOTÉE",
-                "sur_dote": "Zone sur-dotée",
-                "intermédiaire": "Zone intermédiaire"
-            }
-            lines.append(f"• Département : {dept_nom} ({dept}) — {type_labels.get(dept_type, dept_type)}")
+    if dept_info:
+        dept_type = dept_info.get("type", "intermédiaire")
+        dept_nom = dept_info.get("nom", dept)
+        type_labels = {"sous_dote": "ZONE SOUS-DOTÉE ⚠️", "sur_dote": "Zone sur-dotée", "intermédiaire": "Zone intermédiaire"}
+        lines.append(f"Territoire : {dept_nom} ({dept}) — {type_labels.get(dept_type, dept_type)}")
+        if dept_type == "sous_dote":
+            lines.append("→ Zone sous-dotée ARS : CAIM jusqu'à 50 000€, DAC, CPTS disponibles — valoriser dans le bilan")
+        elif dept_type == "sur_dote":
+            lines.append("→ Zone sur-dotée : concurrence forte — différenciation et spécialisation indispensables")
 
-            if dept_type == "sous_dote":
-                lines.append("  → Zone sous-dotée : aides ARS, CAIM, DAC, CPTS disponibles — à valoriser dans le bilan")
-            elif dept_type == "sur_dote":
-                lines.append("  → Zone sur-dotée : concurrence forte — différenciation et spécialisation recommandées")
+    if densite_locale and densite_nationale:
+        ratio = densite_locale / densite_nationale
+        if ratio < 0.75:
+            lines.append(f"Densité {spe_norm} locale : FAIBLE ({densite_locale}/100k hab vs {densite_nationale}/100k national) → forte opportunité de développement")
+        elif ratio > 1.25:
+            lines.append(f"Densité {spe_norm} locale : ÉLEVÉE ({densite_locale}/100k hab vs {densite_nationale}/100k national) → différenciation nécessaire")
+        else:
+            lines.append(f"Densité {spe_norm} locale : dans la moyenne ({densite_locale}/100k hab vs {densite_nationale}/100k national)")
+    elif densite_nationale and spe_norm:
+        lines.append(f"Densité nationale {spe_norm} : {densite_nationale} médecins/100 000 hab (CNOM 2023)")
 
-        if densite_locale and densite_nationale:
-            ratio = densite_locale / densite_nationale
-            if ratio < 0.75:
-                comparaison = f"densité locale FAIBLE ({densite_locale}/100k vs {densite_nationale}/100k national) — opportunité de développement forte"
-            elif ratio > 1.25:
-                comparaison = f"densité locale ÉLEVÉE ({densite_locale}/100k vs {densite_nationale}/100k national) — différenciation nécessaire"
-            else:
-                comparaison = f"densité locale dans la moyenne ({densite_locale}/100k vs {densite_nationale}/100k national)"
-            lines.append(f"• Densité {spe_norm} : {comparaison}")
-        elif densite_nationale and spe_norm:
-            lines.append(f"• Densité nationale {spe_norm} : {densite_nationale} médecins/100k hab")
+    # ── Benchmarks nationaux ──
+    benchmarks = DEMOGRAPHICS.get("benchmarks_nationaux", {})
 
-    # Niches sous-dotées par spécialité
+    # Revenus moyens par spécialité
+    if spe_norm:
+        revenus = benchmarks.get("revenus_moyens_bnc", {}).get("par_specialite", {})
+        if spe_norm in revenus:
+            revenu_moy = revenus[spe_norm]
+            lines.append(f"Revenu moyen BNC {spe_norm} : {revenu_moy:,.0f}€/an (CARMF 2023) — avant charges sociales (~42%)")
+
+    # Charge administrative benchmark
+    charges = benchmarks.get("charges_admin", {})
+    if charges:
+        lines.append(f"Charge administrative moyenne nationale : {charges.get('heures_par_semaine_moyenne', 11.4)}h/sem (CNOM/URPS 2023)")
+
+    # Téléconsultation
+    tele = benchmarks.get("teleconsultation", {})
+    if tele and spe_norm:
+        taux_spe = tele.get("par_specialite", {}).get(spe_norm)
+        taux_national = tele.get("taux_adoption_national", 0.08)
+        if taux_spe:
+            lines.append(f"Téléconsultation {spe_norm} : {round(taux_spe*100)}% des consultations vs {round(taux_national*100)}% national (CPAM 2023)")
+        if spe_norm == "Médecine générale":
+            lines.append(f"Potentiel téléconsultation MG non équipé : +{tele.get('revenus_additionnels_generaliste_mois', 850)}€/mois estimés")
+
+    # ── Motifs de consultation ──
+    motifs_data = DEMOGRAPHICS.get("motifs_consultation", {})
+    spe_key_motifs = None
+    if spe_norm == "Médecine générale": spe_key_motifs = "medecine_generale"
+    elif "Gynécologie médicale" in (spe_norm or ""): spe_key_motifs = "gynecologie_medicale"
+    elif spe_norm == "Psychiatrie": spe_key_motifs = "psychiatrie"
+    elif spe_norm == "Pédiatrie": spe_key_motifs = "pediatrie"
+    elif spe_norm == "Cardiologie": spe_key_motifs = "cardiologie"
+
+    if spe_key_motifs and spe_key_motifs in motifs_data:
+        motifs = motifs_data[spe_key_motifs]
+        top = motifs.get("top_motifs", [])[:3]
+        if top:
+            lines.append(f"\nTop 3 motifs consultation {spe_norm} (CPAM/Ameli 2023) :")
+            for m in top:
+                lines.append(f"• {m['motif']} ({round(m['part']*100)}%)")
+        # Données spécifiques
+        if spe_key_motifs == "gynecologie_medicale":
+            lines.append(f"Endométriose : délai diagnostic moyen {motifs.get('delai_diagnostic_endometriose_ans', 7)} ans — 10% des femmes en âge de procréer")
+        elif spe_key_motifs == "psychiatrie":
+            lines.append(f"Accès psychiatre libéral : délai moyen {motifs.get('delai_acces_psychiatre_liberal_semaines', 8.5)} semaines — 62% sans psychiatre référent")
+        elif spe_key_motifs == "pediatrie":
+            lines.append(f"TDAH : délai diagnostic {motifs.get('delai_diagnostic_tdah_mois', 18)} mois en moyenne — 5.5% des enfants concernés")
+
+    # ── Niches sous-dotées ──
     if spe_norm and spe_norm in DEMOGRAPHICS.get("niches_sous_dotees", {}):
         niches = DEMOGRAPHICS["niches_sous_dotees"][spe_norm]
         if niches:
-            lines.append(f"\nNICHES SOUS-DOTÉES EN {spe_norm.upper()} (à mentionner si pertinent pour ce médecin) :")
-            for niche in niches[:4]:  # Max 4 niches
+            lines.append(f"\nOPPORTUNITÉS DE DÉVELOPPEMENT — {spe_norm.upper()} (à mentionner si le score développement est faible) :")
+            for niche in niches[:3]:
                 lines.append(f"• {niche['niche']} : {niche['opportunite']}")
 
-    # Aides zones sous-dotées
+    # ── Aides zones sous-dotées ──
     if dept_info and dept_info.get("type") == "sous_dote":
         aides = DEMOGRAPHICS.get("aides_zones_sous_dotees", [])
         if aides:
-            lines.append("\nAIDES DISPONIBLES EN ZONE SOUS-DOTÉE :")
+            lines.append("\nAIDES DISPONIBLES ZONE SOUS-DOTÉE :")
             for aide in aides[:4]:
                 lines.append(f"• {aide}")
+
+    # ── Tendances contextuelles ──
+    tendances = DEMOGRAPHICS.get("tendances_2024_2025", {})
+    opportunites = tendances.get("opportunites_identifiees", [])
+    if opportunites and spe_norm:
+        # Filtrer les tendances pertinentes selon la spécialité
+        relevant = [o for o in opportunites if
+            any(kw in o.lower() for kw in [
+                spe_norm.lower()[:6],
+                'téléconsultation' if 'téléconsultation' in o.lower() else '',
+                'coordination' if 'cardio' in (spe_norm or '').lower() else '',
+            ]) and o]
+        if relevant:
+            lines.append(f"\nTENDANCES SECTORIELLES 2024 (DREES/CNOM) :")
+            for t in relevant[:2]:
+                lines.append(f"• {t}")
 
     return "\n".join(lines) if lines else ""
 
