@@ -744,7 +744,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1;position:relative">
             <label>Spécialité</label>
-            <input type="text" id="lead-specialite" placeholder="Généraliste"
+            <input type="text" id="lead-specialite" placeholder="Ex : Généraliste, Cardiologue…"
                    autocomplete="off"
                    oninput="filterSpecialite(this.value)"
                    onblur="setTimeout(()=>closeDropdown('drop-specialite'),200)"/>
@@ -1324,7 +1324,7 @@ async function copyShareLink() {
 // AUTOCOMPLETE SPÉCIALITÉ
 // ─────────────────────────────────────────
 const SPECIALITES = [
-  "Médecine générale","Gynécologie-obstétrique","Gynécologie médicale",
+  "Généraliste","Médecine générale","Gynécologie-obstétrique","Gynécologie médicale",
   "Cardiologie","Pédiatrie","Dermatologie","Ophtalmologie",
   "Psychiatrie","Neurologie","Orthopédie","Chirurgie générale",
   "Chirurgie digestive","Chirurgie vasculaire","Chirurgie thoracique",
