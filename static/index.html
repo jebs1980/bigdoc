@@ -611,23 +611,34 @@
       <div style="background:var(--navy);border-radius:16px;padding:2rem 2.5rem;margin-bottom:3rem">
         <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(250,243,224,.45);margin-bottom:1rem;font-weight:500">7 dimensions analysées</div>
         <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem">
-          ${[
-            ['📁','Administration & CPAM','Rejets, courriers, charge administrative'],
-            ['🔧','Matériel & Stocks','Pannes, ruptures, sourcing'],
-            ['💻','Informatique & Téléconsultation','Conformité HDS, logiciel, infrastructure'],
-            ['📊','Comptabilité & Finances','Trésorerie, CARMF, surprises fiscales'],
-            ['🧠','Charge mentale hors soins','Ce que vous faites qui n\'est pas de la médecine'],
-            ['💼','Financement & Investissements','Business plan, dossier bancaire, crédit vs leasing'],
-            ['📈','Développement & Croissance','MSP, association, nouveaux actes, niches locales'],
-          ].map(([icon,titre,desc]) => `
-            <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
-              <span style="font-size:1rem;flex-shrink:0">${icon}</span>
-              <div>
-                <div style="font-size:.82rem;font-weight:500;color:#FAF3E0;line-height:1.2">${titre}</div>
-                <div style="font-size:.72rem;color:rgba(250,243,224,.4);line-height:1.4;margin-top:.2rem">${desc}</div>
-              </div>
-            </div>
-          `).join('')}
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
+            <span style="font-size:1rem;flex-shrink:0">📁</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Administration & CPAM</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">Rejets, courriers, charge administrative</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
+            <span style="font-size:1rem;flex-shrink:0">🔧</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Matériel & Stocks</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">Pannes, ruptures, sourcing</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
+            <span style="font-size:1rem;flex-shrink:0">💻</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Informatique & Téléconsultation</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">Conformité HDS, logiciel, infrastructure</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
+            <span style="font-size:1rem;flex-shrink:0">📊</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Comptabilité & Finances</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">Trésorerie, CARMF, surprises fiscales</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
+            <span style="font-size:1rem;flex-shrink:0">🧠</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Charge mentale hors soins</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">Ce que vous faites qui n'est pas de la médecine</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px">
+            <span style="font-size:1rem;flex-shrink:0">💼</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Financement & Investissements</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">Business plan, dossier bancaire, crédit vs leasing</div></div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.65rem;background:rgba(255,255,255,.04);border-radius:8px;grid-column:1/-1">
+            <span style="font-size:1rem;flex-shrink:0">📈</span>
+            <div><div style="font-size:.82rem;font-weight:500;color:#FAF3E0">Développement & Croissance</div><div style="font-size:.72rem;color:rgba(250,243,224,.4);margin-top:.2rem">MSP, association, nouveaux actes, niches locales</div></div>
+          </div>
         </div>
       </div>
 
@@ -635,9 +646,15 @@
       <div style="text-align:center;margin-bottom:3.5rem">
         <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);margin-bottom:.9rem;font-weight:500">Sources des benchmarks</div>
         <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:.5rem">
-          ${['CNOM Atlas 2023','CARMF Rapport 2023','DREES','CPAM / Ameli Open Data','IRDES','URPS Médecins','HAS','INSEE','RPPS ANS'].map(s=>`
-            <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">${s}</span>
-          `).join('')}
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">CNOM Atlas 2023</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">CARMF Rapport 2023</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">DREES</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">CPAM / Ameli Open Data</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">IRDES</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">URPS Médecins</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">HAS</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">INSEE</span>
+          <span style="font-size:.72rem;padding:.25rem .75rem;border-radius:999px;background:rgba(11,37,69,.06);color:var(--grey);border:1px solid rgba(11,37,69,.08)">RPPS ANS</span>
         </div>
         <p style="font-size:.75rem;color:var(--grey);margin-top:.75rem;font-weight:300;line-height:1.5">
           Votre score est calculé en comparant votre situation aux données réelles de la médecine libérale française.<br>
@@ -655,41 +672,57 @@
     </div>
   </div>
 
-  <!-- Témoignage / FAQ rapide -->
+  <!-- Stats + FAQ -->
   <div style="background:var(--cream);padding:3rem 2rem;border-top:1px solid rgba(11,37,69,.06)">
     <div style="max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:2rem">
       <div>
         <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;font-weight:600">Ce que révèle le diagnostic</div>
         <div style="display:flex;flex-direction:column;gap:.6rem">
-          ${[
-            ['⏱','11h/semaine','perdues en moyenne sur des tâches non médicales (CNOM 2023)'],
-            ['💶','46 000 €','récupérables par an en moyenne'],
-            ['⚠️','1 médecin sur 4','pratique la téléconsultation sur une plateforme non agréée CPAM'],
-            ['📉','43/100','score de confort moyen des cabinets diagnostiqués'],
-          ].map(([icon,val,desc]) => `
-            <div style="display:flex;align-items:flex-start;gap:.75rem">
-              <span style="font-size:1rem">${icon}</span>
-              <div>
-                <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy)">${val}</span>
-                <span style="font-size:.78rem;color:var(--grey);margin-left:.3rem">${desc}</span>
-              </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem">
+            <span style="font-size:1rem">⏱</span>
+            <div>
+              <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy)">11h/semaine</span>
+              <span style="font-size:.78rem;color:var(--grey);margin-left:.3rem">perdues en moyenne sur des tâches non médicales (CNOM 2023)</span>
             </div>
-          `).join('')}
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem">
+            <span style="font-size:1rem">💶</span>
+            <div>
+              <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy)">46 000 €</span>
+              <span style="font-size:.78rem;color:var(--grey);margin-left:.3rem">récupérables par an en moyenne</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem">
+            <span style="font-size:1rem">⚠️</span>
+            <div>
+              <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy)">1 médecin sur 4</span>
+              <span style="font-size:.78rem;color:var(--grey);margin-left:.3rem">pratique la téléconsultation sur une plateforme non agréée CPAM</span>
+            </div>
+          </div>
+          <div style="display:flex;align-items:flex-start;gap:.75rem">
+            <span style="font-size:1rem">📉</span>
+            <div>
+              <span style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--navy)">43/100</span>
+              <span style="font-size:.78rem;color:var(--grey);margin-left:.3rem">score de confort moyen des cabinets diagnostiqués</span>
+            </div>
+          </div>
         </div>
       </div>
       <div>
         <div style="font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--teal);margin-bottom:.75rem;font-weight:600">Questions fréquentes</div>
         <div style="display:flex;flex-direction:column;gap:.9rem">
-          ${[
-            ['Gratuit vraiment ?','Oui. Sans condition. Nous gagnons notre vie sur les services que vous choisissez d\'activer après — pas sur le diagnostic.'],
-            ['Mes données sont protégées ?','Hébergées en France (OVH). Jamais revendues. Droit d\'effacement : rgpd@bigdoc.fr'],
-            ['En combien de temps ?','3 minutes pour le questionnaire. Le bilan arrive par email sous 1 minute.'],
-          ].map(([q,r]) => `
-            <div>
-              <div style="font-size:.82rem;font-weight:500;color:var(--navy);margin-bottom:.25rem">${q}</div>
-              <div style="font-size:.78rem;color:var(--grey);line-height:1.5">${r}</div>
-            </div>
-          `).join('')}
+          <div>
+            <div style="font-size:.82rem;font-weight:500;color:var(--navy);margin-bottom:.25rem">Gratuit vraiment ?</div>
+            <div style="font-size:.78rem;color:var(--grey);line-height:1.5">Oui. Sans condition. Nous gagnons notre vie sur les services que vous choisissez d'activer après — pas sur le diagnostic.</div>
+          </div>
+          <div>
+            <div style="font-size:.82rem;font-weight:500;color:var(--navy);margin-bottom:.25rem">Mes données sont protégées ?</div>
+            <div style="font-size:.78rem;color:var(--grey);line-height:1.5">Hébergées en France. Jamais revendues. Droit d'effacement : rgpd@bigdoc.fr</div>
+          </div>
+          <div>
+            <div style="font-size:.82rem;font-weight:500;color:var(--navy);margin-bottom:.25rem">En combien de temps ?</div>
+            <div style="font-size:.78rem;color:var(--grey);line-height:1.5">3 minutes pour le questionnaire. Le bilan arrive par email sous 1 minute.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -1112,14 +1145,9 @@ function renderQuestion() {
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-label').textContent = `Question ${state.currentStep + 1} / ${total}`;
 
-  // Score preview si on a déjà quelques réponses
-  const answered = Object.keys(state.reponses).length;
-  if (answered >= 3) {
-    const preview = estimatePartialScore();
-    const el = document.getElementById('score-preview');
-    el.textContent = `Score estimé : ${preview}/100`;
-    el.classList.add('visible');
-  }
+  // Pas de score partiel affiché — incohérent avec le score IA final
+  const el = document.getElementById('score-preview');
+  if (el) el.textContent = '';
 
   const area = document.getElementById('question-area');
   area.innerHTML = `
