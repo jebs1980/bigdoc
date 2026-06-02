@@ -1787,71 +1787,63 @@ function renderResult() {
   const b = state.bilan;
   const card = document.getElementById('result-card');
   const score = b.score_global;
-  const scoreColor = score <= 25 ? '#EF4444' : score <= 50 ? '#F59E0B' : score <= 75 ? '#F4A261' : '#10B981';
+  const scoreColor = score<=25?'#EF4444':score<=50?'#F59E0B':score<=75?'#F4A261':'#10B981';
 
   const dimLabels = {
     administration:'Admin & CPAM', achats_materiel:'Matériel',
-    informatique_teleconsult:'Téléconsultation', informatique:'Informatique',
+    informatique_teleconsult:'Téléconsult.', informatique:'Informatique',
     comptabilite_finances:'Comptabilité', comptabilite:'Comptabilité',
     charge_mentale:'Charge mentale', financement_investissements:'Financement',
     financement:'Financement', developpement_croissance:'Développement',
     developpement:'Développement',
   };
 
-  const dimsHtml = Object.entries(b.dimensions || {}).map(([key, dim]) => {
-    const pct = Math.round((dim.score / 20) * 100);
-    const col = pct <= 35 ? '#EF4444' : pct <= 65 ? '#F59E0B' : '#10B981';
-    const bg  = pct <= 35 ? 'rgba(239,68,68,.06)' : pct <= 65 ? 'rgba(245,158,11,.06)' : 'rgba(16,185,129,.06)';
-    return `
-      <div style="background:${bg};border-radius:12px;padding:1rem 1.1rem;border:1px solid rgba(0,0,0,.04)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-          <span style="font-size:.82rem;font-weight:700;color:#1A1060">${dimLabels[key]||key}</span>
-          <span style="font-size:.9rem;font-weight:900;color:${col};font-family:'Nunito',sans-serif">${dim.score}/20</span>
-        </div>
-        <div style="height:6px;background:rgba(0,0,0,.06);border-radius:999px;margin-bottom:.5rem">
-          <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
-        </div>
-        <p style="font-size:.76rem;color:#6B7280;line-height:1.5;margin:0">${(dim.commentaire||'').substring(0,120)}${(dim.commentaire||'').length>120?'…':''}</p>
-      </div>`;
+  const dimsHtml = Object.entries(b.dimensions||{}).map(([key,dim])=>{
+    const pct=Math.round((dim.score/20)*100);
+    const col=pct<=35?'#EF4444':pct<=65?'#F59E0B':'#10B981';
+    const bg=pct<=35?'rgba(239,68,68,.06)':pct<=65?'rgba(245,158,11,.06)':'rgba(16,185,129,.06)';
+    return `<div style="background:${bg};border-radius:10px;padding:.75rem .85rem;border:1px solid rgba(0,0,0,.04)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
+        <span style="font-size:.76rem;font-weight:700;color:#1A1060">${dimLabels[key]||key}</span>
+        <span style="font-size:.82rem;font-weight:900;color:${col};font-family:'Nunito',sans-serif">${dim.score}/20</span>
+      </div>
+      <div style="height:5px;background:rgba(0,0,0,.06);border-radius:999px;margin-bottom:.35rem">
+        <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
+      </div>
+      <p style="font-size:.7rem;color:#9CA3AF;line-height:1.4;margin:0">${(dim.commentaire||'').substring(0,90)}${(dim.commentaire||'').length>90?'…':''}</p>
+    </div>`;
   }).join('');
 
-  const recoSecHtml = (b.recommandations_secondaires||[]).slice(0,2).map(r=>`
-    <div style="padding:.65rem .9rem;background:#F5F3FF;border-radius:8px;margin-bottom:.4rem;border-left:3px solid #6366F1">
-      <strong style="font-size:.82rem;color:#1A1060">${r.service}</strong>
-      <span style="color:#6366F1;font-size:.78rem"> · ${r.tarif}</span>
-    </div>`).join('');
-
-  const quickHtml = (b.quick_wins||[]).map((w,i)=>`
-    <div style="display:flex;gap:.65rem;align-items:flex-start;padding:.6rem 0;${i>0?'border-top:1px solid #EDE9FE':''}">
-      <div style="min-width:20px;height:20px;border-radius:50%;background:#6366F1;color:white;font-size:.65rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
-      <span style="font-size:.82rem;color:#374151;line-height:1.5">${w}</span>
+  const quickHtml=(b.quick_wins||[]).map((w,i)=>`
+    <div style="display:flex;gap:.5rem;align-items:flex-start;padding:.45rem 0;${i>0?'border-top:1px solid #EDE9FE':''}">
+      <div style="min-width:18px;height:18px;border-radius:50%;background:#6366F1;color:white;font-size:.6rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+      <span style="font-size:.78rem;color:#374151;line-height:1.45">${w}</span>
     </div>`).join('');
 
   card.innerHTML = `
-    <!-- HEADER SCORE COMPACT -->
-    <div style="background:#1A1060;padding:2rem 2.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;justify-content:center;width:100px;height:100px;border-radius:50%;border:4px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
+    <!-- HEADER COMPACT -->
+    <div style="background:#1A1060;padding:1.75rem 2.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;border:4px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
         <div style="text-align:center">
-          <div style="font-family:'Nunito',sans-serif;font-size:2.5rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
-          <div style="font-size:.55rem;color:rgba(200,200,255,.5);letter-spacing:2px;font-weight:700">/100</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:2.2rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
+          <div style="font-size:.52rem;color:rgba(200,200,255,.45);letter-spacing:2px;font-weight:700">/100</div>
         </div>
       </div>
-      <div style="flex:1;min-width:200px">
-        <div style="font-family:'Nunito',sans-serif;font-size:1.25rem;font-weight:900;color:white;margin-bottom:.5rem">${b.niveau}</div>
-        <div style="display:flex;gap:.75rem;flex-wrap:wrap">
-          <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.4rem .85rem">
-            <span style="font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
-            <span style="font-size:.7rem;color:rgba(252,165,165,.7);margin-left:.3rem">/ sem</span>
+      <div style="flex:1;min-width:180px">
+        <div style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:white;margin-bottom:.4rem">${b.niveau}</div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
+            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
+            <span style="font-size:.65rem;color:rgba(252,165,165,.65);margin-left:.25rem">/sem</span>
           </div>
-          <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:.4rem .85rem">
-            <span style="font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
-            <span style="font-size:.7rem;color:rgba(252,211,77,.7);margin-left:.3rem">/ an</span>
+          <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
+            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
+            <span style="font-size:.65rem;color:rgba(252,211,77,.65);margin-left:.25rem">/an</span>
           </div>
         </div>
       </div>
-      <!-- Dr Bigdoc -->
-      <div style="display:flex;align-items:flex-start;gap:.75rem;background:rgba(255,255,255,.07);border-radius:12px;padding:.85rem 1rem;max-width:380px;border:1px solid rgba(255,255,255,.1)">
-        <svg width="36" height="36" viewBox="0 0 56 56" fill="none" style="flex-shrink:0">
+      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;max-width:340px;border:1px solid rgba(255,255,255,.1);flex:1">
+        <svg width="32" height="32" viewBox="0 0 56 56" fill="none" style="flex-shrink:0">
           <circle cx="28" cy="28" r="26" fill="#4F46E5"/>
           <ellipse cx="28" cy="24" rx="12" ry="13" fill="#F5D5A8"/>
           <ellipse cx="22" cy="23" rx="4" ry="4.5" fill="white"/><ellipse cx="34" cy="23" rx="4" ry="4.5" fill="white"/>
@@ -1862,76 +1854,75 @@ function renderResult() {
           <ellipse cx="38" cy="29" rx="7" ry="4.5" fill="#FFB3A0" opacity="0.6"/>
           <path d="M17 19 Q23 14 28 17 Q33 14 39 19 Q34 10 28 12 Q22 10 17 19Z" fill="#1A0A00"/>
         </svg>
-        <p style="font-size:.78rem;color:rgba(255,255,255,.85);line-height:1.6;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,180)}${(b.message_bilan||'').length>180?'…':''}</p>
+        <p style="font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.55;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,160)}…</p>
       </div>
     </div>
 
-    ${b.alerte_urgente?`<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.85rem 2rem;display:flex;gap:.75rem;align-items:flex-start">
-      <span style="font-size:1rem;flex-shrink:0">⚠️</span>
-      <p style="font-size:.8rem;color:#991B1B;line-height:1.55;margin:0;font-weight:600">${b.alerte_urgente}</p>
+    ${b.alerte_urgente?`<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.65rem 2rem;display:flex;gap:.5rem;align-items:center">
+      <span style="flex-shrink:0">⚠️</span>
+      <p style="font-size:.76rem;color:#991B1B;line-height:1.4;margin:0;font-weight:600">${b.alerte_urgente.substring(0,200)}…</p>
     </div>`:''}
 
-    <!-- DASHBOARD BODY -->
-    <div style="padding:2rem 2.5rem">
+    <!-- BODY -->
+    <div style="padding:1.5rem 2rem">
 
-      <!-- RADAR + COMPARABLES côte à côte -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem">
+      <!-- RADAR + STATS + DIMENSIONS en colonnes -->
+      <div style="display:grid;grid-template-columns:240px 1fr;gap:1.5rem;margin-bottom:1.5rem">
         <div>
-          <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">PROFIL RADAR</div>
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">RADAR</div>
           ${renderRadarResult(b.dimensions||{})}
         </div>
         <div>
-          <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">VOUS N'ÊTES PAS SEUL</div>
-          <div style="display:flex;flex-direction:column;gap:.6rem">
-            ${contextStatsResult(b.dimensions||{})}
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">7 DIMENSIONS</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem">
+            ${dimsHtml}
           </div>
         </div>
       </div>
 
-      <!-- 7 DIMENSIONS en grille 2 colonnes -->
-      <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">BILAN PAR DIMENSION</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:2rem">
-        ${dimsHtml}
+      <!-- CHIFFRES CLÉS -->
+      <div style="margin-bottom:1.5rem">
+        <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">EN CHIFFRES</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem">
+          ${contextStatsResult(b.dimensions||{})}
+        </div>
       </div>
 
-      <!-- ORDONNANCE + ACTIONS côte à côte -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem">
-        <div style="background:#F5F3FF;border-radius:14px;padding:1.25rem 1.5rem;border:1px solid #EDE9FE">
-          <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">ORDONNANCE</div>
-          <div style="font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:#1A1060;margin-bottom:.25rem">${b.recommandation_principale?.service||''}</div>
-          <div style="font-size:.82rem;color:#6366F1;font-weight:700;margin-bottom:.6rem">${b.recommandation_principale?.tarif||''}</div>
-          <p style="font-size:.78rem;color:#6B7280;line-height:1.55;margin-bottom:.75rem">${(b.recommandation_principale?.justification||'').substring(0,200)}…</p>
-          ${recoSecHtml}
+      <!-- ORDONNANCE + ACTIONS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
+        <div style="background:#F5F3FF;border-radius:12px;padding:1.1rem 1.25rem;border:1px solid #EDE9FE">
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">ORDONNANCE</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;color:#1A1060;margin-bottom:.2rem">${b.recommandation_principale?.service||''}</div>
+          <div style="font-size:.8rem;color:#6366F1;font-weight:700;margin-bottom:.5rem">${b.recommandation_principale?.tarif||''}</div>
+          <p style="font-size:.75rem;color:#6B7280;line-height:1.5;margin:0">${(b.recommandation_principale?.justification||'').substring(0,150)}…</p>
         </div>
         <div>
-          <div style="font-size:.62rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem">3 ACTIONS CETTE SEMAINE</div>
+          <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">PRIORITÉS</div>
           ${quickHtml}
         </div>
       </div>
 
-      <!-- CTA -->
-      <div style="text-align:center;padding:1.5rem;background:#F5F3FF;border-radius:14px;border:1px solid #EDE9FE">
-        <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.9rem 2.5rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;display:inline-block;margin-bottom:.6rem">
-          Démarrer avec RMS →
-        </button>
+      <!-- CTA compact -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F3FF;border-radius:12px;padding:1rem 1.5rem;border:1px solid #EDE9FE;flex-wrap:wrap;gap:.75rem">
         <div>
-          <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.4rem 1.1rem;border-radius:999px;font-size:.78rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
-            📋 Partager ce diagnostic
+          <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
+            Démarrer avec RMS →
           </button>
         </div>
+        <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.45rem 1rem;border-radius:999px;font-size:.75rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
+          📋 Partager
+        </button>
       </div>
 
-      <!-- SOURCES discrètes -->
-      <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid #EDE9FE">
-        <div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.4rem">
-          ${['CNOM 2023','CARMF 2023','DREES','Ameli','IRDES','URPS','FNCS','ANS','INSEE'].map(s=>`<span style="font-size:.6rem;padding:.1rem .45rem;border-radius:3px;background:#EEF0F4;color:#9CA3AF">${s}</span>`).join('')}
-        </div>
-        <p style="font-size:.6rem;color:#D1D5DB;line-height:1.5;font-style:italic">Avertissement légal : diagnostic indicatif uniquement. Estimations basées sur moyennes nationales. Ne constitue pas un avis juridique ou financier.</p>
+      <!-- SOURCES mini -->
+      <div style="margin-top:1rem;display:flex;flex-wrap:wrap;gap:.25rem;align-items:center">
+        <span style="font-size:.58rem;color:#9CA3AF;margin-right:.25rem">Sources :</span>
+        ${['CNOM 2023','CARMF','DREES','Ameli','IRDES','URPS','FNCS','ANS'].map(s=>`<span style="font-size:.58rem;padding:.1rem .4rem;border-radius:3px;background:#F3F4F6;color:#9CA3AF">${s}</span>`).join('')}
+        <span style="font-size:.58rem;color:#D1D5DB;margin-left:.25rem;font-style:italic">— Indicatif uniquement</span>
       </div>
     </div>
   `;
 }
-
 function goToStripe() {
   if (!state.bilan) return;
   const palier = state.bilan.recommandation_principale?.palier || '';
