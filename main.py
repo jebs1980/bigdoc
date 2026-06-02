@@ -1188,6 +1188,155 @@ async def stripe_webhook(request: Request):
     return {"received": True}
 
 
+
+
+# ─────────────────────────────────────────
+# DEVIS — STRIPE QUOTES
+# ─────────────────────────────────────────
+class QuoteRequest(BaseModel):
+    email: str
+    prenom: str = ""
+    nom: str = ""
+    specialite: str = ""
+    ville: str = ""
+    produit_nom: str = ""
+    prix_ht: float = 0
+    tva: float = 20.0
+    note: str = ""
+    expires_jours: int = 30
+    session_id: str = ""
+
+
+def _get_stripe():
+    import stripe as stripe_lib
+    settings = get_app_settings()
+    sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
+    if not sk:
+        raise HTTPException(status_code=400, detail="Stripe non configuré")
+    stripe_lib.api_key = sk
+    return stripe_lib
+
+
+@app.get("/api/admin/quotes")
+async def list_quotes(request: Request):
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quotes = stripe.Quote.list(limit=50)
+        result = []
+        for q in quotes.data:
+            customer = None
+            if q.customer:
+                try:
+                    customer = stripe.Customer.retrieve(q.customer)
+                except Exception:
+                    pass
+            result.append({
+                "id": q.id,
+                "status": q.status,
+                "amount_total": q.amount_total,
+                "currency": q.currency,
+                "created": q.created,
+                "expires_at": q.expires_at,
+                "customer_email": customer.email if customer else q.get("customer_email", ""),
+                "customer_name": customer.name if customer else "",
+                "description": q.description or "",
+                "pdf": q.pdf if hasattr(q, 'pdf') else None,
+            })
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes")
+async def create_quote(request: Request, body: QuoteRequest):
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        from datetime import datetime, timedelta
+        import time
+
+        # Créer ou récupérer le customer Stripe
+        customers = stripe.Customer.list(email=body.email, limit=1)
+        if customers.data:
+            customer = customers.data[0]
+        else:
+            customer = stripe.Customer.create(
+                email=body.email,
+                name=f"Dr. {body.prenom} {body.nom}".strip(),
+                metadata={
+                    "specialite": body.specialite,
+                    "ville": body.ville,
+                    "session_id": body.session_id,
+                }
+            )
+
+        # Montant en centimes HT
+        prix_ht_cents = int(round(body.prix_ht * 100))
+        expires_at = int((datetime.now() + timedelta(days=body.expires_jours)).timestamp())
+
+        # Créer le quote
+        quote = stripe.Quote.create(
+            customer=customer.id,
+            expires_at=expires_at,
+            description=body.note or f"Accompagnement cabinet médical — {body.produit_nom}",
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "product_data": {
+                        "name": body.produit_nom or "Prestation RMS",
+                        "description": f"Dr. {body.prenom} {body.nom} — {body.specialite} — {body.ville}",
+                    },
+                    "unit_amount": prix_ht_cents,
+                    "tax_behavior": "exclusive",
+                },
+                "quantity": 1,
+            }],
+            automatic_tax={"enabled": False},
+        )
+
+        return {"success": True, "quote_id": quote.id, "status": quote.status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes/{quote_id}/finalize")
+async def finalize_quote(quote_id: str, request: Request):
+    """Finalise et envoie le devis au client."""
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quote = stripe.Quote.finalize_quote(quote_id)
+        # Envoyer par email via Stripe
+        stripe.Quote.pdf(quote_id)
+        return {"success": True, "status": quote.status, "pdf": getattr(quote, 'pdf', None)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes/{quote_id}/accept")
+async def accept_quote(quote_id: str, request: Request):
+    """Accepte le devis et crée l'invoice."""
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quote = stripe.Quote.accept(quote_id)
+        return {"success": True, "status": quote.status, "invoice": getattr(quote, 'invoice', None)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes/{quote_id}/cancel")
+async def cancel_quote(quote_id: str, request: Request):
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quote = stripe.Quote.cancel(quote_id)
+        return {"success": True, "status": quote.status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
