@@ -983,7 +983,7 @@ async def create_checkout(body: CheckoutRequest):
         raise HTTPException(status_code=400, detail="Stripe non configuré — ajoutez vos clés dans les paramètres admin")
     stripe.api_key = sk
 
-    # Chercher le produit dans le catalogue — par ID ou par nom
+    # Chercher le produit dans le catalogue — par ID ou par clé
     product = None
     try:
         product = get_product(int(body.produit))
@@ -991,14 +991,15 @@ async def create_checkout(body: CheckoutRequest):
         pass
 
     if not product:
-        # Cherche par nom (serenite, confort, cabinet_libere, plan_action)
-        all_products = get_products(actif_only=True)
-        key = body.produit.lower().replace('_', ' ').replace('-', ' ')
-        for p in all_products:
-            nom_norm = p['nom'].lower().replace('é','e').replace('é','e').replace('è','e').replace('ê','e').replace('î','i').replace('ô','o').replace('û','u').replace('à','a')
-            if key in nom_norm or nom_norm.replace(' ','') in key.replace('_','').replace('-',''):
-                product = p
-                break
+        key_map = {
+            "serenite": 9,
+            "confort": 10,
+            "cabinet_libere": 11,
+            "plan_action": 2,
+        }
+        pid = key_map.get(body.produit.lower())
+        if pid:
+            product = get_product(pid)
 
     if not product:
         raise HTTPException(status_code=400, detail="Produit introuvable dans le catalogue")
