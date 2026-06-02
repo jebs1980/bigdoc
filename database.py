@@ -45,6 +45,7 @@ def init_db():
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
             email           TEXT NOT NULL,
             prenom          TEXT,
+            nom             TEXT,
             specialite      TEXT,
             ville           TEXT,
             created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -148,15 +149,21 @@ def save_diagnostic(session_id: str, bilan: dict, reponses: dict, texte_libre: s
     return row["id"] if row else 0
 
 
-def save_lead(session_id: str, email: str, prenom: str = "", specialite: str = "", ville: str = "") -> int:
+def save_lead(session_id: str, email: str, prenom: str = "", specialite: str = "", ville: str = "", nom: str = "") -> int:
     conn = get_connection()
 
-    # Upsert lead
+    # Ajouter colonne nom si elle n'existe pas (migration)
+    try:
+        conn.execute("ALTER TABLE leads ADD COLUMN nom TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     conn.execute("""
-        INSERT INTO leads (email, prenom, specialite, ville)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO leads (email, prenom, nom, specialite, ville)
+        VALUES (?, ?, ?, ?, ?)
         ON CONFLICT DO NOTHING
-    """, (email.lower().strip(), prenom, specialite, ville))
+    """, (email.lower().strip(), prenom, nom, specialite, ville))
 
     lead = conn.execute("SELECT id FROM leads WHERE email = ?", (email.lower().strip(),)).fetchone()
     lead_id = lead["id"] if lead else 0
