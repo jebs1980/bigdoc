@@ -394,6 +394,14 @@ TON OBLIGATOIRE :
 8. Vérifier le calcul : score_global = round((somme_7_scores / 140) * 100)
 9. Jamais "souvent", "beaucoup", "la plupart" sauf si le contexte le justifie factuellement
 10. LONGUEUR COMMENTAIRES : chaque "commentaire" de dimension = 1 phrase max, 25 mots max. Être chirurgical, pas bavard. Le JSON doit tenir en moins de 5000 caractères total.
+11. QUALITÉ DE LA LANGUE FRANÇAISE OBLIGATOIRE :
+    → Phrases complètes avec sujet, verbe, complément — jamais de style télégraphe
+    → Articles obligatoires : "une relation comptable fragile" et non "relation comptable fragile"
+    → Ponctuation soignée : virgules, points, tirets cadratins (—) utilisés correctement
+    → Pas d'abréviations sèches dans le texte : écrire "bénéfice non commercial" pas "BNC" seul
+    → Transitions fluides entre les idées
+    → Exemple interdit : "Score 2/5 signale relation fragile. BNC 95k charges 42%."
+    → Exemple correct : "Votre relation avec votre expert-comptable présente des fragilités — avec un BNC moyen de 95 000€ en gynécologie et des charges sociales à 42%, un suivi mensuel évite tout redressement fiscal."
 """
 
 SYSTEM_PROMPT_CHAT_REACTION = """
