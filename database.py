@@ -62,10 +62,21 @@ def init_db():
             nom             TEXT,
             specialite      TEXT,
             ville           TEXT,
+            rpps            TEXT,
+            status          TEXT DEFAULT 'lead',
             created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             rgpd_consent    INTEGER DEFAULT 1,
             rgpd_date       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             source          TEXT DEFAULT 'diagnostic'
+        );
+
+        CREATE TABLE IF NOT EXISTS lead_events (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            lead_id     INTEGER NOT NULL REFERENCES leads(id),
+            type        TEXT NOT NULL,
+            content     TEXT,
+            meta        TEXT,
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS diagnostics (
@@ -671,3 +682,107 @@ def get_stats() -> dict:
         "heures_perdues_moyennes": round(avg_hours or 0, 1),
         "euros_evitables_moyens": round(avg_euros or 0, -2),
     }
+
+# ─────────────────────────────────────────
+# CRM — FICHE LEAD
+# ─────────────────────────────────────────
+
+LEAD_STATUTS = ['lead', 'rdv', 'devis_envoye', 'devis_accepte', 'en_cours', 'livre', 'cloture', 'perdu']
+
+def _migrate_lead_crm(conn):
+    """Migration — ajoute colonnes CRM si manquantes."""
+    for col, defval in [("rpps", "TEXT"), ("status", "TEXT DEFAULT 'lead'")]:
+        try:
+            conn.execute(f"ALTER TABLE leads ADD COLUMN {col} {defval}")
+        except Exception:
+            pass
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS lead_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            lead_id INTEGER NOT NULL REFERENCES leads(id),
+            type TEXT NOT NULL,
+            content TEXT,
+            meta TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+
+def get_lead_fiche(lead_id: int) -> dict | None:
+    """Retourne la fiche complète d'un lead — infos + diagnostics + events."""
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+
+    lead = conn.execute("SELECT * FROM leads WHERE id=?", (lead_id,)).fetchone()
+    if not lead:
+        conn.close()
+        return None
+    lead = dict(lead)
+
+    # Diagnostics
+    diags = conn.execute("""
+        SELECT session_id, score_global, niveau, recommandation_palier,
+               heures_perdues_semaine, euros_evitables_an, created_at, phase
+        FROM diagnostics WHERE lead_id=? ORDER BY created_at DESC
+    """, (lead_id,)).fetchall()
+    lead['diagnostics'] = [dict(d) for d in diags]
+
+    # Events (notes + changements statut)
+    events = conn.execute("""
+        SELECT * FROM lead_events WHERE lead_id=? ORDER BY created_at DESC
+    """, (lead_id,)).fetchall()
+    lead['events'] = [dict(e) for e in events]
+
+    conn.close()
+    return lead
+
+def update_lead_status(lead_id: int, status: str, note: str = "") -> bool:
+    """Met à jour le statut d'un lead et log l'événement."""
+    if status not in LEAD_STATUTS:
+        return False
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    conn.execute("UPDATE leads SET status=? WHERE id=?", (status, lead_id))
+    conn.execute("""
+        INSERT INTO lead_events (lead_id, type, content)
+        VALUES (?, 'status', ?)
+    """, (lead_id, f"Statut → {status}" + (f" — {note}" if note else "")))
+    conn.commit()
+    conn.close()
+    return True
+
+def add_lead_note(lead_id: int, content: str) -> int:
+    """Ajoute une note libre sur un lead."""
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    cur = conn.execute("""
+        INSERT INTO lead_events (lead_id, type, content)
+        VALUES (?, 'note', ?)
+    """, (lead_id, content))
+    event_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return event_id
+
+def delete_lead_event(event_id: int) -> bool:
+    """Supprime une note (pas les events système)."""
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    conn.execute("DELETE FROM lead_events WHERE id=? AND type='note'", (event_id,))
+    conn.commit()
+    conn.close()
+    return True
+
+def update_lead_info(lead_id: int, data: dict) -> bool:
+    """Met à jour les infos d'un lead (rpps, prenom, nom, etc.)."""
+    allowed = ['prenom', 'nom', 'specialite', 'ville', 'rpps']
+    updates = {k: v for k, v in data.items() if k in allowed}
+    if not updates:
+        return False
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    sets = ', '.join(f"{k}=?" for k in updates)
+    conn.execute(f"UPDATE leads SET {sets} WHERE id=?", (*updates.values(), lead_id))
+    conn.commit()
+    conn.close()
+    return True
