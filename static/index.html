@@ -1030,7 +1030,65 @@ async function generateUUID() {
   });
 }
 
+// ── BOUTON TEST (localhost uniquement) ──
+function injectTestButton() {
+  if (!window.location.hostname.includes('localhost') &&
+      !window.location.hostname.includes('127.0.0.1')) return;
+
+  const btn = document.createElement('button');
+  btn.textContent = '🧪 Remplir test';
+  btn.style.cssText = `
+    position:fixed;bottom:1rem;right:1rem;z-index:9999;
+    background:#F4A261;color:white;border:none;border-radius:8px;
+    padding:.5rem 1rem;font-size:.8rem;font-weight:600;
+    cursor:pointer;font-family:'DM Sans',sans-serif;
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+  `;
+  btn.onclick = fillTestData;
+  document.body.appendChild(btn);
+}
+
+function fillTestData() {
+  // Aller au questionnaire si pas encore là
+  if (document.getElementById('screen-questionnaire').style.display === 'none' ||
+      !document.getElementById('screen-questionnaire').classList.contains('active')) {
+    showChoix();
+    setTimeout(() => { startQuestionnaire(); setTimeout(fillTestData, 300); }, 200);
+    return;
+  }
+
+  // Réponses test — gynécologue médicale Lyon
+  state.reponses = {
+    phase: 'consolidation',
+    admin: '3',
+    materiel: '4',
+    informatique: 'zoom',
+    teleconsult_plateforme: 'zoom',
+    compta: '2',
+    charge: '1',
+    financement: 'non',
+    developpement: ['endometriose']
+  };
+  state.texteLibre = "Je suis gynécologue médicale en secteur 2 à Lyon depuis 12 ans. Je fais des téléconsultations sur Zoom, environ 30% de mon activité. Mon agenda est plein mais je passe beaucoup de temps sur l'admin. Je voudrais développer une consultation endométriose.";
+
+  // Passer à la capture email directement
+  showScreen('capture');
+
+  // Pré-remplir le formulaire lead
+  setTimeout(() => {
+    const email = document.getElementById('lead-email');
+    const prenom = document.getElementById('lead-prenom');
+    const spe = document.getElementById('lead-specialite');
+    const ville = document.getElementById('lead-ville');
+    if (email)  email.value  = 'test@bigdoc.fr';
+    if (prenom) prenom.value = 'Marie';
+    if (spe)    spe.value    = 'Gynécologie médicale';
+    if (ville)  ville.value  = 'Lyon (69001)';
+  }, 100);
+}
+
 function init() {
+  injectTestButton();
   // Stats live
   try {
     const r = await fetch('/api/stats');
