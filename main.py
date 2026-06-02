@@ -307,7 +307,7 @@ class InstallationRequest(BaseModel):
 async def analyse_installation(req: InstallationRequest):
     """Analyse un projet d'installation médicale."""
     try:
-        demo = load_demographics()
+        demo = DEMOGRAPHICS or {}
         aides = demo.get("aides_zones_sous_dotees", [])
         cpts_info = demo.get("donnees_cpts", {})
         drees = demo.get("donnees_drees_etat", {})
