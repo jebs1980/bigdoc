@@ -46,7 +46,62 @@ def get_dept(ville):
     if m: return m.group(1)[:2]
     return None
 
-def color_score(score, max_score=20):
+def generate_radar_svg(dims):
+    """Génère un SVG radar pour le rapport PDF."""
+    keys = ['administration','achats_materiel','informatique_teleconsult','comptabilite_finances','charge_mentale','financement_investissements','developpement_croissance']
+    labels = ['Admin','Matériel','Info.','Compta','Charge','Financement','Développement']
+    import math
+    n = len(keys)
+    cx, cy, r = 160, 155, 100
+    scores = [(dims.get(k, {}).get('score', 0) or 0) / 20 for k in keys]
+
+    def polygon(factor):
+        pts = []
+        for i in range(n):
+            angle = (math.pi * 2 * i / n) - math.pi / 2
+            x = cx + r * factor * math.cos(angle)
+            y = cy + r * factor * math.sin(angle)
+            pts.append(f"{x:.1f},{y:.1f}")
+        return " ".join(pts)
+
+    score_pts = []
+    for i, val in enumerate(scores):
+        angle = (math.pi * 2 * i / n) - math.pi / 2
+        x = cx + r * val * math.cos(angle)
+        y = cy + r * val * math.sin(angle)
+        score_pts.append(f"{x:.1f},{y:.1f}")
+
+    axes = ""
+    for i in range(n):
+        angle = (math.pi * 2 * i / n) - math.pi / 2
+        x2 = cx + r * math.cos(angle)
+        y2 = cy + r * math.sin(angle)
+        axes += f'<line x1="{cx}" y1="{cy}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="#E8EBF0" stroke-width="1"/>'
+
+    label_els = ""
+    dots = ""
+    for i, lbl in enumerate(labels):
+        angle = (math.pi * 2 * i / n) - math.pi / 2
+        lx = cx + (r + 22) * math.cos(angle)
+        ly = cy + (r + 22) * math.sin(angle)
+        sc = round(scores[i] * 20)
+        col = '#C0392B' if scores[i] <= 0.35 else '#E67E22' if scores[i] <= 0.65 else '#1A7A5E'
+        label_els += f'<text x="{lx:.1f}" y="{ly-4:.1f}" text-anchor="middle" font-family="Arial" font-size="7.5" fill="#0B2545" font-weight="bold">{lbl}</text>'
+        label_els += f'<text x="{lx:.1f}" y="{ly+8:.1f}" text-anchor="middle" font-family="Arial" font-size="8" fill="{col}" font-weight="bold">{sc}/20</text>'
+        px = cx + r * scores[i] * math.cos(angle)
+        py = cy + r * scores[i] * math.sin(angle)
+        dots += f'<circle cx="{px:.1f}" cy="{py:.1f}" r="3.5" fill="{col}" stroke="white" stroke-width="1.5"/>'
+
+    return f"""<svg viewBox="0 0 320 310" width="280" height="245">
+      <polygon points="{polygon(0.25)}" fill="none" stroke="#F0F2F5" stroke-width="1"/>
+      <polygon points="{polygon(0.5)}"  fill="none" stroke="#E8EBF0" stroke-width="1"/>
+      <polygon points="{polygon(0.75)}" fill="none" stroke="#E0E4E8" stroke-width="1"/>
+      <polygon points="{polygon(1)}"    fill="none" stroke="#D0D5DE" stroke-width="1"/>
+      {axes}
+      <polygon points="{' '.join(score_pts)}" fill="rgba(26,122,94,0.12)" stroke="#1A7A5E" stroke-width="2" stroke-linejoin="round"/>
+      {dots}
+      {label_els}
+    </svg>"""
     pct = (score / max_score) * 100
     if pct >= 70: return "#1A7A5E"
     if pct >= 40: return "#F4A261"
@@ -276,6 +331,12 @@ def generate_rapport_html(bilan, lead_info, specialite="", ville=""):
       </div>
     </div>
   </div>
+</div>
+
+<!-- RADAR -->
+<div style="text-align:center;margin-bottom:5mm">
+  <div class="eyebrow" style="text-align:left">Profil radar</div>
+  {generate_radar_svg(dims)}
 </div>
 
 <!-- CONTEXTE LOCAL -->
