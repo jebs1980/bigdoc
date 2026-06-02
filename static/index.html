@@ -788,10 +788,59 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 <div id="screen-loading" class="screen">
   <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
     <div class="card">
-      <div class="loading-area">
-        <div class="pulse-circle"></div>
-        <div class="loading-text">Analyse de votre cabinet en cours…</div>
-        <div class="loading-sub">Notre diagnostic examine vos 7 dimensions de confort</div>
+      <div style="padding:3rem 2.5rem;text-align:center">
+
+        <!-- Cercle animé -->
+        <div style="position:relative;width:90px;height:90px;margin:0 auto 2rem">
+          <svg width="90" height="90" viewBox="0 0 90 90" style="transform:rotate(-90deg)">
+            <circle cx="45" cy="45" r="38" fill="none" stroke="#EEF0F4" stroke-width="5"/>
+            <circle id="progress-circle" cx="45" cy="45" r="38" fill="none"
+              stroke="url(#grad)" stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="239" stroke-dashoffset="239"
+              style="transition:stroke-dashoffset .6s ease"/>
+            <defs>
+              <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#1A7A5E"/>
+                <stop offset="100%" style="stop-color:#22A37D"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span id="loading-pct" style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:600;color:var(--navy)">0%</span>
+          </div>
+        </div>
+
+        <div id="loading-title" style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--navy);margin-bottom:.5rem">
+          Analyse en cours…
+        </div>
+        <div id="loading-sub" style="font-size:.85rem;color:var(--grey);font-weight:300;margin-bottom:2rem">
+          Examen de vos 7 dimensions de confort
+        </div>
+
+        <!-- Étapes -->
+        <div style="text-align:left;max-width:380px;margin:0 auto;display:flex;flex-direction:column;gap:.75rem">
+          <div class="loading-step" id="step-1" style="display:flex;align-items:center;gap:.75rem;opacity:.3;transition:opacity .4s">
+            <div class="step-dot" style="width:8px;height:8px;border-radius:50%;background:#EEF0F4;flex-shrink:0;transition:background .4s"></div>
+            <span style="font-size:.83rem;color:var(--grey)">Analyse de vos réponses</span>
+          </div>
+          <div class="loading-step" id="step-2" style="display:flex;align-items:center;gap:.75rem;opacity:.3;transition:opacity .4s">
+            <div class="step-dot" style="width:8px;height:8px;border-radius:50%;background:#EEF0F4;flex-shrink:0;transition:background .4s"></div>
+            <span style="font-size:.83rem;color:var(--grey)">Calcul du score sur 7 dimensions</span>
+          </div>
+          <div class="loading-step" id="step-3" style="display:flex;align-items:center;gap:.75rem;opacity:.3;transition:opacity .4s">
+            <div class="step-dot" style="width:8px;height:8px;border-radius:50%;background:#EEF0F4;flex-shrink:0;transition:background .4s"></div>
+            <span style="font-size:.83rem;color:var(--grey)">Estimation des heures perdues et € évitables</span>
+          </div>
+          <div class="loading-step" id="step-4" style="display:flex;align-items:center;gap:.75rem;opacity:.3;transition:opacity .4s">
+            <div class="step-dot" style="width:8px;height:8px;border-radius:50%;background:#EEF0F4;flex-shrink:0;transition:background .4s"></div>
+            <span style="font-size:.83rem;color:var(--grey)">Identification des points critiques</span>
+          </div>
+          <div class="loading-step" id="step-5" style="display:flex;align-items:center;gap:.75rem;opacity:.3;transition:opacity .4s">
+            <div class="step-dot" style="width:8px;height:8px;border-radius:50%;background:#EEF0F4;flex-shrink:0;transition:background .4s"></div>
+            <span style="font-size:.83rem;color:var(--grey)">Rédaction de votre ordonnance personnalisée</span>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -1084,6 +1133,7 @@ async function submitLead() {
   btn.disabled = true;
   btn.textContent = 'Analyse en cours…';
   showScreen('loading');
+  startLoadingAnimation();
 
   // Sauvegarder le lead
   try {
@@ -1119,6 +1169,7 @@ async function submitLead() {
     if (data.success) {
       state.bilan = data.bilan;
       state.shareToken = data.share_token;
+      stopLoadingAnimation();
       renderResult();
       showScreen('result');
     } else {
@@ -1396,6 +1447,71 @@ function closeDropdown(id) {
 function showError(msg) {
   showScreen('questionnaire');
   alert(msg);
+}
+
+// ─────────────────────────────────────────
+// LOADING ANIMATION
+// ─────────────────────────────────────────
+let loadingInterval = null;
+
+function startLoadingAnimation() {
+  const circle = document.getElementById('progress-circle');
+  const pct = document.getElementById('loading-pct');
+  const title = document.getElementById('loading-title');
+  const sub = document.getElementById('loading-sub');
+  const circumference = 239;
+
+  const steps = [
+    { at: 5,  stepId: 'step-1', title: 'Analyse de vos réponses…', sub: 'Lecture de vos 8 réponses au questionnaire' },
+    { at: 25, stepId: 'step-2', title: 'Calcul du score en cours…', sub: 'Évaluation de vos 7 dimensions de confort' },
+    { at: 50, stepId: 'step-3', title: 'Estimation de l\'impact financier…', sub: 'Calcul des heures perdues et euros récupérables' },
+    { at: 70, stepId: 'step-4', title: 'Identification des points critiques…', sub: 'Détection des risques juridiques et opportunités' },
+    { at: 88, stepId: 'step-5', title: 'Rédaction de votre ordonnance…', sub: 'Personnalisation des recommandations RMS' },
+  ];
+
+  let current = 0;
+  let stepsActivated = [];
+
+  // Reset
+  for (let i = 1; i <= 5; i++) {
+    const step = document.getElementById(`step-${i}`);
+    if (step) {
+      step.style.opacity = '.3';
+      step.querySelector('.step-dot').style.background = '#EEF0F4';
+    }
+  }
+
+  loadingInterval = setInterval(() => {
+    current = Math.min(current + 0.8, 95);
+    const offset = circumference - (current / 100) * circumference;
+    if (circle) circle.style.strokeDashoffset = offset;
+    if (pct) pct.textContent = Math.round(current) + '%';
+
+    // Activer les étapes
+    steps.forEach(step => {
+      if (current >= step.at && !stepsActivated.includes(step.stepId)) {
+        stepsActivated.push(step.stepId);
+        const el = document.getElementById(step.stepId);
+        if (el) {
+          el.style.opacity = '1';
+          el.querySelector('.step-dot').style.background = 'var(--teal)';
+        }
+        if (title) title.textContent = step.title;
+        if (sub) sub.textContent = step.sub;
+      }
+    });
+  }, 150);
+}
+
+function stopLoadingAnimation() {
+  if (loadingInterval) {
+    clearInterval(loadingInterval);
+    loadingInterval = null;
+  }
+  const circle = document.getElementById('progress-circle');
+  const pct = document.getElementById('loading-pct');
+  if (circle) circle.style.strokeDashoffset = 0;
+  if (pct) pct.textContent = '100%';
 }
 
 // ─────────────────────────────────────────
