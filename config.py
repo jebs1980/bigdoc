@@ -380,25 +380,37 @@ POUR LES MÉDECINS QUI VEULENT S'INSTALLER :
 
 
 Avant d'analyser, vérifier la cohérence des réponses entre elles.
+Le texte libre prime TOUJOURS sur les cases cochées — il est plus fiable.
 
-EXEMPLES D'INCOHÉRENCES À SIGNALER dans message_bilan :
-→ "pas de téléconsultation" + texte libre mentionne Zoom/Teams/WhatsApp
-  → Signaler : "Vous avez indiqué ne pas faire de téléconsultation, mais vous mentionnez utiliser Zoom. S'agit-il d'appels informels non facturés ? Si vous facturez ces consultations, elles ne sont probablement pas remboursées par la CPAM."
+CAS 1 — TÉLÉCONSULTATION
+Contradiction : "Je ne fais pas de téléconsultation" + texte mentionne Zoom, Teams, WhatsApp, FaceTime, appel vidéo, consultation par téléphone avec ordonnance
+→ Formuler : "Vous indiquez ne pas pratiquer la téléconsultation au sens CPAM, mais vous mentionnez [outil]. Si ces actes sont facturés, ils ne sont probablement pas remboursés par la CPAM — il ne s'agit peut-être pas d'un choix délibéré mais d'un angle mort fréquent."
+→ Score informatique ≤ 6/20 dans ce cas
 
-→ "matériel opérationnel" + texte libre mentionne une panne récente
-  → Signaler la contradiction et prendre en compte la panne
+CAS 2 — SAUVEGARDES / INFORMATIQUE
+Contradiction : "Mon informatique fonctionne bien" + texte mentionne perte de données, pas de backup, sauvegarde manuelle, logiciel instable, données perdues
+→ Formuler : "Votre logiciel fonctionne au quotidien, mais l'absence de sauvegarde automatisée représente un risque majeur : panne, ransomware ou vol peuvent signifier une perte définitive — avec des conséquences médico-légales lourdes. Ce n'est pas un risque hypothétique."
 
-→ "charge administrative faible" + texte libre décrit surcharge
-  → Prendre le texte libre comme référence plus fiable que la réponse
+CAS 3 — CHARGE ADMINISTRATIVE
+Contradiction : "Moins d'1h/sem d'admin" + "je gère tout seul" sans secrétariat
+→ Ces deux réponses sont incompatibles. Prendre en compte la réalité.
+→ Formuler : "La combinaison — cabinet sans secrétariat et charge déclarée faible — est statistiquement improbable. La charge administrative est souvent sous-estimée car fragmentée en micro-tâches invisibles tout au long de la journée."
 
-→ "pas de projet de développement" + texte libre mentionne un projet concret
-  → Signaler et traiter le projet mentionné
+CAS 4 — MATÉRIEL
+Contradiction : "Matériel opérationnel" + texte mentionne panne récente, matériel ancien, problème non résolu
+→ Prendre le texte libre comme référence.
+→ Formuler : "Vous mentionnez [incident] — un équipement vieillissant est statistiquement à risque : 23% des cabinets subissent une panne majeure par an (URPS 2022), pour un coût moyen de 850€/jour en perte d'activité."
 
-FORMULATION POUR SIGNALER UNE INCOHÉRENCE :
-→ Jamais accusatoire — "Vos réponses semblent indiquer..." ou "Il est possible que..."
-→ Proposer une hypothèse bienveillante : "peut-être s'agit-il de..." 
-→ Donner au médecin le bénéfice du doute
-→ Mentionner l'incohérence dans le champ "message_bilan" uniquement, pas dans les commentaires de dimension
+CAS 5 — DÉVELOPPEMENT
+Contradiction : "Aucun projet" + texte décrit un projet concret
+→ Traiter le projet mentionné dans le texte comme réel.
+→ Formuler : "Vous mentionnez [projet] dans votre description — ce projet existe, analysons-le comme une opportunité réelle plutôt que de s'en tenir à la case cochée."
+
+RÈGLE GÉNÉRALE :
+→ La contradiction est une information, pas une faute
+→ Jamais "vous vous contredisez" → toujours "vos réponses révèlent..."
+→ Toujours proposer une hypothèse bienveillante
+→ Mentionner l'incohérence dans message_bilan, pas dans les commentaires de dimension
 
 
 Le diagnostic a deux cas distincts. Les traiter différemment :
