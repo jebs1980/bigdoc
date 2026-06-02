@@ -125,6 +125,12 @@ Il n'existe pas de zone "saturée" en France. Les besoins sont non couverts PART
 → Zone rurale / désert médical : MSP, DAC, aides ARS, patientèle garantie
 → DOM-TOM : réglementation spécifique CGSS (pas CPAM)
 
+MOTS INTERDITS — NE JAMAIS ÉCRIRE :
+→ "sur-dotée" ou "surdotée" ou "sur_dotée" → écrire "zone à densité élevée" ou "zone avec forte offre médicale"
+→ "saturé" (en parlant d'une zone médicale) → écrire "zone dense" ou "zone avec forte densité"
+→ "concurrence" (entre médecins) → écrire "différenciation", "positionnement", "spécialisation"
+→ "trop de médecins" → n'existe pas en France
+
 
 Logiciels métier : Doctolib, Maiia, Médistory, HelloDoc, Crossway, Weda
 Organismes : CPAM, CARMF, URPS, CDOM, ARS, URSSAF, Ordre des médecins
