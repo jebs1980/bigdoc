@@ -33,6 +33,7 @@ from database import (
 ANTHROPIC_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-5")
 
 logger = logging.getLogger("bigdoc")
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 # ─────────────────────────────────────────
 # DONNÉES DÉMOGRAPHIQUES
@@ -450,9 +451,21 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
         bilan = json.loads(raw.strip())
 
     except json.JSONDecodeError as e:
+        logger.error(f"❌ JSON invalide reçu de Claude : {str(e)}")
+        logger.error(f"   Contenu brut : {raw[:500] if 'raw' in dir() else 'non disponible'}")
         raise HTTPException(status_code=500, detail=f"Erreur parsing bilan : {str(e)}")
+    except anthropic.AuthenticationError:
+        logger.error("❌ Clé API Anthropic invalide")
+        raise HTTPException(status_code=500, detail="Clé API invalide — vérifiez ANTHROPIC_API_KEY dans .env")
+    except anthropic.NotFoundError:
+        logger.error(f"❌ Modèle Anthropic introuvable : {ANTHROPIC_MODEL}")
+        raise HTTPException(status_code=500, detail=f"Modèle {ANTHROPIC_MODEL} introuvable — mettez à jour ANTHROPIC_MODEL dans .env")
+    except anthropic.RateLimitError:
+        logger.error("❌ Rate limit Anthropic atteint")
+        raise HTTPException(status_code=429, detail="Trop de requêtes — réessayez dans quelques secondes")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur IA : {str(e)}")
+        logger.error(f"❌ Erreur diagnostic inattendue : {type(e).__name__} : {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur : {str(e)}")
 
     # Sauvegarder
     diagnostic_id = save_diagnostic(body.session_id, bilan, body.reponses, body.texte_libre)
