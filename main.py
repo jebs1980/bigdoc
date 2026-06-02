@@ -917,8 +917,6 @@ async def get_settings_route(request: Request):
 @app.post("/api/admin/settings")
 async def save_settings_route(request: Request):
     require_admin(request)
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
     data = await request.json()
     save_app_settings(data)
     return {"success": True}
@@ -944,15 +942,13 @@ async def public_settings():
 
 @app.get("/api/admin/products")
 async def admin_list_products(request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     return get_products()
 
 
 @app.post("/api/admin/products")
 async def admin_create_product(request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     data = await request.json()
     product_id = create_product(data)
     return {"success": True, "id": product_id}
@@ -960,8 +956,7 @@ async def admin_create_product(request: Request):
 
 @app.put("/api/admin/products/{product_id}")
 async def admin_update_product(product_id: int, request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     data = await request.json()
     update_product(product_id, data)
     return {"success": True}
@@ -969,16 +964,14 @@ async def admin_update_product(product_id: int, request: Request):
 
 @app.delete("/api/admin/products/{product_id}")
 async def admin_delete_product(product_id: int, request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     delete_product(product_id)
     return {"success": True}
 
 
 @app.post("/api/admin/products/{product_id}/toggle")
 async def admin_toggle_product(product_id: int, request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     actif = toggle_product(product_id)
     return {"success": True, "actif": actif}
 
@@ -986,9 +979,7 @@ async def admin_toggle_product(product_id: int, request: Request):
 @app.get("/api/admin/stripe-stats")
 async def stripe_stats_route(request: Request):
     """Stats CA depuis Stripe."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
 
     settings = get_app_settings()
     sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
