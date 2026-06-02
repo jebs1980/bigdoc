@@ -1223,6 +1223,21 @@ function injectTestButton() {
   const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026';
   if (!isLocal && !isDev) return;
 
+  // Bouton remplir test
+  const btn = document.createElement('button');
+  btn.textContent = '🧪 Remplir test';
+  btn.style.cssText = 'position:fixed;bottom:1rem;right:1rem;z-index:9999;background:#F4A261;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+  btn.onclick = fillTestData;
+  document.body.appendChild(btn);
+
+  // Bouton bilan direct
+  const btn2 = document.createElement('button');
+  btn2.textContent = '👁 Voir bilan';
+  btn2.style.cssText = 'position:fixed;bottom:1rem;right:8rem;z-index:9999;background:#6366F1;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+  btn2.onclick = showTestBilan;
+  document.body.appendChild(btn2);
+}
+
   const btn = document.createElement('button');
   btn.textContent = '🧪 Remplir test';
   btn.style.cssText = `
@@ -1234,6 +1249,45 @@ function injectTestButton() {
   `;
   btn.onclick = fillTestData;
   document.body.appendChild(btn);
+}
+
+function showTestBilan() {
+  state.bilan = {
+    score_global: 43,
+    niveau: "Cabinet en transition — des leviers clairs sont identifiés",
+    message_bilan: "Vos réponses révèlent trois angles morts simultanés. Premier : 30% de votre activité en téléconsultation non conforme — 21 600€ annuels perdus et responsabilité civile engagée. Deuxième : la charge mentale déclarée contredit les 1-3h d'admin annoncées — vous sous-estimez ce que vous gérez. Troisième : votre projet endométriose est une opportunité réelle, mais il nécessite un cadre structuré. Ces trois leviers sont actionnables dans les 30 jours.",
+    heures_perdues_semaine: 7,
+    euros_evitables_an: 29750,
+    alerte_urgente: "Votre téléconsultation actuelle sur Zoom n'est pas remboursable par la CPAM et engage votre responsabilité civile professionnelle. Avec 30% de votre activité concernée, vous perdez environ 1 800€ par mois de revenus à risque.",
+    dimensions: {
+      administration: { score: 12, commentaire: "Vous déclarez 1 à 3 heures hebdomadaires, mais avec un agenda plein et 30% de téléconsultation Zoom, la charge réelle est probablement sous-estimée — la moyenne nationale est de 11,4h/sem (CNOM 2023)." },
+      achats_materiel: { score: 18, commentaire: "Vos consommables sont disponibles, aucun point bloquant identifié — cette dimension est stable." },
+      informatique_teleconsult: { score: 0, commentaire: "Votre téléconsultation sur Zoom représente 30% de votre activité — soit environ 240 actes par mois à 30€ = 7 200€ mensuels non remboursables par la CPAM et engageant votre responsabilité civile professionnelle selon l'article 53." },
+      comptabilite_finances: { score: 8, commentaire: "Un score de 2/5 révèle une relation comptable probablement insuffisante — avec un BNC moyen de 95 000€ en gynécologie médicale et des charges sociales à 42%, un suivi mensuel évite tout redressement fiscal." },
+      charge_mentale: { score: 6, commentaire: "Vous mentionnez beaucoup de choses qui ne sont pas de la médecine — cette charge représente environ 3 à 5 heures hebdomadaires de médecine non pratiquée, soit 21 150€ annuels récupérables en délégation." },
+      financement_investissements: { score: 14, commentaire: "Aucun projet de financement déclaré, mais votre projet endométriose nécessitera probablement un investissement en formation, communication et temps — un prévisionnel structuré sécurise cette bascule." },
+      developpement_croissance: { score: 16, commentaire: "Votre projet de consultation endométriose est une opportunité majeure — 10% des femmes concernées, délai diagnostic moyen de 7 ans, quasi-absence d'offre spécialisée en ville. Vous êtes en zone sur-dotée, la différenciation par spécialisation est votre levier de croissance." },
+    },
+    recommandation_principale: {
+      service: "Mise en conformité téléconsultation",
+      tarif: "250€",
+      justification: "Cette démarche sécurise 30% de votre activité — soit 7 200€ mensuels actuellement non remboursables — et vous protège juridiquement. Le retour sur investissement est immédiat dès le premier mois de remboursements CPAM récupérés.",
+      palier: "Plan d'action"
+    },
+    recommandations_secondaires: [
+      { service: "Étude de faisabilité consultation endométriose", tarif: "250€", raison: "Votre projet endométriose nécessite un positionnement précis." },
+      { service: "Abonnement Confort", tarif: "250€/mois", raison: "Délègue la gestion courante et libère 3 à 5 heures hebdomadaires." }
+    ],
+    quick_wins: [
+      "Listez tous les actes de téléconsultation facturés via Zoom sur les 6 derniers mois — montant total, nombre d'actes — pour mesurer l'exposition réelle au risque de rejet CPAM.",
+      "Contactez votre expert-comptable cette semaine pour un point mensuel systématique — BNC, charges CARMF, URSSAF, trésorerie — et demandez une projection sur 2025.",
+      "Identifiez 3 confrères gynécologues ou médecins généralistes à Lyon pour échanger sur votre projet endométriose — réseau de prescription et partenariats ville-hôpital."
+    ],
+    message_partage: "86 400€/an de téléconsultations Zoom non remboursables CPAM — j'ai diagnostiqué mon cabinet en 3 min."
+  };
+  state.shareToken = 'test-token-123';
+  showScreen('result');
+  renderResult();
 }
 
 function fillTestData() {
