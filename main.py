@@ -408,6 +408,7 @@ class LeadRequest(BaseModel):
     session_id: str
     email: EmailStr
     prenom: str = ""
+    nom: str = ""
     specialite: str = ""
     ville: str = ""
     rgpd_consent: bool = True
@@ -599,7 +600,7 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
 async def capture_lead(request: Request, body: LeadRequest):
     """Capture le contact après affichage du score partiel."""
     lead_id = save_lead(
-        body.session_id, body.email, body.prenom, body.specialite, body.ville
+        body.session_id, body.email, body.prenom, body.specialite, body.ville, body.nom
     )
     return {"success": True, "lead_id": lead_id}
 
