@@ -1254,7 +1254,6 @@ async def create_quote(request: Request, body: QuoteRequest):
     stripe = _get_stripe()
     try:
         from datetime import datetime, timedelta
-        import time
 
         # Créer ou récupérer le customer Stripe
         customers = stripe.Customer.list(email=body.email, limit=1)
@@ -1271,28 +1270,31 @@ async def create_quote(request: Request, body: QuoteRequest):
                 }
             )
 
-        # Montant en centimes HT
         prix_ht_cents = int(round(body.prix_ht * 100))
         expires_at = int((datetime.now() + timedelta(days=body.expires_jours)).timestamp())
 
-        # Créer le quote
+        # price_data dans les Quotes exige un product ID existant
+        # On crée un produit Stripe inline puis on l'utilise
+        product = stripe.Product.create(
+            name=body.produit_nom or "Prestation RMS",
+            description=f"Dr. {body.prenom} {body.nom} — {body.specialite} — {body.ville}".strip(" —"),
+        )
+
         quote = stripe.Quote.create(
             customer=customer.id,
             expires_at=expires_at,
             description=body.note or f"Accompagnement cabinet médical — {body.produit_nom}",
+            collection_method="send_invoice",
+            invoice_settings={"days_until_due": 30},
             line_items=[{
                 "price_data": {
                     "currency": "eur",
-                    "product_data": {
-                        "name": body.produit_nom or "Prestation RMS",
-                        "description": f"Dr. {body.prenom} {body.nom} — {body.specialite} — {body.ville}",
-                    },
+                    "product": product.id,
                     "unit_amount": prix_ht_cents,
                     "tax_behavior": "exclusive",
                 },
                 "quantity": 1,
             }],
-            automatic_tax={"enabled": False},
         )
 
         return {"success": True, "quote_id": quote.id, "status": quote.status}
@@ -1302,14 +1304,48 @@ async def create_quote(request: Request, body: QuoteRequest):
 
 @app.post("/api/admin/quotes/{quote_id}/finalize")
 async def finalize_quote(quote_id: str, request: Request):
-    """Finalise et envoie le devis au client."""
+    """Finalise le devis et envoie le PDF par email via Resend."""
     require_admin(request)
     stripe = _get_stripe()
     try:
+        # Finaliser le quote (lui assigne un numéro)
         quote = stripe.Quote.finalize_quote(quote_id)
-        # Envoyer par email via Stripe
-        stripe.Quote.pdf(quote_id)
-        return {"success": True, "status": quote.status, "pdf": getattr(quote, 'pdf', None)}
+
+        # Récupérer l'email du customer
+        customer_email = ""
+        if quote.customer:
+            try:
+                customer = stripe.Customer.retrieve(quote.customer)
+                customer_email = customer.email or ""
+            except Exception:
+                pass
+
+        # Télécharger le PDF
+        pdf_response = stripe.Quote.pdf(quote_id)
+        pdf_bytes = pdf_response.read()
+
+        # Envoyer par email via Resend
+        if customer_email and RESEND_API_KEY:
+            import resend, base64
+            resend.api_key = RESEND_API_KEY
+            resend.Emails.send({
+                "from": FROM_EMAIL,
+                "to": customer_email,
+                "subject": f"Votre devis RMS — {quote.number}",
+                "html": f"""
+                <p>Bonjour,</p>
+                <p>Veuillez trouver ci-joint votre devis <strong>{quote.number}</strong>.</p>
+                <p>Ce devis est valable jusqu'au {quote.expires_at}.</p>
+                <p>Pour toute question, contactez-nous à <a href="mailto:{FROM_EMAIL}">{FROM_EMAIL}</a>.</p>
+                <p>Cordialement,<br>L'équipe RMS</p>
+                """,
+                "attachments": [{
+                    "filename": f"devis-{quote.number}.pdf",
+                    "content": base64.b64encode(pdf_bytes).decode(),
+                }]
+            })
+
+        return {"success": True, "status": quote.status, "number": quote.number, "email_sent": bool(customer_email)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
