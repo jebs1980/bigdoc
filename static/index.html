@@ -1942,51 +1942,6 @@ function renderResult() {
   `;
 }
 
-  // Dimensions
-  const dimLabels = {
-    administration: 'Administration & CPAM',
-    achats_materiel: 'Matériel & Stocks',
-    informatique: 'Informatique & Infrastructure',
-    comptabilite: 'Comptabilité & Finances',
-    charge_mentale: 'Charge mentale hors soins',
-    financement: 'Financement & Investissements',
-    developpement: 'Développement & Croissance',
-  };
-
-  const dimsHtml = Object.entries(b.dimensions || {}).map(([key, dim]) => {
-    const pct = Math.round((dim.score / 20) * 100);
-    const color = pct <= 35 ? '#C0392B' : pct <= 65 ? '#E67E22' : '#1A7A5E';
-    return `
-      <div style="margin-bottom:1.25rem">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
-          <span style="font-size:.82rem;font-weight:500">${dimLabels[key] || key}</span>
-          <span style="font-size:.82rem;color:${color};font-weight:600">${dim.score}/20</span>
-        </div>
-        <div style="height:6px;background:#EEF0F4;border-radius:3px">
-          <div style="height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .8s"></div>
-        </div>
-        ${dim.commentaire ? `<p style="font-size:.78rem;color:#8A9BB0;margin-top:.3rem;line-height:1.5">${dim.commentaire}</p>` : ''}
-      </div>
-    `;
-  }).join('');
-
-  // Recommandations secondaires
-  const recoSecHtml = (b.recommandations_secondaires || []).slice(0,2).map(r => `
-    <div style="display:flex;align-items:flex-start;gap:.75rem;padding:.75rem;background:#F8F9FA;border-radius:8px;margin-bottom:.5rem">
-      <span style="color:var(--teal);font-size:1rem">→</span>
-      <div>
-        <strong style="font-size:.85rem">${r.service}</strong>
-        <span style="color:var(--grey);font-size:.82rem"> · ${r.tarif}</span>
-        <p style="font-size:.78rem;color:var(--grey);margin-top:.2rem">${r.raison}</p>
-      </div>
-    </div>
-  `).join('');
-
-  // Quick wins
-  const quickHtml = (b.quick_wins || []).map(w =>
-    `<li style="font-size:.85rem;padding:.4rem 0;border-bottom:1px solid #F0F2F5;color:var(--text)">${w}</li>`
-  ).join('');
-
 function goToStripe() {
   if (!state.bilan) return;
   const palier = state.bilan.recommandation_principale?.palier || '';
