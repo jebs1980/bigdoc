@@ -383,38 +383,28 @@
 
 <script>
 let allLeads = [];
-let adminToken = '';
 let settings = {};
 
 // ─── AUTH ───
-function checkAuth() {
-  adminToken = sessionStorage.getItem('bigdoc_admin_token') || '';
-  if (!adminToken) {
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('main-content').style.display = 'none';
-  } else {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
+async function checkAuth() {
+  try {
+    const r = await fetch('/api/admin/me', {credentials:'include',credentials:'include'});
+    if (!r.ok) {
+      window.location.href = '/admin/login';
+      return;
+    }
+    const data = await r.json();
+    const el = document.getElementById('admin-username');
+    if (el) el.textContent = data.username || 'Admin';
     initDashboard();
+  } catch(e) {
+    window.location.href = '/admin/login';
   }
 }
 
-async function doLogin() {
-  const username = document.getElementById('login-user').value;
-  const password = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-error');
-  err.style.display = 'none';
-  try {
-    const r = await fetch('/api/admin/login', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({username, password})
-    });
-    if (!r.ok) { err.style.display = 'block'; return; }
-    const data = await r.json();
-    adminToken = data.token;
-    sessionStorage.setItem('bigdoc_admin_token', adminToken);
-    checkAuth();
-  } catch(e) { err.style.display = 'block'; }
+async function doLogout() {
+  await fetch('/api/admin/logout', {credentials:'include',method:'POST', credentials:'include'});
+  window.location.href = '/admin/login';
 }
 
 // ─── TABS ───
@@ -453,8 +443,8 @@ async function loadStats() {
 
 async function loadStripeStats() {
   try {
-    const r = await fetch('/api/admin/stripe-stats', {
-      headers: {'X-Admin-Token': adminToken}
+    const r = await fetch('/api/admin/stripe-stats', {credentials:'include',
+      headers: {}
     });
     if (!r.ok) return;
     const s = await r.json();
@@ -475,7 +465,7 @@ async function loadStripeStats() {
 // ─── LEADS ───
 async function loadLeads() {
   try {
-    const r = await fetch('/api/admin/leads', {headers:{'X-Admin-Token': adminToken}});
+    const r = await fetch('/api/admin/leads', {credentials:'include',headers:{}});
     if (r.status === 401) { checkAuth(); return; }
     allLeads = await r.json();
     renderTable(allLeads);
@@ -562,7 +552,7 @@ function exportCSV() {
 // ─── PARAMÈTRES ───
 async function loadSettings() {
   try {
-    const r = await fetch('/api/admin/settings', {headers:{'X-Admin-Token':adminToken}});
+    const r = await fetch('/api/admin/settings', {credentials:'include',headers:{}});
     if (!r.ok) return;
     settings = await r.json();
     document.getElementById('s-mode').value = settings.stripe_mode||'test';
@@ -600,7 +590,7 @@ async function saveSettings() {
     seuil_rdv: +document.getElementById('s-seuil-rdv').value,
   };
   try {
-    const r = await fetch('/api/admin/settings', {
+    const r = await fetch('/api/admin/settings', {credentials:'include',
       method:'POST',
       headers:{'Content-Type':'application/json','X-Admin-Token':adminToken},
       body: JSON.stringify(data)
@@ -661,7 +651,7 @@ let allProducts = [];
 
 async function loadProducts() {
   try {
-    const r = await fetch('/api/admin/products', {headers:{'X-Admin-Token':adminToken}});
+    const r = await fetch('/api/admin/products', {credentials:'include',headers:{}});
     allProducts = await r.json();
     renderProducts();
   } catch(e) {
@@ -742,7 +732,7 @@ async function saveProduct() {
   const method = id ? 'PUT' : 'POST';
 
   try {
-    const r = await fetch(url, {
+    const r = await fetch(url, {credentials:'include',
       method, headers: {'Content-Type':'application/json','X-Admin-Token':adminToken},
       body: JSON.stringify(data)
     });
@@ -752,8 +742,8 @@ async function saveProduct() {
 }
 
 async function toggleProductStatus(id) {
-  await fetch(`/api/admin/products/${id}/toggle`, {
-    method:'POST', headers:{'X-Admin-Token':adminToken}
+  await fetch(`/api/admin/products/${id}/toggle`, {credentials:'include',
+    method:'POST', headers:{}
   });
   loadProducts();
 }
@@ -762,8 +752,8 @@ async function confirmDeleteProduct(id) {
   const p = allProducts.find(p => p.id === id);
   if (!p) return;
   if (!confirm(`Supprimer "${p.nom}" définitivement ?`)) return;
-  await fetch(`/api/admin/products/${id}`, {
-    method:'DELETE', headers:{'X-Admin-Token':adminToken}
+  await fetch(`/api/admin/products/${id}`, {credentials:'include',
+    method:'DELETE', headers:{}
   });
   loadProducts();
 }
