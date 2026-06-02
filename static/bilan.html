@@ -102,6 +102,77 @@ function showError(msg) {
   `;
 }
 
+function renderRadar(dims) {
+  const keys = ['administration','achats_materiel','informatique_teleconsult','comptabilite_finances','charge_mentale','financement_investissements','developpement_croissance'];
+  const labels = ['Admin','Matériel','Informatique','Comptabilité','Charge','Financement','Développement'];
+  const n = keys.length;
+  const cx = 160, cy = 155, r = 110;
+  const scores = keys.map(k => (dims[k]?.score || 0) / 20);
+
+  // Polygone de fond (niveaux)
+  function polygon(factor) {
+    return keys.map((_, i) => {
+      const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+      const x = cx + r * factor * Math.cos(angle);
+      const y = cy + r * factor * Math.sin(angle);
+      return `${x},${y}`;
+    }).join(' ');
+  }
+
+  // Polygone des scores
+  const scorePoly = keys.map((k, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const val = scores[i];
+    const x = cx + r * val * Math.cos(angle);
+    const y = cy + r * val * Math.sin(angle);
+    return `${x},${y}`;
+  }).join(' ');
+
+  // Axes
+  const axes = keys.map((_, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x2 = cx + r * Math.cos(angle);
+    const y2 = cy + r * Math.sin(angle);
+    return `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#E8EBF0" stroke-width="1"/>`;
+  }).join('');
+
+  // Labels
+  const labelEls = labels.map((lbl, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const lx = cx + (r + 22) * Math.cos(angle);
+    const ly = cy + (r + 22) * Math.sin(angle);
+    const score = Math.round((scores[i]) * 20);
+    const col = scores[i] <= 0.35 ? '#C0392B' : scores[i] <= 0.65 ? '#E67E22' : '#1A7A5E';
+    return `
+      <text x="${lx}" y="${ly - 4}" text-anchor="middle" font-family="DM Sans,Arial" font-size="8.5" fill="#0B2545" font-weight="500">${lbl}</text>
+      <text x="${lx}" y="${ly + 9}" text-anchor="middle" font-family="DM Sans,Arial" font-size="9" fill="${col}" font-weight="700">${score}/20</text>`;
+  }).join('');
+
+  return `
+    <svg viewBox="0 0 320 310" width="100%" style="max-width:340px;margin:0 auto;display:block">
+      <!-- Grille -->
+      <polygon points="${polygon(0.25)}" fill="none" stroke="#F0F2F5" stroke-width="1"/>
+      <polygon points="${polygon(0.5)}"  fill="none" stroke="#E8EBF0" stroke-width="1"/>
+      <polygon points="${polygon(0.75)}" fill="none" stroke="#E0E4E8" stroke-width="1"/>
+      <polygon points="${polygon(1)}"    fill="none" stroke="#D0D5DE" stroke-width="1"/>
+      <!-- Axes -->
+      ${axes}
+      <!-- Score -->
+      <polygon points="${scorePoly}" fill="rgba(26,122,94,.12)" stroke="#1A7A5E" stroke-width="2" stroke-linejoin="round"/>
+      <!-- Points -->
+      ${keys.map((k, i) => {
+        const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+        const val = scores[i];
+        const px = cx + r * val * Math.cos(angle);
+        const py = cy + r * val * Math.sin(angle);
+        const col = val <= 0.35 ? '#C0392B' : val <= 0.65 ? '#E67E22' : '#1A7A5E';
+        return `<circle cx="${px}" cy="${py}" r="4" fill="${col}" stroke="white" stroke-width="1.5"/>`;
+      }).join('')}
+      <!-- Labels -->
+      ${labelEls}
+    </svg>`;
+}
+
 function renderBilan(b) {
   const score = b.score_global;
   const scoreColor = score<=25?'#C0392B':score<=50?'#E67E22':score<=75?'#F4A261':'#1A7A5E';
@@ -163,6 +234,11 @@ function renderBilan(b) {
           <div style="font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €</div>
           <div style="font-size:.75rem;color:var(--grey)">récupérables par an</div>
         </div>
+      </div>
+
+      <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5;text-align:center">
+        <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;color:var(--navy);margin-bottom:1.25rem;text-align:left">Profil radar de votre cabinet</h3>
+        ${renderRadar(b.dimensions||{})}
       </div>
 
       <div style="padding:2rem 2.5rem;border-bottom:1px solid #F0F2F5">
