@@ -2243,7 +2243,7 @@ function renderResult() {
       <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F3FF;border-radius:12px;padding:1rem 1.5rem;border:1px solid #EDE9FE;flex-wrap:wrap;gap:.75rem">
         <div>
           <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
-            Démarrer avec RMS →
+            Traiter mon cabinet avec RMS →
           </button>
         </div>
         <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.45rem 1rem;border-radius:999px;font-size:.75rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
@@ -2260,7 +2260,7 @@ function renderResult() {
     </div>
   `;
 }
-function goToStripe() {
+async function goToStripe() {
   if (!state.bilan) return;
   const palier = state.bilan.recommandation_principale?.palier || '';
   const map = {
@@ -2271,7 +2271,22 @@ function goToStripe() {
   };
   const found = Object.entries(map).find(([k]) => palier.includes(k));
   const produit = found ? found[1] : 'plan_action';
-  window.location.href = `/api/create-checkout?produit=${produit}&session_id=${state.sessionId}`;
+
+  try {
+    const resp = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({produit, session_id: state.sessionId})
+    });
+    const data = await resp.json();
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert('Erreur : ' + (data.detail || 'Impossible de créer la session de paiement'));
+    }
+  } catch(e) {
+    alert('Erreur : ' + e.message);
+  }
 }
 
 async function copyShareLink() {
