@@ -240,8 +240,14 @@ def delete_lead_data(email: str) -> bool:
 
 
 def verify_admin(username: str, password: str) -> bool:
-    """Vérifie les identifiants admin contre le hash en base."""
+    """Vérifie les identifiants admin — priorité au .env."""
     import hashlib
+    # 1. Vérification via variable d'environnement (prioritaire et sécurisée)
+    env_user = os.getenv("ADMIN_USERNAME", "admin")
+    env_pass = os.getenv("ADMIN_PASSWORD", "")
+    if env_pass and username == env_user and password == env_pass:
+        return True
+    # 2. Fallback sur la base (legacy)
     conn = get_connection()
     row = conn.execute(
         "SELECT password_hash FROM admin_users WHERE username = ?",
