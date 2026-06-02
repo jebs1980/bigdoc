@@ -22,7 +22,9 @@ from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
     create_partage_token, get_diagnostic_by_token,
     delete_lead_data, get_stats, get_all_leads,
-    get_lead_by_session, verify_admin,
+    get_lead_by_session, verify_admin, init_admin,
+    create_admin_session, verify_admin_session,
+    delete_admin_session, create_reset_token, reset_admin_password,
     get_app_settings, save_app_settings,
     init_products, get_products, get_product,
     create_product, update_product, delete_product,
@@ -282,6 +284,11 @@ anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 async def startup():
     init_db()
     init_products()
+    init_admin(
+        email=os.getenv("ADMIN_EMAIL", "admin@bigdoc.fr"),
+        username=os.getenv("ADMIN_USERNAME", "admin"),
+        password=os.getenv("ADMIN_PASSWORD", "bigdoc2024!")
+    )
     load_demographics()
     # Vérifier que le modèle Anthropic est accessible
     try:
@@ -753,9 +760,32 @@ async def delete_data(body: DeleteRequest):
 # ─────────────────────────────────────────
 # ADMIN
 # ─────────────────────────────────────────
+def get_admin_from_request(request: Request) -> dict | None:
+    """Extrait et vérifie le token de session depuis le cookie ou header."""
+    token = request.cookies.get("admin_session") or request.headers.get("X-Admin-Token", "")
+    return verify_admin_session(token)
+
+def require_admin(request: Request) -> dict:
+    """Dependency — lève 401 si pas authentifié."""
+    admin = get_admin_from_request(request)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Session expirée — veuillez vous reconnecter")
+    return admin
+
+
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_page():
     with open("static/admin.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page():
+    with open("static/admin_login.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/admin/reset-password", response_class=HTMLResponse)
+async def admin_reset_page():
+    with open("static/admin_reset.html", "r", encoding="utf-8") as f:
         return f.read()
 
 
@@ -763,39 +793,102 @@ class AdminLoginRequest(BaseModel):
     username: str
     password: str
 
+class AdminResetRequestBody(BaseModel):
+    email: str
+
+class AdminNewPasswordBody(BaseModel):
+    token: str
+    password: str
+
 
 @app.post("/api/admin/login")
-async def admin_login(body: AdminLoginRequest):
-    """Authentification admin — renvoie un token de session."""
-    if verify_admin(body.username, body.password):
-        # Token de session simple (valable le temps de la session navigateur)
-        session_token = secrets.token_urlsafe(32)
-        return {"success": True, "token": session_token}
-    raise HTTPException(status_code=401, detail="Identifiants incorrects")
+async def admin_login(body: AdminLoginRequest, response: Response):
+    try:
+        admin = verify_admin(body.username, body.password)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    if not admin:
+        raise HTTPException(status_code=401, detail="Identifiants incorrects")
+    token = create_admin_session(admin["id"] if admin.get("id") else 0)
+    response.set_cookie(
+        key="admin_session", value=token,
+        httponly=True, secure=True, samesite="lax",
+        max_age=86400
+    )
+    return {"success": True}
+
+
+@app.post("/api/admin/logout")
+async def admin_logout(request: Request, response: Response):
+    token = request.cookies.get("admin_session", "")
+    if token:
+        delete_admin_session(token)
+    response.delete_cookie("admin_session")
+    return {"success": True}
+
+
+@app.post("/api/admin/reset-request")
+async def admin_reset_request(body: AdminResetRequestBody):
+    """Envoie un email de reset/déblocage."""
+    token = create_reset_token(body.email)
+    if token:
+        host = "dev.bigdoc.fr" if "dev" in body.email else "bigdoc.fr"
+        reset_url = f"https://{host}/admin/reset-password?token={token}"
+        try:
+            import resend
+            resend.api_key = RESEND_API_KEY
+            resend.Emails.send({
+                "from": FROM_EMAIL,
+                "to": body.email,
+                "subject": "Bigdoc Admin — Réinitialisation de votre mot de passe",
+                "html": f"""
+                <p>Bonjour,</p>
+                <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe admin Bigdoc :</p>
+                <p><a href="{reset_url}">{reset_url}</a></p>
+                <p>Ce lien expire dans 1 heure.</p>
+                <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+                """
+            })
+        except Exception as e:
+            logger.error(f"Erreur email reset: {e}")
+    # Toujours retourner succès (sécurité — ne pas révéler si email existe)
+    return {"success": True, "message": "Si cet email existe, un lien de réinitialisation a été envoyé."}
+
+
+@app.post("/api/admin/reset-password")
+async def admin_reset_password_route(body: AdminNewPasswordBody):
+    if len(body.password) < 8:
+        raise HTTPException(status_code=400, detail="Mot de passe trop court (8 caractères minimum)")
+    ok = reset_admin_password(body.token, body.password)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Lien invalide ou expiré")
+    return {"success": True}
+
+
+@app.get("/api/admin/me")
+async def admin_me(request: Request):
+    """Vérifie la session en cours."""
+    admin = get_admin_from_request(request)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    return {"username": admin.get("username"), "email": admin.get("email")}
 
 
 @app.get("/api/admin/leads")
 async def admin_leads(request: Request):
-    """Liste tous les diagnostics — protégé par login DB."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     return get_all_leads()
 
 
 @app.get("/api/admin/settings")
 async def get_settings_route(request: Request):
-    """Récupère les paramètres depuis la base."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     return get_app_settings()
 
 
 @app.post("/api/admin/settings")
 async def save_settings_route(request: Request):
-    """Sauvegarde les paramètres dans la base."""
-    auth = request.headers.get("X-Admin-Token", "")
+    require_admin(request)
     if not auth:
         raise HTTPException(status_code=401, detail="Non autorisé")
     data = await request.json()
