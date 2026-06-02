@@ -207,7 +207,10 @@
     <div class="card">
       <div class="card-header">
         <span class="card-title">Devis Stripe</span>
-        <button class="btn btn-primary" onclick="openQuoteModal()">+ Nouveau devis</button>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-outline" onclick="openInvoiceModal()">⚡ Facture directe</button>
+          <button class="btn btn-primary" onclick="openQuoteModal()">+ Nouveau devis</button>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -317,7 +320,46 @@
   </div>
 </div>
 
-<!-- ── MODAL DEVIS ── -->
+<!-- ── MODAL FACTURE DIRECTE ── -->
+<div class="modal" id="invoice-modal">
+  <div class="modal-box">
+    <div class="modal-title">Facture directe</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Crée et envoie une facture immédiatement sans devis préalable.</p>
+    <div class="form-grid form-grid-2" style="gap:.85rem">
+      <div class="input-group">
+        <label>Prénom</label>
+        <input type="text" id="inv-prenom" placeholder="Marie">
+      </div>
+      <div class="input-group">
+        <label>Nom</label>
+        <input type="text" id="inv-nom" placeholder="Dupont">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Email *</label>
+        <input type="email" id="inv-email" placeholder="dr.dupont@cabinet.fr">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Prestation *</label>
+        <input type="text" id="inv-description" placeholder="Accompagnement cabinet médical — Sérénité">
+      </div>
+      <div class="input-group">
+        <label>Prix HT (€) *</label>
+        <input type="number" id="inv-prix" placeholder="250" oninput="updateInvoiceTTC()">
+      </div>
+      <div class="input-group">
+        <label>TVA (%)</label>
+        <input type="number" id="inv-tva" value="20" oninput="updateInvoiceTTC()">
+      </div>
+      <div id="inv-ttc" style="grid-column:1/-1;background:var(--lavender);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:var(--navy);font-weight:700"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeInvoiceModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="createDirectInvoice()">Créer et envoyer</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal" id="quote-modal">
   <div class="modal-box">
     <div class="modal-title" id="quote-modal-title">Nouveau devis</div>
@@ -913,9 +955,67 @@ async function cancelQuote(id) {
   } catch(e) { alert('Erreur réseau'); }
 }
 
-document.getElementById('quote-modal').addEventListener('click', function(e){
-  if(e.target===this) closeQuoteModal();
+function openInvoiceModal(lead = null) {
+  if (lead) {
+    document.getElementById('inv-email').value = lead.email||'';
+    document.getElementById('inv-prenom').value = lead.prenom||'';
+    document.getElementById('inv-nom').value = lead.nom||'';
+  }
+  updateInvoiceTTC();
+  document.getElementById('invoice-modal').classList.add('open');
+}
+
+function closeInvoiceModal() { document.getElementById('invoice-modal').classList.remove('open'); }
+
+function updateInvoiceTTC() {
+  const ht = parseFloat(document.getElementById('inv-prix').value||0);
+  const tva = parseFloat(document.getElementById('inv-tva').value||20);
+  const ttc = ht * (1 + tva/100);
+  document.getElementById('inv-ttc').textContent =
+    ht > 0 ? `Total TTC : ${ttc.toFixed(2).replace('.',',')} € (HT : ${ht.toFixed(2).replace('.',',')} € + TVA ${tva}% : ${(ttc-ht).toFixed(2).replace('.',',')} €)` : '';
+}
+
+async function createDirectInvoice() {
+  const email = document.getElementById('inv-email').value.trim();
+  const prix = parseFloat(document.getElementById('inv-prix').value||0);
+  const description = document.getElementById('inv-description').value.trim();
+  if (!email) { alert('Email obligatoire'); return; }
+  if (!prix) { alert('Prix obligatoire'); return; }
+  if (!description) { alert('Description obligatoire'); return; }
+  const btn = document.querySelector('#invoice-modal .btn-primary');
+  btn.disabled=true; btn.textContent='Création…';
+  try {
+    const r = await fetch('/api/admin/invoices', {
+      credentials:'include', method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email,
+        prenom: document.getElementById('inv-prenom').value,
+        nom: document.getElementById('inv-nom').value,
+        description,
+        prix_ht: prix,
+        tva: parseFloat(document.getElementById('inv-tva').value||20),
+      })
+    });
+    const data = await r.json();
+    if (r.ok) {
+      closeInvoiceModal();
+      alert('✅ Facture créée et envoyée à ' + email);
+      loadQuotes();
+    } else {
+      alert('Erreur : ' + (data.detail||'Inconnue'));
+      btn.disabled=false; btn.textContent='Créer et envoyer';
+    }
+  } catch(e) {
+    alert('Erreur réseau'); btn.disabled=false; btn.textContent='Créer et envoyer';
+  }
+}
+
+document.getElementById('invoice-modal').addEventListener('click', function(e){
+  if(e.target===this) closeInvoiceModal();
 });
+
+
 
 // ─── INIT ───
 checkAuth();
