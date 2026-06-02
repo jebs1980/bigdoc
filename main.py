@@ -140,21 +140,29 @@ def get_demographic_context(specialite: str, ville: str) -> str:
     if dept_info:
         dept_type = dept_info.get("type", "intermédiaire")
         dept_nom = dept_info.get("nom", dept)
-        type_labels = {"sous_dote": "ZONE SOUS-DOTÉE ⚠️", "sur_dote": "Zone sur-dotée", "intermédiaire": "Zone intermédiaire"}
+        type_labels = {
+            "sous_dote": "Zone avec besoins non couverts (ZIP ARS)",
+            "sur_dote": "Zone à densité élevée",
+            "intermédiaire": "Zone intermédiaire"
+        }
         lines.append(f"Territoire : {dept_nom} ({dept}) — {type_labels.get(dept_type, dept_type)}")
         if dept_type == "sous_dote":
-            lines.append("→ Zone sous-dotée ARS : CAIM jusqu'à 50 000€, DAC, CPTS disponibles — valoriser dans le bilan")
+            lines.append("→ Zone sous-dotée ARS : aides CAIM jusqu'à 50 000€, DAC, CPTS — patientèle garantie dès l'ouverture. Valoriser dans le bilan.")
         elif dept_type == "sur_dote":
-            lines.append("→ Zone sur-dotée : concurrence forte — différenciation et spécialisation indispensables")
+            lines.append("→ IMPORTANT — Densité élevée ne signifie PAS saturation. En France, il y a des besoins non couverts partout :")
+            lines.append("  • 6,7M de patients sans médecin traitant (Ameli 2023) — y compris dans les grandes villes")
+            lines.append("  • Les délais d'accès aux spécialistes restent longs même en zone dense (49j en moyenne Ameli 2023)")
+            lines.append("  • Une densité plus haute crée des opportunités de spécialisation et de coordination, pas de concurrence")
+            lines.append("  → Ne pas décourager l'installation — orienter vers la différenciation et les niches sous-couvertes localement")
 
     if densite_locale and densite_nationale:
         ratio = densite_locale / densite_nationale
         if ratio < 0.75:
-            lines.append(f"Densité {spe_norm} locale : FAIBLE ({densite_locale}/100k hab vs {densite_nationale}/100k national) → forte opportunité de développement")
+            lines.append(f"Densité {spe_norm} locale : inférieure à la moyenne ({densite_locale}/100k hab vs {densite_nationale}/100k national) — forte demande non couverte")
         elif ratio > 1.25:
-            lines.append(f"Densité {spe_norm} locale : ÉLEVÉE ({densite_locale}/100k hab vs {densite_nationale}/100k national) → différenciation nécessaire")
+            lines.append(f"Densité {spe_norm} locale : supérieure à la moyenne ({densite_locale}/100k hab vs {densite_nationale}/100k national) — opportunité de spécialisation et file active rapide")
         else:
-            lines.append(f"Densité {spe_norm} locale : dans la moyenne ({densite_locale}/100k hab vs {densite_nationale}/100k national)")
+            lines.append(f"Densité {spe_norm} locale : comparable à la moyenne ({densite_locale}/100k hab vs {densite_nationale}/100k national)")
     elif densite_nationale and spe_norm:
         lines.append(f"Densité nationale {spe_norm} : {densite_nationale} médecins/100 000 hab (CNOM 2023)")
 
