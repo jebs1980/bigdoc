@@ -938,13 +938,19 @@
         <div class="question-text">Parlez-moi de votre projet.</div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem">
-          <div class="input-group">
+          <div class="input-group" style="position:relative">
             <label>Spécialité *</label>
-            <input type="text" id="install-specialite" placeholder="Ex : Médecine générale" autocomplete="off"/>
+            <input type="text" id="install-specialite" placeholder="Ex : Médecine générale" autocomplete="off"
+                   oninput="filterSpecialite(this.value,'install-specialite','drop-install-specialite')"
+                   onblur="setTimeout(()=>closeDropdown('drop-install-specialite'),200)"/>
+            <div id="drop-install-specialite" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:100;max-height:200px;overflow-y:auto"></div>
           </div>
-          <div class="input-group">
+          <div class="input-group" style="position:relative">
             <label>Zone cible *</label>
-            <input type="text" id="install-zone" placeholder="Ville ou département" autocomplete="off"/>
+            <input type="text" id="install-zone" placeholder="Ville ou département" autocomplete="off"
+                   oninput="searchVilleInstall(this.value)"
+                   onblur="setTimeout(()=>closeDropdown('drop-install-zone'),200)"/>
+            <div id="drop-install-zone" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.08);z-index:100;max-height:200px;overflow-y:auto"></div>
           </div>
         </div>
 
@@ -2213,27 +2219,29 @@ function normalizeStr(str) {
     .replace(/[^a-z0-9\s]/g, '');
 }
 
-function filterSpecialite(val) {
-  const drop = document.getElementById('drop-specialite');
+function filterSpecialite(val, inputId, dropId) {
+  inputId = inputId || 'lead-specialite';
+  dropId  = dropId  || 'drop-specialite';
+  const drop = document.getElementById(dropId);
   if (!val || val.length < 2) { drop.style.display = 'none'; return; }
   const norm = normalizeStr(val);
-  const matches = SPECIALITES.filter(s =>
-    normalizeStr(s).includes(norm)
-  ).slice(0, 8);
+  const matches = SPECIALITES.filter(s => normalizeStr(s).includes(norm)).slice(0, 8);
   if (!matches.length) { drop.style.display = 'none'; return; }
   drop.innerHTML = matches.map(s => `
-    <div onclick="selectSpecialite('${s}')" style="
+    <div onclick="selectSpecialite('${s}','${inputId}','${dropId}')" style="
       padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
       border-bottom:1px solid #F0F2F5;transition:background .15s;
-    " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+    " onmouseover="this.style.background='rgba(99,102,241,.06)'"
        onmouseout="this.style.background='white'">${s}</div>
   `).join('');
   drop.style.display = 'block';
 }
 
-function selectSpecialite(val) {
-  document.getElementById('lead-specialite').value = val;
-  document.getElementById('drop-specialite').style.display = 'none';
+function selectSpecialite(val, inputId, dropId) {
+  inputId = inputId || 'lead-specialite';
+  dropId  = dropId  || 'drop-specialite';
+  document.getElementById(inputId).value = val;
+  document.getElementById(dropId).style.display = 'none';
 }
 
 // ─────────────────────────────────────────
@@ -2299,21 +2307,53 @@ async function searchVille(val) {
   }, 250);
 }
 
-function renderDropVille(drop, items) {
+function renderDropVille(drop, items, inputId, dropId) {
+  inputId = inputId || 'lead-ville';
+  dropId  = dropId  || 'drop-ville';
   if (!items.length) { drop.style.display = 'none'; return; }
   drop.innerHTML = items.map(i => `
-    <div onclick="selectVille('${i.value.replace(/'/g,"\\'")}')" style="
+    <div onclick="selectVille('${i.value.replace(/'/g,"\\'")}','${inputId}','${dropId}')" style="
       padding:.65rem 1rem;cursor:pointer;font-size:.88rem;
       border-bottom:1px solid #F0F2F5;transition:background .15s;
-    " onmouseover="this.style.background='rgba(26,122,94,.06)'"
+    " onmouseover="this.style.background='rgba(99,102,241,.06)'"
        onmouseout="this.style.background='white'">${i.label}</div>
   `).join('');
   drop.style.display = 'block';
 }
 
-function selectVille(val) {
-  document.getElementById('lead-ville').value = val;
-  document.getElementById('drop-ville').style.display = 'none';
+function selectVille(val, inputId, dropId) {
+  inputId = inputId || 'lead-ville';
+  dropId  = dropId  || 'drop-ville';
+  document.getElementById(inputId).value = val;
+  document.getElementById(dropId).style.display = 'none';
+}
+
+function searchVilleInstall(val) {
+  // Réutilise searchVille avec les IDs du formulaire installation
+  const drop = document.getElementById('drop-install-zone');
+  if (!val || val.length < 2) { drop.style.display = 'none'; return; }
+  const valLower = val.toLowerCase().trim();
+  clearTimeout(villeTimer);
+  const grand = ['paris','lyon','marseille'].find(g => valLower.startsWith(g) || g.startsWith(valLower));
+  if (grand) {
+    const items = ARRONDISSEMENTS[grand];
+    renderDropVille(drop, items, 'install-zone', 'drop-install-zone');
+    return;
+  }
+  villeTimer = setTimeout(async () => {
+    try {
+      const resp = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&limit=8&type=commune-actuelle`);
+      const villes = await resp.json();
+      const items = villes.flatMap(v => {
+        const dept = v.departement ? ` (${v.departement.code})` : '';
+        return (v.codesPostaux || ['']).slice(0,1).map(cp => ({
+          label: `${v.nom}<span style="color:#9CA3AF;font-size:.78rem"> ${cp}${dept}</span>`,
+          value: `${v.nom} (${cp})`
+        }));
+      });
+      renderDropVille(drop, items, 'install-zone', 'drop-install-zone');
+    } catch(e) { drop.style.display = 'none'; }
+  }, 250);
 }
 
 function closeDropdown(id) {
