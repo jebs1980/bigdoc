@@ -1360,6 +1360,54 @@ function injectTestButton() {
   btn2.style.cssText = 'position:fixed;bottom:1rem;right:8rem;z-index:9999;background:#6366F1;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
   btn2.onclick = showTestBilan;
   document.body.appendChild(btn2);
+
+  // Bouton installation test
+  const btn3 = document.createElement('button');
+  btn3.textContent = '🏥 Test install';
+  btn3.style.cssText = 'position:fixed;bottom:1rem;right:15rem;z-index:9999;background:#10B981;color:white;border:none;border-radius:8px;padding:.5rem 1rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Nunito,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,.2);';
+  btn3.onclick = fillInstallationTest;
+  document.body.appendChild(btn3);
+}
+
+function fillInstallationTest() {
+  // Scénarios rotatifs — change à chaque appui
+  const scenarios = [
+    {
+      specialite: 'Médecine générale',
+      zone: 'Lot-et-Garonne (47)',
+      type: 'msp',
+      horizon: '6mois',
+      inquietudes: "Je ne sais pas par où commencer. J'ai regardé les aides ARS mais je ne comprends pas le CAIM. Mon banquier me demande un prévisionnel mais je n'ai aucune idée de mes futurs revenus. J'ai aussi peur d'être seul à gérer l'admin."
+    },
+    {
+      specialite: 'Gynécologie médicale',
+      zone: 'Lyon 6e (69006)',
+      type: 'seul',
+      horizon: '1an',
+      inquietudes: "Je veux me spécialiser en endométriose et ménopause. La zone est sur-dotée mais je pense qu'il y a un créneau. Je ne sais pas quel secteur choisir (1 ou 2) ni comment fixer mes honoraires. Et la recherche d'un local est un mystère total."
+    },
+    {
+      specialite: 'Psychiatrie',
+      zone: 'Rennes (35000)',
+      type: 'groupe',
+      horizon: '2ans',
+      inquietudes: "Je sors d'un CMP, je ne connais rien à la gestion libérale. CARMF, URSSAF, tout ça me fait peur. Je veux rejoindre un cabinet existant mais je ne sais pas comment évaluer si c'est une bonne affaire financièrement."
+    }
+  ];
+
+  // Rotation par compteur
+  window._installTestIdx = ((window._installTestIdx || 0) + 1) % scenarios.length;
+  const s = scenarios[window._installTestIdx];
+
+  showScreen('installation');
+  setTimeout(() => {
+    document.getElementById('install-specialite').value = s.specialite;
+    document.getElementById('install-zone').value = s.zone;
+    document.getElementById('install-type').value = s.type;
+    document.getElementById('install-horizon').value = s.horizon;
+    document.getElementById('install-inquietudes').value = s.inquietudes;
+    document.getElementById('install-email').value = 'dr.test@bigdoc.fr';
+  }, 100);
 }
 
 function showTestBilan() {
@@ -1722,7 +1770,7 @@ function renderQuestion() {
   const area = document.getElementById('question-area');
   area.innerHTML = `
     <div class="question-number">Question ${state.currentStep + 1}</div>
-    <div class="question-text">${q.question}</div>
+    <div class="question-text">${q.question}${q.type === 'multi_select' ? ' <span style="font-size:.65rem;font-weight:700;color:#6366F1;background:#EEF2FF;padding:.15rem .5rem;border-radius:999px;vertical-align:middle;letter-spacing:.5px">Plusieurs réponses possibles</span>' : ''}</div>
     <div class="options" id="options-list"></div>
   `;
 
