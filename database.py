@@ -261,20 +261,42 @@ def _hash_password(password: str, salt: str = None) -> tuple:
     h = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 200_000).hex()
     return salt, h
 
-def init_admin(email: str = "admin@bigdoc.fr", username: str = "admin", password: str = None):
-    """Crée le compte admin initial si inexistant."""
-    import os
+def is_admin_setup_done() -> bool:
+    """Retourne True si au moins un admin est configuré."""
     conn = get_connection()
-    # Migration — ajouter colonnes manquantes si nécessaire
-    for col, defval in [("email","TEXT"), ("reset_token","TEXT"), ("reset_expires","TIMESTAMP"),
-                        ("login_attempts","INTEGER DEFAULT 0"), ("locked_until","TIMESTAMP"),
-                        ("last_login","TIMESTAMP")]:
+    row = conn.execute("SELECT COUNT(*) as n FROM admin_users").fetchone()
+    conn.close()
+    return row["n"] > 0 if row else False
+
+def setup_admin(email: str, username: str, password: str) -> bool:
+    """Configure le premier compte admin. Retourne False si déjà fait."""
+    if is_admin_setup_done():
+        return False
+    salt, h = _hash_password(password)
+    conn = get_connection()
+    conn.execute(
+        "INSERT INTO admin_users (username, email, password_hash) VALUES (?,?,?)",
+        (username, email, f"{salt}${h}")
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+def init_admin():
+    """Migration DB uniquement — ne crée plus de compte par défaut."""
+    conn = get_connection()
+    for col, defval in [
+        ("email", "TEXT"),
+        ("reset_token", "TEXT"),
+        ("reset_expires", "TIMESTAMP"),
+        ("login_attempts", "INTEGER DEFAULT 0"),
+        ("locked_until", "TIMESTAMP"),
+        ("last_login", "TIMESTAMP")
+    ]:
         try:
             conn.execute(f"ALTER TABLE admin_users ADD COLUMN {col} {defval}")
         except Exception:
             pass
-    conn.commit()
-    # Créer table sessions si nécessaire
     conn.execute("""
         CREATE TABLE IF NOT EXISTS admin_sessions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -285,16 +307,6 @@ def init_admin(email: str = "admin@bigdoc.fr", username: str = "admin", password
         )
     """)
     conn.commit()
-    # Créer admin si inexistant
-    existing = conn.execute("SELECT id FROM admin_users WHERE username=?", (username,)).fetchone()
-    if not existing:
-        pwd = password or os.getenv("ADMIN_PASSWORD", "bigdoc2024!")
-        salt, h = _hash_password(pwd)
-        conn.execute(
-            "INSERT INTO admin_users (username, email, password_hash) VALUES (?,?,?)",
-            (username, email, f"{salt}${h}")
-        )
-        conn.commit()
     conn.close()
 
 def verify_admin(username: str, password: str) -> dict | None:
