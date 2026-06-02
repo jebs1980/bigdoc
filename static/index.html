@@ -1007,7 +1007,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 // STATE
 // ─────────────────────────────────────────
 const state = {
-  sessionId: crypto.randomUUID(),
+  sessionId: generateUUID(),
   currentStep: 0,
   reponses: {},
   texteLibre: '',
@@ -1019,7 +1019,18 @@ const state = {
 // ─────────────────────────────────────────
 // INIT
 // ─────────────────────────────────────────
-async function init() {
+async function generateUUID() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // Fallback pour HTTP (tests sans SSL)
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function init() {
   // Stats live
   try {
     const r = await fetch('/api/stats');
