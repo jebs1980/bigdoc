@@ -1164,9 +1164,15 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <label>Email professionnel *</label>
           <input type="email" id="lead-email" placeholder="dr.dupont@cabinet.fr" />
         </div>
-        <div class="input-group">
-          <label>Prénom</label>
-          <input type="text" id="lead-prenom" placeholder="Marie" />
+        <div style="display:flex;gap:.75rem">
+          <div class="input-group" style="flex:1">
+            <label>Prénom *</label>
+            <input type="text" id="lead-prenom" placeholder="Marie" />
+          </div>
+          <div class="input-group" style="flex:1">
+            <label>Nom *</label>
+            <input type="text" id="lead-nom" placeholder="Dupont" />
+          </div>
         </div>
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1;position:relative">
@@ -1470,6 +1476,8 @@ function fillTestData() {
     if (email) {
       email.value  = 'test@bigdoc.fr';
       prenom && (prenom.value = 'Marie');
+      const nom = document.getElementById('lead-nom');
+      nom && (nom.value = 'Dupont');
       spe    && (spe.value   = 'Gynécologie médicale');
       ville  && (ville.value = 'Lyon (69001)');
     } else if (attempts > 0) {
@@ -1958,6 +1966,7 @@ async function submitLead() {
         session_id: state.sessionId,
         email,
         prenom: document.getElementById('lead-prenom').value,
+        nom: document.getElementById('lead-nom')?.value || '',
         specialite: document.getElementById('lead-specialite').value,
         ville: document.getElementById('lead-ville').value,
       })
