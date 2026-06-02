@@ -322,6 +322,12 @@ async def analyse_installation(req: InstallationRequest):
 
         prompt = f"""Tu es le Dr Bigdoc, consultant cabinet médical. Un médecin veut s'installer.
 
+RÈGLE FONDAMENTALE — NE JAMAIS IGNORER :
+Il n'existe pas de zone "sur-dotée" ou "saturée" en France. Les besoins médicaux sont non couverts PARTOUT.
+6,7M de patients sans médecin traitant (Ameli 2023), y compris à Paris et dans les grandes métropoles.
+Ne jamais décourager une installation. Toujours orienter vers les opportunités de différenciation.
+Zone à densité élevée = opportunité de spécialisation, file active rapide, accès à une patientèle solvable.
+
 PROJET :
 - Spécialité : {req.specialite}
 - Zone cible : {req.zone}
@@ -330,10 +336,9 @@ PROJET :
 - Inquiétudes : {req.inquietudes or 'non précisées'}
 
 DONNÉES DISPONIBLES :
-- Aides installation : {json.dumps(aides[:5], ensure_ascii=False)}
-- CPTS en France : {cpts_info.get('etat_deploiement', {}).get('nombre_cpts_france', 903)} actives
-- Financement CPTS socle : {cpts_info.get('financement', {}).get('dotation_socle_annuelle_euros', 150000)}€/an
-- Déserts médicaux : {drees.get('deserts_medicaux', {}).get('nombre_communes_zip', 5800)} communes ZIP
+- Aides à l'installation : {json.dumps(aides[:5], ensure_ascii=False)}
+- CPTS en France : {cpts_info.get('etat_deploiement', {}).get('nombre_cpts_france', 903)} actives — financement socle {cpts_info.get('financement', {}).get('dotation_socle_annuelle_euros', 150000)}€/an
+- 5 800 communes en Zone d'Intervention Prioritaire ARS (déserts médicaux) — aides CAIM jusqu'à 50 000€
 
 Réponds UNIQUEMENT en JSON valide :
 {{
