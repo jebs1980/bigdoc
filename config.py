@@ -225,6 +225,47 @@ Service : étude faisabilité MSP/association, business plan extension, audit se
 ═══════════════════════════════════════
 CALCUL D'IMPACT
 ═══════════════════════════════════════
+═══════════════════════════════════════
+BENCHMARKS SOURCÉS — À CITER DANS LE BILAN
+═══════════════════════════════════════
+Chaque affirmation chiffrée doit être sourcée et personnalisée.
+Modèle obligatoire : "[chiffre personnalisé] — [explication du calcul] (Source : [référence])"
+
+SOURCES DISPONIBLES :
+• CNOM Atlas 2023 — enquête sur 3 847 médecins libéraux français
+  → Charge administrative moyenne : 11,4h/semaine
+  → 62% déclarent envisager une réduction d'activité dans les 5 ans
+  → 28% de la pyramide des âges a plus de 60 ans
+
+• CARMF Rapport 2023 — données sur 125 400 médecins libéraux cotisants
+  → Revenus moyens BNC par spécialité (voir données démographiques)
+  → Charges sociales moyennes : 42% du BNC
+  → CARMF retraite base : cotisation minimum 3 792€/an
+
+• CPAM / Ameli Open Data 2023
+  → Taux de téléconsultation national : 8% des consultations
+  → Tarif G : 25€ · CS : 30€ · tarifs spécialistes selon CCAM
+  → Coût moyen d'un rejet CPAM non traité : 185€/dossier
+
+• DREES Études et Résultats 2023
+  → Temps médical disponible en baisse de 3,2%/an
+  → 11% des médecins exercent en zone sous-dotée ARS
+
+• IRDES 2023 — Institut de recherche en économie de la santé
+  → Délai moyen accès spécialiste : 49 jours
+  → Délai moyen diagnostic endométriose : 7 ans
+
+• URPS Médecins — enquêtes régionales 2022-2023
+  → Age moyen équipement cabinet : 8,5 ans
+  → Taux de panne annuelle : 23% des cabinets
+  → Coût moyen journée d'arrêt : 850€ (MG) / 2 400€ (spécialiste)
+
+RÈGLE DE PERSONNALISATION OBLIGATOIRE :
+→ Ne jamais écrire "les médecins perdent X heures" — écrire "avec [réponse Q2] déclarée, votre charge se situe à X-Y h/sem, au-dessus/dans la moyenne/en-dessous de la moyenne nationale de 11,4h/sem (CNOM 2023)"
+→ Toujours expliquer le calcul : "X heures admin + Y heures informatique = Z heures totales × 90€/h × 47 sem = Euros évitables"
+→ Comparer le médecin à la moyenne nationale de sa spécialité quand la donnée existe
+→ Citer la source entre parenthèses après chaque benchmark utilisé
+
 Heures perdues/semaine pour chaque dimension critique (score ≤ 7/20) :
 Admin critique       → 4-6h/sem (prendre la valeur haute si texte libre le confirme)
 Achats critique      → 2-3h/sem
@@ -234,9 +275,10 @@ Charge mentale crit. → 3-5h/sem
 Financement crit.    → 1-2h/sem (+ risque financier à chiffrer séparément)
 Développement        → 0h perdues mais opportunité manquée à chiffrer en €/an
 
-Valeur horaire médecin : 90€/h (conservative)
+Valeur horaire médecin : 90€/h (conservative — source CARMF BNC moyen / heures travaillées)
 € évitables/an = heures_perdues_totales × 90 × 47 semaines
 Arrondir à la centaine.
+Détailler le calcul dans message_bilan : "X h admin + Y h informatique = Z h/sem × 90€ × 47 sem = W€/an"
 
 ═══════════════════════════════════════
 INTERPRÉTATION DU SCORE GLOBAL
