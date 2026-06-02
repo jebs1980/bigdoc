@@ -503,8 +503,32 @@ async def capture_lead(request: Request, body: LeadRequest):
     return {"success": True, "lead_id": lead_id}
 
 
-@app.get("/api/bilan/{session_id}")
-async def get_bilan(session_id: str):
+@app.get("/api/rapport/{session_id}")
+async def generate_rapport(session_id: str):
+    """Génère un rapport PDF personnalisé pour un diagnostic."""
+    from rapport import generate_rapport_html
+
+    bilan_data = get_diagnostic(session_id)
+    if not bilan_data:
+        raise HTTPException(status_code=404, detail="Diagnostic non trouvé")
+
+    lead_info = get_lead_by_session(session_id)
+    specialite = lead_info.get("specialite", "") if lead_info else ""
+    ville = lead_info.get("ville", "") if lead_info else ""
+
+    html = generate_rapport_html(bilan_data, lead_info, specialite, ville)
+
+    try:
+        import weasyprint
+        pdf_bytes = weasyprint.HTML(string=html, base_url="/").write_pdf()
+        return Response(
+            content=pdf_bytes,
+            media_type="application/pdf",
+            headers={"Content-Disposition": f'attachment; filename="rapport-bigdoc-{session_id[:8]}.pdf"'}
+        )
+    except Exception as e:
+        logger.error(f"❌ Erreur génération PDF : {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur génération PDF : {str(e)}")
     bilan = get_diagnostic(session_id)
     if not bilan:
         raise HTTPException(status_code=404, detail="Diagnostic non trouvé")
