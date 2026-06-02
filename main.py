@@ -434,7 +434,7 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
     try:
         message = anthropic_client.messages.create(
             model=ANTHROPIC_MODEL,
-            max_tokens=4000,
+            max_tokens=6000,
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}]
         )
