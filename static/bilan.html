@@ -187,10 +187,20 @@ function renderBilan(b) {
         </div>
         <p style="font-size:.75rem;color:var(--grey);margin-top:1rem" id="cta-sub"></p>
       </div>
-    </div>
 
-    <div style="max-width:660px;margin:0 auto 2rem;padding:0 1rem">
-      <div class="share-banner">
+      <div style="padding:1.25rem 2.5rem;background:#F8F9FA;border-top:1px solid #F0F2F5">
+        <div style="font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:.5rem;font-weight:500">Sources & méthodologie</div>
+        <div style="display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.5rem">
+          ${['CNOM Atlas 2023','CARMF 2023','DREES','CPAM / Ameli Open Data','IRDES 2023','URPS Médecins','HAS','INSEE 2023','RPPS ANS'].map(s=>`<span style="font-size:.65rem;padding:.15rem .5rem;border-radius:4px;background:#EEF0F4;color:var(--grey)">${s}</span>`).join('')}
+        </div>
+        <p style="font-size:.68rem;color:var(--grey);line-height:1.5;margin:0">
+          Ce bilan croise vos réponses avec les données épidémiologiques nationales et locales,
+          les benchmarks CARMF par spécialité, les motifs de consultation CPAM et les densités médicales RPPS.
+          Les estimations financières sont calculées sur la base des tarifs CCAM/NGAP en vigueur.
+        </p>
+      </div>
+
+    </div>
         <div>
           <div style="font-size:.82rem;font-weight:500;color:var(--navy)">Partager ce diagnostic</div>
           <div style="font-size:.75rem;color:var(--grey)">${b.message_partage||'Un confrère pourrait être concerné'}</div>
