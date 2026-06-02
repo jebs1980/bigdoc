@@ -603,50 +603,37 @@
       <!-- DR BIGDOC GRAND -->
       <div style="flex-shrink:0;text-align:center">
         <svg width="160" height="200" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 12px 32px rgba(79,70,229,.35))">
-          <!-- Blouse corps -->
-          <rect x="28" y="130" width="104" height="70" rx="20" fill="white"/>
-          <!-- Col blouse -->
-          <path d="M60 130 L80 158 L100 130" fill="none" stroke="#E5E7EB" stroke-width="2"/>
-          <!-- Badge RMS -->
-          <rect x="36" y="142" width="42" height="16" rx="4" fill="#4F46E5"/>
-          <text x="57" y="153" text-anchor="middle" font-family="Nunito,Arial" font-size="6" font-weight="800" fill="white">Dr Bigdoc</text>
-          <!-- Stéthoscope -->
-          <path d="M95 145 Q110 148 112 160 Q114 172 106 175 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- 1. Blouse -->
+          <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
+          <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+          <rect x="36" y="140" width="44" height="16" rx="4" fill="#4F46E5"/>
+          <text x="58" y="151" text-anchor="middle" font-family="Nunito,Arial" font-size="6" font-weight="800" fill="white">Dr Bigdoc</text>
+          <path d="M96 144 Q112 148 113 162 Q114 174 106 176 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
           <circle cx="97" cy="168" r="6" fill="none" stroke="#6366F1" stroke-width="2.5"/>
           <circle cx="97" cy="168" r="3" fill="#6366F1"/>
-          <!-- Cou -->
-          <rect x="68" y="110" width="24" height="24" rx="8" fill="#F5D5A8"/>
-          <!-- Tête -->
-          <ellipse cx="80" cy="88" rx="38" ry="40" fill="#F5D5A8"/>
-          <!-- Oreilles -->
-          <ellipse cx="42" cy="90" rx="8" ry="11" fill="#F0C89A"/>
-          <ellipse cx="118" cy="90" rx="8" ry="11" fill="#F0C89A"/>
-          <!-- Yeux blancs -->
-          <ellipse cx="66" cy="83" rx="11" ry="12" fill="white"/>
-          <ellipse cx="94" cy="83" rx="11" ry="12" fill="white"/>
-          <!-- Iris -->
-          <circle cx="66" cy="85" r="7.5" fill="#1A1060"/>
-          <circle cx="94" cy="85" r="7.5" fill="#1A1060"/>
-          <!-- Reflets -->
-          <circle cx="63" cy="81" r="3" fill="white"/>
-          <circle cx="91" cy="81" r="3" fill="white"/>
-          <!-- Sourcils -->
-          <path d="M56 71 Q66 66 76 70" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <path d="M84 70 Q94 66 104 71" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <!-- Nez -->
-          <ellipse cx="80" cy="96" rx="4" ry="3" fill="#E8B896"/>
-          <!-- Bouche souriante -->
-          <path d="M66 108 Q80 120 94 108" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <path d="M66 108 Q80 118 94 108 Q80 116 66 108Z" fill="white"/>
-          <!-- Joues -->
-          <ellipse cx="54" cy="100" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
-          <ellipse cx="106" cy="100" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
-          <!-- Cheveux — couvrent tout le crâne sans espace -->
-          <path d="M38 85 Q38 52 80 36 Q122 52 122 85 Q118 40 80 38 Q42 40 38 85Z" fill="#2C1810"/>
-          <ellipse cx="80" cy="56" rx="42" ry="22" fill="#2C1810"/>
-          <!-- Côtés tombants -->
-          <rect x="30" y="72" width="14" height="20" rx="7" fill="#2C1810"/>
-          <rect x="116" y="72" width="14" height="20" rx="7" fill="#2C1810"/>
+          <!-- 2. Cou -->
+          <rect x="68" y="112" width="24" height="20" rx="8" fill="#F5D5A8"/>
+          <!-- 3. CHEVEUX — dessinés AVANT la tête -->
+          <ellipse cx="80" cy="70" rx="42" ry="34" fill="#3D2314"/>
+          <!-- 4. Tête (peau) par-dessus les cheveux -->
+          <ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/>
+          <!-- 5. Oreilles -->
+          <ellipse cx="43" cy="92" rx="8" ry="11" fill="#F0C89A"/>
+          <ellipse cx="117" cy="92" rx="8" ry="11" fill="#F0C89A"/>
+          <!-- 6. Visage -->
+          <ellipse cx="66" cy="85" rx="11" ry="12" fill="white"/>
+          <ellipse cx="94" cy="85" rx="11" ry="12" fill="white"/>
+          <circle cx="66" cy="87" r="7.5" fill="#1A1060"/>
+          <circle cx="94" cy="87" r="7.5" fill="#1A1060"/>
+          <circle cx="63" cy="83" r="3" fill="white"/>
+          <circle cx="91" cy="83" r="3" fill="white"/>
+          <path d="M56 73 Q66 68 76 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M84 72 Q94 68 104 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="80" cy="98" rx="4" ry="3" fill="#E8B896"/>
+          <path d="M67 110 Q80 122 93 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M67 110 Q80 120 93 110 Q80 118 67 110Z" fill="white"/>
+          <ellipse cx="54" cy="102" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
+          <ellipse cx="106" cy="102" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
         </svg>
         <div style="margin-top:.5rem;font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase">Dr Bigdoc · RMS</div>
       </div>
@@ -659,13 +646,13 @@
           Bigdoc analyse votre cabinet comme vous analysez vos patients.<br>
           Score personnalisé, heures perdues, euros récupérables.
         </p>
-        <div style="display:flex;gap:.75rem;flex-wrap:wrap;align-items:center">
-          <button class="hero-cta" onclick="showChoix()" style="margin:0;display:inline-flex;align-items:center;gap:.6rem;padding:1rem 1.75rem">
-            <span style="background:white;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">🩺</span>
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
+          <button onclick="showChoix()" style="display:inline-flex;align-items:center;gap:.6rem;background:#4F46E5;color:white;border:none;border-radius:999px;padding:.9rem 1.6rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap">
+            <span style="background:white;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0">🩺</span>
             Je veux mon diagnostic
           </button>
-          <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:1rem 1.75rem;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;margin:0;display:inline-flex;align-items:center;gap:.6rem">
-            <span style="background:#EEF2FF;border-radius:50%;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0">🏥</span>
+          <button onclick="startInstallation()" style="display:inline-flex;align-items:center;gap:.6rem;background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:.9rem 1.6rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap">
+            <span style="background:#EEF2FF;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0">🏥</span>
             M'installer
           </button>
         </div>
@@ -2174,34 +2161,33 @@ function renderResult() {
       </div>
       <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;max-width:340px;border:1px solid rgba(255,255,255,.1);flex:1">
         <svg width="72" height="90" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
-          <rect x="28" y="130" width="104" height="70" rx="20" fill="white"/>
-          <path d="M60 130 L80 158 L100 130" fill="none" stroke="#E5E7EB" stroke-width="2"/>
-          <rect x="36" y="142" width="42" height="16" rx="4" fill="#4F46E5"/>
-          <text x="57" y="153" text-anchor="middle" font-family="Nunito,Arial" font-size="6" font-weight="800" fill="white">Dr Bigdoc</text>
-          <path d="M95 145 Q110 148 112 160 Q114 172 106 175 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
+          <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
+          <rect x="36" y="140" width="44" height="16" rx="4" fill="#4F46E5"/>
+          <text x="58" y="151" text-anchor="middle" font-family="Nunito,Arial" font-size="6" font-weight="800" fill="white">Dr Bigdoc</text>
+          <path d="M96 144 Q112 148 113 162 Q114 174 106 176 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
           <circle cx="97" cy="168" r="6" fill="none" stroke="#A5B4FF" stroke-width="2.5"/>
           <circle cx="97" cy="168" r="3" fill="#A5B4FF"/>
-          <rect x="68" y="110" width="24" height="24" rx="8" fill="#F5D5A8"/>
-          <ellipse cx="80" cy="88" rx="38" ry="40" fill="#F5D5A8"/>
-          <ellipse cx="42" cy="90" rx="8" ry="11" fill="#F0C89A"/>
-          <ellipse cx="118" cy="90" rx="8" ry="11" fill="#F0C89A"/>
-          <ellipse cx="66" cy="83" rx="11" ry="12" fill="white"/>
-          <ellipse cx="94" cy="83" rx="11" ry="12" fill="white"/>
-          <circle cx="66" cy="85" r="7.5" fill="#1A1060"/>
-          <circle cx="94" cy="85" r="7.5" fill="#1A1060"/>
-          <circle cx="63" cy="81" r="3" fill="white"/>
-          <circle cx="91" cy="81" r="3" fill="white"/>
-          <path d="M56 71 Q66 66 76 70" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <path d="M84 70 Q94 66 104 71" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-          <ellipse cx="80" cy="96" rx="4" ry="3" fill="#E8B896"/>
-          <path d="M66 108 Q80 120 94 108" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          <path d="M66 108 Q80 118 94 108 Q80 116 66 108Z" fill="white"/>
-          <ellipse cx="54" cy="100" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
-          <ellipse cx="106" cy="100" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
-          <path d="M38 85 Q38 52 80 36 Q122 52 122 85 Q118 40 80 38 Q42 40 38 85Z" fill="#2C1810"/>
-          <ellipse cx="80" cy="56" rx="42" ry="22" fill="#2C1810"/>
-          <rect x="30" y="72" width="14" height="20" rx="7" fill="#2C1810"/>
-          <rect x="116" y="72" width="14" height="20" rx="7" fill="#2C1810"/>
+          <rect x="68" y="112" width="24" height="20" rx="8" fill="#F5D5A8"/>
+          <!-- Cheveux AVANT la tête -->
+          <ellipse cx="80" cy="70" rx="42" ry="34" fill="#3D2314"/>
+          <!-- Tête PAR DESSUS -->
+          <ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/>
+          <ellipse cx="43" cy="92" rx="8" ry="11" fill="#F0C89A"/>
+          <ellipse cx="117" cy="92" rx="8" ry="11" fill="#F0C89A"/>
+          <ellipse cx="66" cy="85" rx="11" ry="12" fill="white"/>
+          <ellipse cx="94" cy="85" rx="11" ry="12" fill="white"/>
+          <circle cx="66" cy="87" r="7.5" fill="#1A1060"/>
+          <circle cx="94" cy="87" r="7.5" fill="#1A1060"/>
+          <circle cx="63" cy="83" r="3" fill="white"/>
+          <circle cx="91" cy="83" r="3" fill="white"/>
+          <path d="M56 73 Q66 68 76 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <path d="M84 72 Q94 68 104 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+          <ellipse cx="80" cy="98" rx="4" ry="3" fill="#E8B896"/>
+          <path d="M67 110 Q80 122 93 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <path d="M67 110 Q80 120 93 110 Q80 118 67 110Z" fill="white"/>
+          <ellipse cx="54" cy="102" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
+          <ellipse cx="106" cy="102" rx="10" ry="7" fill="#FFB3A0" opacity="0.5"/>
         </svg>
         <p style="font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.55;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,160)}…</p>
       </div>
