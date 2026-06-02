@@ -142,13 +142,14 @@ def get_demographic_context(specialite: str, ville: str) -> str:
         dept_nom = dept_info.get("nom", dept)
         type_labels = {
             "sous_dote": "Zone avec besoins non couverts (ZIP ARS)",
-            "sur_dote": "Zone à densité élevée",
+            "densite_elevee": "Zone à densité médicale élevée",
+            "sur_dote": "Zone à densité médicale élevée",  # legacy compat
             "intermédiaire": "Zone intermédiaire"
         }
         lines.append(f"Territoire : {dept_nom} ({dept}) — {type_labels.get(dept_type, dept_type)}")
         if dept_type == "sous_dote":
             lines.append("→ Zone sous-dotée ARS : aides CAIM jusqu'à 50 000€, DAC, CPTS — patientèle garantie dès l'ouverture. Valoriser dans le bilan.")
-        elif dept_type == "sur_dote":
+        elif dept_type in ("densite_elevee", "sur_dote"):
             lines.append("→ IMPORTANT — Densité élevée ne signifie PAS saturation. En France, il y a des besoins non couverts partout :")
             lines.append("  • 6,7M de patients sans médecin traitant (Ameli 2023) — y compris dans les grandes villes")
             lines.append("  • Les délais d'accès aux spécialistes restent longs même en zone dense (49j en moyenne Ameli 2023)")
