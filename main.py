@@ -1544,9 +1544,11 @@ import threading, uuid as _uuid
 
 _eval_jobs = {}  # job_id → {done, total, status}
 
-EVAL_CASES_FILE   = Path("eval_cases.json")
-EVAL_RESULTS_FILE = Path("eval_results.json")
-EVAL_BATCHES_FILE = Path("eval_batches.json")
+EVAL_DATA_DIR       = Path(os.getenv("EVAL_DATA_DIR", "/app/eval_data"))
+EVAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
+EVAL_CASES_FILE     = Path("eval_cases.json")  # baked dans l'image
+EVAL_RESULTS_FILE   = EVAL_DATA_DIR / "eval_results.json"
+EVAL_BATCHES_FILE   = EVAL_DATA_DIR / "eval_batches.json"
 
 
 def _run_eval_thread(job_id: str, cases: list):
@@ -1607,7 +1609,7 @@ def _run_eval_thread(job_id: str, cases: list):
     _eval_jobs[job_id]["status"] = "done"
 
 
-EVAL_FEEDBACKS_FILE = Path("eval_feedbacks.json")
+EVAL_FEEDBACKS_FILE = EVAL_DATA_DIR / "eval_feedbacks.json"
 
 
 @app.get("/api/admin/eval/export-word")
