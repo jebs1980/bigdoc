@@ -6,17 +6,11 @@ import json, sys, os
 from pathlib import Path
 from datetime import datetime
 
-try:
-    from docx import Document
-    from docx.shared import Pt, Cm, RGBColor
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
-    from docx.oxml.ns import qn
-    from docx.oxml import OxmlElement
-except ImportError:
-    os.system("pip install python-docx --break-system-packages -q")
-    from docx import Document
-    from docx.shared import Pt, Cm, RGBColor
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx import Document
+from docx.shared import Pt, Cm, RGBColor
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 
 RESULTS_FILE = Path(sys.argv[1] if len(sys.argv) > 1 else "eval_results.json")
 OUTPUT_FILE  = Path(sys.argv[2] if len(sys.argv) > 2 else "eval_relecture.docx")
