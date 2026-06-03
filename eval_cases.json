@@ -1,0 +1,852 @@
+[
+  {
+    "id": "TC001",
+    "label": "MG rural pensant aller bien",
+    "specialite": "Médecine générale",
+    "ville": "Agen (47000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "2",
+      "informatique": ["ok", "nobackup", "notele"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Je gère tout seul depuis 15 ans, ça roule. Parfois débordé mais c'est la vie du médecin. Pas de secrétaire, je réponds aux mails le soir."
+  },
+  {
+    "id": "TC002",
+    "label": "Gynécologue Zoom + peur de se lancer",
+    "specialite": "Gynécologie médicale",
+    "ville": "Lyon 6e (69006)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["ok", "zoomtele", "nobackup"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "2",
+      "developpement": ["actes"]
+    },
+    "texte_libre": "Je fais 30% de mes consultations en téléconsultation via Zoom depuis le covid, les patientes adorent. Je voudrais me spécialiser en endométriose et ménopause mais je ne sais pas si c'est viable financièrement."
+  },
+  {
+    "id": "TC003",
+    "label": "Psy en installation avec panique",
+    "specialite": "Psychiatrie",
+    "ville": "Rennes (35000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["nosetup", "notele"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "0",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je m'installe dans 3 mois, j'ai trouvé un local mais je ne sais absolument pas par où commencer. URSSAF, ADELI, CPAM, je suis perdu. Et je n'ai pas de dossier bancaire pour financer le matériel."
+  },
+  {
+    "id": "TC004",
+    "label": "Cardiologue panne echographe",
+    "specialite": "Cardiologie",
+    "ville": "Bordeaux (33000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "0",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "4",
+      "charge": "2",
+      "financement": "2",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Mon échographe cardiaque est en panne depuis 3 semaines. J'ai contacté 4 fournisseurs, personne ne trouve la pièce. Je perds 2500€ par semaine et mes patients sont renvoyés à l'hôpital. C'est catastrophique."
+  },
+  {
+    "id": "TC005",
+    "label": "Dermatologue S2 projet esthétique",
+    "specialite": "Dermatologie",
+    "ville": "Paris 16e (75016)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "3",
+      "materiel": "3",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "2",
+      "financement": "1",
+      "developpement": ["actes", "secteur"]
+    },
+    "texte_libre": "J'envisage de me lancer dans la dermatologie esthétique — laser, injections. Délai actuel 3 mois pour un RDV. Mon problème c'est le financement du laser (120 000€) et je ne sais pas si je reste S2 ou passe S3."
+  },
+  {
+    "id": "TC006",
+    "label": "MG zone désert médical proche retraite",
+    "specialite": "Médecine générale",
+    "ville": "Aurillac (15000)",
+    "reponses": {
+      "phase": "transmission",
+      "admin": "1",
+      "materiel": "2",
+      "informatique": ["ok", "nobackup"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "4",
+      "developpement": ["retraite"]
+    },
+    "texte_libre": "J'ai 62 ans, je veux arrêter dans 3 ans. Pas de successeur en vue dans ma zone. Je m'inquiète pour mes 1400 patients qui n'auront personne. Et ma retraite CARMF — j'ai jamais vraiment calculé ce que ça va donner."
+  },
+  {
+    "id": "TC007",
+    "label": "Chirurgien S3 gestion désastreuse",
+    "specialite": "Chirurgie orthopédique",
+    "ville": "Marseille 8e (13008)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "0",
+      "materiel": "2",
+      "informatique": ["galeres", "nobackup"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "0",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Je fais beaucoup de chirurgie mais je ne sais pas du tout où j'en suis financièrement. Mon comptable me donne des chiffres une fois par an. Je n'ai jamais regardé mes dépassements d'honoraires. J'ai l'impression de travailler énormément pour un revenu qui stagne."
+  },
+  {
+    "id": "TC008",
+    "label": "Pédiatre Doctolib saturé",
+    "specialite": "Pédiatrie",
+    "ville": "Nantes (44000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "4",
+      "developpement": ["association"]
+    },
+    "texte_libre": "Mon agenda Doctolib est plein 6 semaines à l'avance. Je refuse 15 à 20 patients par semaine faute de créneau. Je n'arrive pas à optimiser mon agenda et je veux m'associer avec une autre pédiatre mais je ne sais pas comment structurer ça."
+  },
+  {
+    "id": "TC009",
+    "label": "Endocrino installation S1 dépassé",
+    "specialite": "Endocrinologie",
+    "ville": "Strasbourg (67000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "2",
+      "informatique": ["nosetup", "notele"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "1",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je viens de m'installer il y a 2 mois après l'internat. J'ai tout à construire — logiciel, télétransmission, dossiers CPAM pas encore reçus. Je suis en S1 mais je ne sais pas si c'est le bon choix pour ma spécialité. Et mon premier paiement CARMF arrive."
+  },
+  {
+    "id": "TC010",
+    "label": "ORL sans projet ni vision",
+    "specialite": "ORL",
+    "ville": "Dijon (21000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "3",
+      "materiel": "4",
+      "informatique": ["ok", "backup"],
+      "compta": "4",
+      "charge": "3",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Tout va bien objectivement. Je suis installé depuis 8 ans, bonne patientèle, pas de problème particulier. Mais j'ai l'impression de stagner. Je ne sais pas si mon cabinet est optimisé ou si je laisse de l'argent sur la table."
+  },
+  {
+    "id": "TC011",
+    "label": "MG associé conflit",
+    "specialite": "Médecine générale",
+    "ville": "Toulouse (31000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "1",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Mon associé part en septembre et je ne sais pas si je continue seul ou si je cherche un autre associé. Le bail commercial est en mon nom mais on n'a jamais formalisé notre arrangement. Ce qui me empêche de dormir c'est de me retrouver seul avec les charges du cabinet."
+  },
+  {
+    "id": "TC012",
+    "label": "Radiologue équipement vieillissant",
+    "specialite": "Radiologie",
+    "ville": "Nice (06000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "3",
+      "materiel": "1",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "1",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Mon scanner a 11 ans. Il tombe régulièrement en panne, les techniciens ne trouvent plus les pièces. Je dois investir dans du neuf mais je ne sais pas si je dois acheter ou louer, et ma banque me demande un dossier que je n'ai pas."
+  },
+  {
+    "id": "TC013",
+    "label": "Gynéco-obstet maternité projet MSP",
+    "specialite": "Gynécologie-obstétrique",
+    "ville": "Montpellier (34000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["ok", "teleok"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "1",
+      "developpement": ["msp", "association"]
+    },
+    "texte_libre": "Je coordonne avec 3 sages-femmes et 2 MG pour monter une MSP autour de la périnatalité. Le projet avance mais le montage juridique et financier m'échappe complètement. Je ne sais pas comment financer les travaux."
+  },
+  {
+    "id": "TC014",
+    "label": "Psychiatre seul liste attente 8 mois",
+    "specialite": "Psychiatrie",
+    "ville": "Amiens (80000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "2",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Ma liste d'attente est de 8 mois. Je suis épuisé. Je voudrais réduire mon activité de 20% mais j'ai peur de l'impact financier. La charge administrative entre les comptes-rendus, les dossiers MDPH et les courriers me prend 3h par jour."
+  },
+  {
+    "id": "TC015",
+    "label": "MG DOM-TOM Martinique",
+    "specialite": "Médecine générale",
+    "ville": "Fort-de-France (97200)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "2",
+      "informatique": ["ok", "notele"],
+      "compta": "1",
+      "charge": "1",
+      "financement": "4",
+      "developpement": ["actes"]
+    },
+    "texte_libre": "Je suis à la Martinique, la CGSS a ses propres règles que je ne maîtrise pas toujours. Je veux faire de la téléconsultation pour les patients des zones reculées mais je ne sais pas si c'est remboursé de la même façon."
+  },
+  {
+    "id": "TC016",
+    "label": "Rhumatologue S2 matériel OK tout flou",
+    "specialite": "Rhumatologie",
+    "ville": "Grenoble (38000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "3",
+      "materiel": "4",
+      "informatique": ["ok", "backup"],
+      "compta": "1",
+      "charge": "2",
+      "financement": "4",
+      "developpement": ["secteur"]
+    },
+    "texte_libre": "Je pense à passer en secteur 2 mais j'ai peur de perdre des patients. Je ne sais pas si mes honoraires actuels sont dans la moyenne de ma spécialité. Mon expert-comptable ne connaît pas vraiment les spécificités du secteur médical."
+  },
+  {
+    "id": "TC017",
+    "label": "MG très bien organisé cherche croissance",
+    "specialite": "Médecine générale",
+    "ville": "Bordeaux (33000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "4",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "4",
+      "charge": "4",
+      "financement": "2",
+      "developpement": ["extension", "msp"]
+    },
+    "texte_libre": "Mon cabinet tourne bien. Je veux ouvrir un 2e site à 15km. J'ai une patientèle de 1800 et une liste d'attente de 3 semaines. Le projet de MSP avec mes confrères avance mais je ne sais pas comment financer et structurer la double implantation."
+  },
+  {
+    "id": "TC018",
+    "label": "Pneumologue panne logiciel données perdues",
+    "specialite": "Pneumologie",
+    "ville": "Lille (59000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["bloquant", "nobackup"],
+      "compta": "3",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Mon logiciel a planté il y a 10 jours. J'ai perdu 3 ans de dossiers patients. Je gère sur papier depuis, c'est impossible. Le prestataire ne répond plus. Je ne sais pas quoi faire."
+  },
+  {
+    "id": "TC019",
+    "label": "Gastro actes techniques, CCAM mal codée",
+    "specialite": "Gastro-entérologie",
+    "ville": "Lyon 3e (69003)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "1",
+      "charge": "2",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Je fais beaucoup d'endoscopies. Un confrère m'a dit que je code peut-être mal mes actes CCAM et que je perds de l'argent. Je n'ai jamais vérifié. Et j'ai un taux de rejet CPAM qui augmente depuis 6 mois sans savoir pourquoi."
+  },
+  {
+    "id": "TC020",
+    "label": "Ophtalmo matériel introuvable délai 6 mois",
+    "specialite": "Ophtalmologie",
+    "ville": "Nîmes (30000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "3",
+      "materiel": "0",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "2",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Ma lampe à fente est en panne. Le fabricant est allemand, délai de pièce annoncé 4 à 6 mois. Je ne peux plus faire d'examen complet du segment antérieur. J'ai 200 patients en attente. Je ne sais pas si je dois racheter un matériel d'occasion ou attendre."
+  },
+  {
+    "id": "TC021",
+    "label": "Anesthésiste cherche activité libérale",
+    "specialite": "Anesthésie-réanimation",
+    "ville": "Toulon (83000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["nosetup"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "1",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je quitte le salariat hospitalier pour le libéral en clinique. Je ne comprends pas comment fonctionne la rémunération CCAM pour un anesthésiste libéral, comment facturer, et si j'ai besoin de m'installer en SELARL. Tout est nouveau pour moi."
+  },
+  {
+    "id": "TC022",
+    "label": "MG remplaçante veut s'installer",
+    "specialite": "Médecine générale",
+    "ville": "Perpignan (66000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["nosetup"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "0",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je fais des remplacements depuis 2 ans. Je veux m'installer en zone sous-dotée pour avoir les aides ARS mais je ne sais pas quelle zone choisir, ni si je peux me permettre financièrement sans patientèle initiale."
+  },
+  {
+    "id": "TC023",
+    "label": "Nephrologue S1 tréso catastrophique",
+    "specialite": "Néphrologie",
+    "ville": "Clermont-Ferrand (63000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["ok"],
+      "compta": "0",
+      "charge": "1",
+      "financement": "0",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Je découvre régulièrement que mon compte est à découvert alors que je travaille énormément. Mon URSSAF est en retard, j'ai une mise en demeure CARMF. Je n'arrive pas à comprendre pourquoi je manque de trésorerie malgré un bon CA."
+  },
+  {
+    "id": "TC024",
+    "label": "Dermatologue télédermato enthousiaste",
+    "specialite": "Dermatologie",
+    "ville": "Caen (14000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "3",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "3",
+      "financement": "4",
+      "developpement": ["actes", "association"]
+    },
+    "texte_libre": "Je fais de la télédermato avec un réseau de MG locaux, ça marche bien. Je veux développer mais je ne sais pas comment facturer, ni si je dois créer une structure juridique dédiée. Mon délai d'attente présentiel est de 4 mois."
+  },
+  {
+    "id": "TC025",
+    "label": "MG seul tout va bien en réalité",
+    "specialite": "Médecine générale",
+    "ville": "Saint-Étienne (42000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "4",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "4",
+      "charge": "4",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": ""
+  },
+  {
+    "id": "TC026",
+    "label": "Chirurgien vasculaire SELARL expansion",
+    "specialite": "Chirurgie vasculaire",
+    "ville": "Paris 15e (75015)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "3",
+      "materiel": "3",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "1",
+      "developpement": ["association", "extension"]
+    },
+    "texte_libre": "Je suis en SELARL avec 2 associés. On veut intégrer un 3e chirurgien. Je ne sais pas comment modifier les statuts, quelle valorisation proposer, et si notre structure fiscale est toujours optimale avec 3 associés."
+  },
+  {
+    "id": "TC027",
+    "label": "Interniste multi-tâches épuisé",
+    "specialite": "Médecine interne",
+    "ville": "Strasbourg (67000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "0",
+      "materiel": "3",
+      "informatique": ["galeres", "nobackup"],
+      "compta": "1",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Je suis secrétaire, technicien, médecin, comptable. Ce qui m'empêche de dormir c'est que je travaille 70h par semaine et je n'arrive plus à distinguer ce qui est urgent de ce qui est important. J'ai l'impression de courir sans avancer."
+  },
+  {
+    "id": "TC028",
+    "label": "Pédiatre S1 zone urbaine dense",
+    "specialite": "Pédiatrie",
+    "ville": "Paris 11e (75011)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "2",
+      "financement": "4",
+      "developpement": ["secteur"]
+    },
+    "texte_libre": "Je suis en S1 à Paris depuis 10 ans. Mes collègues en S2 gagnent beaucoup plus. Mais j'ai peur de perdre ma patientèle fidèle si je change. Et je n'ai aucune idée de l'impact réel sur mon revenu net."
+  },
+  {
+    "id": "TC029",
+    "label": "MG CPTS coordinateur sans temps",
+    "specialite": "Médecine générale",
+    "ville": "Rouen (76000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "0",
+      "materiel": "3",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "0",
+      "financement": "3",
+      "developpement": ["msp"]
+    },
+    "texte_libre": "Je coordonne une CPTS de 45 professionnels de santé. C'est énorme en travail administratif en plus de ma patientèle. Je cherche à déléguer la coordination administrative mais je ne sais pas à qui ni comment financer ce poste."
+  },
+  {
+    "id": "TC030",
+    "label": "Gynéco S2 colposcope en panne",
+    "specialite": "Gynécologie médicale",
+    "ville": "Bordeaux (33000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "3",
+      "materiel": "0",
+      "informatique": ["ok", "teleok"],
+      "compta": "3",
+      "charge": "2",
+      "financement": "2",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Mon colposcope est en panne depuis 6 semaines. Je renvoie mes patientes à l'hôpital pour les colposcopies. Je perds des actes CCAM mais surtout mes patientes ne comprennent pas. Le fournisseur dit que la pièce n'est plus fabriquée."
+  },
+  {
+    "id": "TC031",
+    "label": "Généraliste rural DSM-5 install complète",
+    "specialite": "Médecine générale",
+    "ville": "Rodez (12000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "2",
+      "informatique": ["nosetup", "notele"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "0",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je reprends le cabinet d'un médecin partant à la retraite dans une zone sous-dotée. Zone ARS prioritaire. J'ai potentiellement droit aux aides CAIM mais je ne sais pas quoi demander, à qui, et dans quel ordre. La reprise est dans 6 semaines."
+  },
+  {
+    "id": "TC032",
+    "label": "Cardiologue Holter mal codé",
+    "specialite": "Cardiologie",
+    "ville": "Montpellier (34000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["ok", "backup"],
+      "compta": "1",
+      "charge": "2",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Mon cardiologue référent m'a dit que je sous-code probablement mes Holters et mes épreuves d'effort. Je fais environ 80 Holters par mois. Si c'est vrai c'est beaucoup d'argent perdu. Mais je n'ose pas changer sans vérifier."
+  },
+  {
+    "id": "TC033",
+    "label": "Ophtalmo installation en ville dense",
+    "specialite": "Ophtalmologie",
+    "ville": "Lyon 2e (69002)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "2",
+      "informatique": ["nosetup"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "0",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je m'installe à Lyon dans 4 mois. On me dit que c'est une zone surdotée mais j'ai l'impression que les délais sont énormes quand même. Je ne sais pas si mon projet est viable et j'ai besoin d'un prêt de 250 000€ pour le matériel."
+  },
+  {
+    "id": "TC034",
+    "label": "Rhumatologue burnout silencieux",
+    "specialite": "Rhumatologie",
+    "ville": "Toulon (83000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "3",
+      "informatique": ["ok"],
+      "compta": "3",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["aucun"]
+    },
+    "texte_libre": "Ce qui m'empêche de dormir c'est que je n'ai plus envie de venir le matin. Pas de problème technique particulier, mais je m'occupe de tout tout seul depuis 12 ans. La charge mentale est énorme. Je pense à réduire mon activité."
+  },
+  {
+    "id": "TC035",
+    "label": "Urgentiste mixte S+L projet libéral",
+    "specialite": "Médecine d'urgence",
+    "ville": "Metz (57000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["nosetup"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "1",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je suis urgentiste à mi-temps à l'hôpital. Je veux monter une activité libérale en médecine générale pour arrondir. Je ne connais rien au libéral — CPAM, cotisations, logiciel. Et j'ai besoin de comprendre si ça vaut le coup financièrement."
+  },
+  {
+    "id": "TC036",
+    "label": "Psychiatre seul liste attente 6 mois",
+    "specialite": "Psychiatrie",
+    "ville": "Besançon (25000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["ok", "teleok"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "4",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "J'ai 6 mois d'attente. Je ne prends plus de nouveaux patients. Je voudrais faire plus de groupes thérapeutiques ou de téléconsultations pour dégager de la capacité mais je ne sais pas comment facturer ces formats."
+  },
+  {
+    "id": "TC037",
+    "label": "MG femme installation maternité concurrent",
+    "specialite": "Médecine générale",
+    "ville": "Brest (29000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["nosetup", "notele"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "1",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je m'installe dans 2 mois et je suis enceinte de 4 mois. Comment gérer un congé maternité quand on est libérale ? Est-ce que j'ai droit aux indemnités CPAM ? Et comment prévenir mes patients ?"
+  },
+  {
+    "id": "TC038",
+    "label": "Neurologue S2 matériel lourd acquérir",
+    "specialite": "Neurologie",
+    "ville": "Nantes (44000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "3",
+      "materiel": "2",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "1",
+      "developpement": ["actes", "extension"]
+    },
+    "texte_libre": "Je veux acquérir un appareil de vidéonystagmographie et développer les explorations neurophysiologiques. L'investissement est de 80 000€. Je ne sais pas si je dois acheter ou louer, ni comment bâtir le dossier bancaire."
+  },
+  {
+    "id": "TC039",
+    "label": "MG retraité progressif",
+    "specialite": "Médecine générale",
+    "ville": "Pau (64000)",
+    "reponses": {
+      "phase": "transmission",
+      "admin": "2",
+      "materiel": "2",
+      "informatique": ["ok"],
+      "compta": "3",
+      "charge": "2",
+      "financement": "4",
+      "developpement": ["retraite"]
+    },
+    "texte_libre": "J'ai 65 ans, je veux réduire à 3 jours par semaine d'ici 1 an. J'ai 1200 patients sans successeur. Ma retraite CARMF sera insuffisante. Je n'ai pas de plan précis."
+  },
+  {
+    "id": "TC040",
+    "label": "Infectiologue post-COVID activité reprise",
+    "specialite": "Infectiologie",
+    "ville": "Paris 5e (75005)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "3",
+      "charge": "1",
+      "financement": "4",
+      "developpement": ["actes"]
+    },
+    "texte_libre": "Mon activité a explosé pendant le COVID puis chuté. Je cherche à développer une activité de consultations post-COVID et de médecine du voyage. Je ne sais pas comment communiquer pour attirer cette patientèle spécifique."
+  },
+  {
+    "id": "TC041",
+    "label": "Gériatre libéral EHPAD convention",
+    "specialite": "Gériatrie",
+    "ville": "Limoges (87000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["galeres"],
+      "compta": "1",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["association"]
+    },
+    "texte_libre": "Je suis gériatre libéral avec des conventions dans 3 EHPAD. La facturation est un cauchemar — forfaits EHPAD, actes CCAM, téléconsultation. Je n'arrive pas à optimiser mon organisation et je perds beaucoup de temps en déplacements."
+  },
+  {
+    "id": "TC042",
+    "label": "Allergologue solo OPTAM indécis",
+    "specialite": "Allergologie",
+    "ville": "Reims (51000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "3",
+      "materiel": "3",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "2",
+      "financement": "4",
+      "developpement": ["secteur"]
+    },
+    "texte_libre": "Je suis en secteur 2 mais je ne sais pas si l'OPTAM me serait plus favorable. J'ai l'impression que mes dépassements ne sont pas optimisés. Je ne sais pas comment comparer sans faire une erreur irréversible."
+  },
+  {
+    "id": "TC043",
+    "label": "Chirurgien plastique esthétique non remboursé",
+    "specialite": "Chirurgie générale",
+    "ville": "Paris 8e (75008)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "2",
+      "materiel": "3",
+      "informatique": ["ok", "backup"],
+      "compta": "2",
+      "charge": "1",
+      "financement": "1",
+      "developpement": ["extension", "actes"]
+    },
+    "texte_libre": "Je fais 60% d'esthétique non remboursée. Je veux ouvrir un centre avec 2 autres chirurgiens. Je ne sais pas quelle structure juridique choisir — SELARL, SAS, SCP — et comment valoriser les apports de chacun."
+  },
+  {
+    "id": "TC044",
+    "label": "Pneumologue solo appareillage",
+    "specialite": "Pneumologie",
+    "ville": "Clermont-Ferrand (63000)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "2",
+      "materiel": "2",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "2",
+      "financement": "2",
+      "developpement": ["actes"]
+    },
+    "texte_libre": "Je veux développer le suivi des patients appareillés CPAP. Ce sont des consultations courtes et nombreuses. Je ne sais pas comment optimiser mon agenda pour intercaler ces créneaux sans perturber mes consultations longues."
+  },
+  {
+    "id": "TC045",
+    "label": "Interniste hopital veut passer liberal",
+    "specialite": "Médecine interne",
+    "ville": "Montpellier (34000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "4",
+      "informatique": ["nosetup"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "1",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je suis PH depuis 15 ans. Je veux quitter l'hôpital pour le libéral. Je ne connais rien au secteur libéral. Ce qui m'empêche de dormir c'est le saut dans le vide financier — perdre le salaire fixe, les congés, les charges sociales employeur."
+  },
+  {
+    "id": "TC046",
+    "label": "Gynéco obstetricien bloque accouchement",
+    "specialite": "Gynécologie-obstétrique",
+    "ville": "Strasbourg (67000)",
+    "reponses": {
+      "phase": "transmission",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["ok", "backup"],
+      "compta": "3",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["retraite"]
+    },
+    "texte_libre": "J'ai 60 ans. Je veux arrêter les accouchements mais pas la gynécologie médicale. Comment je gère juridiquement et pratiquement cette transition ? Et mes patientes obstétricales, qui les prend en charge ?"
+  },
+  {
+    "id": "TC047",
+    "label": "MG groupe tout délégué cherche plus",
+    "specialite": "Médecine générale",
+    "ville": "Montpellier (34000)",
+    "reponses": {
+      "phase": "croissance",
+      "admin": "4",
+      "materiel": "4",
+      "informatique": ["ok", "backup", "teleok"],
+      "compta": "4",
+      "charge": "4",
+      "financement": "2",
+      "developpement": ["msp", "actes", "association"]
+    },
+    "texte_libre": "Mon cabinet de groupe fonctionne très bien. On a une secrétaire, une infirmière coordinatrice. Je veux rejoindre la CPTS locale et créer un protocole de délégation de tâches IPA. Je cherche surtout un regard externe sur notre organisation."
+  },
+  {
+    "id": "TC048",
+    "label": "Medecin travail mixte libéral entreprise",
+    "specialite": "Médecine du travail",
+    "ville": "Lyon 7e (69007)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "1",
+      "materiel": "4",
+      "informatique": ["galeres"],
+      "compta": "1",
+      "charge": "0",
+      "financement": "4",
+      "developpement": ["actes"]
+    },
+    "texte_libre": "Je cumule une activité en SST et une activité libérale de médecine du travail pour des entreprises qui veulent un suivi indépendant. La facturation et le régime fiscal de cette activité mixte me posent des problèmes que mon comptable ne sait pas résoudre."
+  },
+  {
+    "id": "TC049",
+    "label": "Pédiatre installation parent pressé",
+    "specialite": "Pédiatrie",
+    "ville": "Toulouse (31000)",
+    "reponses": {
+      "phase": "installation",
+      "admin": "0",
+      "materiel": "2",
+      "informatique": ["nosetup", "notele"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "1",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Je veux m'installer dans 3 mois. J'ai trouvé un local. J'ai besoin de tout faire vite car j'ai un engagement de bail. Je ne sais pas dans quel ordre faire les démarches ni comment ouvrir rapidement."
+  },
+  {
+    "id": "TC050",
+    "label": "MG tout seul rien ne va",
+    "specialite": "Médecine générale",
+    "ville": "Libourne (33500)",
+    "reponses": {
+      "phase": "consolidation",
+      "admin": "0",
+      "materiel": "1",
+      "informatique": ["galeres", "nobackup", "zoomtele"],
+      "compta": "0",
+      "charge": "0",
+      "financement": "0",
+      "developpement": ["idees"]
+    },
+    "texte_libre": "Tout part en même temps. Mon logiciel plante, ma sonde d'échographie est cassée, je fais mes téléconsultations sur WhatsApp parce que je ne sais pas comment faire autrement, ma comptabilité est à jour de justesse. Je suis seul et épuisé. J'ai besoin d'aide mais je ne sais pas par où commencer."
+  }
+]
