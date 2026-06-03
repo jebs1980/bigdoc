@@ -8,8 +8,10 @@ services:
       - "8001:8000"       # 8001 côté hôte pour ne pas conflictueer
     volumes:
       - ./data:/data      # SQLite persisté hors conteneur
+      - ./eval_data:/app/eval_data  # Résultats eval persistés
     environment:
       - DATABASE_PATH=/data/bigdoc.db
+      - EVAL_DATA_DIR=/app/eval_data
     env_file:
       - .env
     healthcheck:
