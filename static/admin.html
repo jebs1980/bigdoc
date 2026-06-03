@@ -257,7 +257,8 @@
       <div class="card-header">
         <span class="card-title">🔬 Évaluation du prompt</span>
         <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-          <button class="btn btn-outline" onclick="runEval('normal')">▶ Lancer 50 cas</button>
+          <input type="text" id="eval-case-ids" placeholder="TC001 TC006 TC028… (vide = tous)" style="flex:1;min-width:200px;padding:.5rem .85rem;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:.82rem">
+          <button class="btn btn-outline" onclick="runEval('normal')">▶ Lancer</button>
           <button class="btn btn-outline" onclick="runEval('batch')">🚀 Batch API</button>
           <button class="btn btn-primary" onclick="loadEvalResults()">↻ Actualiser</button>
           <button class="btn btn-outline" id="eval-save-feedbacks-btn" onclick="saveEvalFeedbacksToServer()">💾 Sauvegarder feedbacks</button>
@@ -1438,24 +1439,29 @@ let currentEvalFeedback = null;
 let evalFeedbacks = {}; // stocké localement
 
 async function runEval(mode) {
-  const btn = mode === 'batch'
-    ? document.querySelectorAll('#tab-eval .btn-outline')[1]
-    : document.querySelectorAll('#tab-eval .btn-outline')[0];
-  btn.disabled = true;
+  const idsInput = document.getElementById('eval-case-ids').value.trim();
+  const ids = idsInput ? idsInput.split(/[\s,]+/).filter(Boolean) : [];
+
+  const btns = document.querySelectorAll('#tab-eval .btn-outline');
+  btns.forEach(b => b.disabled = true);
 
   const statusDiv = document.getElementById('eval-run-status');
   const statusText = document.getElementById('eval-status-text');
   const progressBar = document.getElementById('eval-progress-bar');
   statusDiv.style.display = 'block';
+  statusText.textContent = ids.length ? `Lancement de ${ids.length} cas…` : 'Lancement de tous les cas…';
 
   try {
+    const body = ids.length ? {ids} : {};
     const resp = await fetch(`/api/admin/eval/run?mode=${mode}`, {
-      credentials: 'include', method: 'POST'
+      credentials: 'include', method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
     });
     const data = await resp.json();
     if (!resp.ok) {
       statusText.textContent = '❌ Erreur : ' + (data.detail || JSON.stringify(data));
-      btn.disabled = false;
+      btns.forEach(b => b.disabled = false);
       return;
     }
     if (mode === 'batch') {
@@ -1463,21 +1469,22 @@ async function runEval(mode) {
       progressBar.style.width = '100%';
       loadEvalBatches();
     } else {
-      const total = data.total || 50;
+      const total = data.total || ids.length || 50;
       statusText.textContent = `En cours : 0/${total} cas`;
       progressBar.style.width = '0%';
-      pollEvalProgress(data.job_id, total, statusText, progressBar, btn, statusDiv);
+      pollEvalProgress(data.job_id, total, statusText, progressBar, btns, statusDiv);
     }
   } catch(e) {
     statusText.textContent = '❌ Erreur : ' + e.message;
-    btn.disabled = false;
+    btns.forEach(b => b.disabled = false);
   }
 }
 
-async function pollEvalProgress(jobId, total, statusText, progressBar, btn, statusDiv) {
+async function pollEvalProgress(jobId, total, statusText, progressBar, btns, statusDiv) {
   if (!jobId || jobId === 'undefined') {
     statusText.textContent = '❌ Erreur : job_id invalide';
-    btn.disabled = false;
+    if (Array.isArray(btns)) btns.forEach(b => b.disabled = false);
+    else btns.disabled = false;
     return;
   }
   const interval = setInterval(async () => {
@@ -1490,10 +1497,15 @@ async function pollEvalProgress(jobId, total, statusText, progressBar, btn, stat
       if (d.status === 'done' || d.done >= total) {
         clearInterval(interval);
         statusText.textContent = `✅ Terminé — ${d.done} cas traités`;
-        btn.disabled = false;
+        if (Array.isArray(btns)) btns.forEach(b => b.disabled = false);
+        else btns.disabled = false;
         loadEvalResults();
       }
-    } catch(e) { clearInterval(interval); btn.disabled = false; }
+    } catch(e) {
+      clearInterval(interval);
+      if (Array.isArray(btns)) btns.forEach(b => b.disabled = false);
+      else btns.disabled = false;
+    }
   }, 2000);
 }
 
