@@ -2,6 +2,7 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
+from ameli_api import get_ameli_context
 import secrets
 import httpx
 import os
@@ -538,9 +539,17 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
     if not await verify_turnstile(body.turnstile_token, client_ip):
         raise HTTPException(status_code=429, detail="Vérification anti-bot échouée")
 
-    # Construire le prompt avec catalogue dynamique
+    # Construire le prompt avec catalogue dynamique + données Ameli locales
     catalogue = get_catalogue_for_prompt()
     user_prompt = build_diagnostic_prompt(body.reponses, body.texte_libre, body.specialite, body.ville, catalogue)
+
+    # Enrichir avec données Ameli locales (asynchrone, non bloquant)
+    try:
+        ameli_context = await get_ameli_context(body.specialite, body.ville)
+        if ameli_context:
+            user_prompt = ameli_context + "\n" + user_prompt
+    except Exception as e:
+        logger.warning(f"Ameli context error: {e}")
 
     # Appel Claude Sonnet
     try:
