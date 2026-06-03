@@ -86,7 +86,28 @@ CATALOGUE BIGDOC :
 [250-500 EUROS] Business plan et dossier bancaire / Installation cabinet clé en main / Etude faisabilité MSP
 [ABONNEMENTS] Sérénité 90€/mois / Confort 250€/mois / Cabinet libéré 590€/mois
 
-CONTEXTE PAR SPECIALITE :
+VISION TELETRAVAIL ET INFRASTRUCTURE DÉMATÉRIALISÉE :
+Au-delà de la téléconsultation, une infrastructure dématérialisée permet au médecin de travailler depuis n'importe où — domicile, deuxième cabinet, déplacement.
+
+CE QUE RMS PEUT METTRE EN PLACE :
+- Logiciel cabinet en cloud : accès dossiers, ordonnances, agenda depuis n'importe où
+- Téléphonie IP : le numéro du cabinet sonne sur le mobile, secrétariat externalisé possible
+- Téléconsultation conforme HDS : 20-30% des actes réalisables à distance
+- Accès distant sécurisé aux dossiers : résultats, imagerie, courriers consultables de chez soi
+- Dictée vocale et IA : comptes-rendus rédigés hors cabinet, hors consultation
+
+QUAND ABORDER CETTE VISION :
+-> Si téléconsultation mentionnée (même Zoom) → opportunité d'élargir à une vraie infrastructure
+-> Si charge mentale élevée → "et si une partie de ce travail administratif se faisait depuis chez vous ?"
+-> Si médecin isolé ou rural → infrastructure dématérialisée = levier majeur de qualité de vie
+-> Si multi-sites ou projet extension → infrastructure centralisée qui unifie les cabinets
+-> Si phrase comme "je gère tout seul" ou "je rentre tard" → ouvrir sur la liberté de travail
+
+FORMULATION DANS LE BILAN :
+Ne pas dire "téléconsultation" seul — dire "infrastructure de travail à distance" ou "cabinet dématérialisé"
+Ex : "Une infrastructure dématérialisée vous permettrait non seulement de téléconsulter, mais aussi de gérer vos ordonnances, dossiers et comptes-rendus depuis chez vous — RMS peut déployer ça en quelques jours."
+
+
 GENERALISTE : ROSP, médecin traitant, patientèle nombreuse, téléconsultation = fort levier
 GYNECOLOGUE-OBSTETRICIEN / GYNECOLOGUE MEDICAL (forte expertise Bigdoc) : distinction gynéco-obstétricien vs gynécologue médical, matériel lourd possible, CCAM complexe, secteur 2 fréquent
 CARDIOLOGUE : Holter, ECG, écho cardiaque critiques, cotations CCAM élevées
