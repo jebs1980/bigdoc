@@ -1676,6 +1676,54 @@ async def eval_run(request: Request, mode: str = "normal"):
         return {"job_id": job_id, "total": len(cases)}
 
 
+@app.post("/api/admin/eval/run")
+async def eval_run(request: Request, mode: str = "normal"):
+    require_admin(request)
+    if not EVAL_CASES_FILE.exists():
+        raise HTTPException(status_code=404, detail="eval_cases.json introuvable")
+    cases = json.loads(EVAL_CASES_FILE.read_text())
+
+    if mode == "batch":
+        batch_requests = []
+        for case in cases:
+            context = get_demographic_context(case["specialite"], case["ville"])
+            user_prompt = build_diagnostic_prompt(
+                reponses=case["reponses"],
+                texte_libre=case.get("texte_libre", ""),
+                specialite=case["specialite"],
+                ville=case["ville"],
+                catalogue=""
+            )
+            if context:
+                user_prompt = context + "\n\n" + user_prompt
+            batch_requests.append({
+                "custom_id": case["id"],
+                "params": {
+                    "model": ANTHROPIC_MODEL,
+                    "max_tokens": 4000,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": user_prompt}]
+                }
+            })
+        batch = anthropic_client.beta.messages.batches.create(requests=batch_requests)
+        records = []
+        if EVAL_BATCHES_FILE.exists():
+            records = json.loads(EVAL_BATCHES_FILE.read_text())
+        records.append({
+            "batch_id": batch.id,
+            "case_count": len(cases),
+            "launched_at": datetime.now().isoformat(),
+            "status": "in_progress"
+        })
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+        return {"batch_id": batch.id, "total": len(cases)}
+    else:
+        job_id = str(_uuid.uuid4())[:8]
+        t = threading.Thread(target=_run_eval_thread, args=(job_id, cases), daemon=True)
+        t.start()
+        return {"job_id": job_id, "total": len(cases)}
+
+
 @app.get("/api/admin/eval/status/{job_id}")
 async def eval_status(job_id: str, request: Request):
     require_admin(request)
