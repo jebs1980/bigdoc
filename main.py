@@ -1711,7 +1711,15 @@ async def eval_run(request: Request, mode: str = "normal"):
     require_admin(request)
     if not EVAL_CASES_FILE.exists():
         raise HTTPException(status_code=404, detail="eval_cases.json introuvable")
-    cases = json.loads(EVAL_CASES_FILE.read_text())
+    all_cases = json.loads(EVAL_CASES_FILE.read_text())
+
+    # Filtrer par IDs si fournis
+    try:
+        body = await request.json()
+        ids = body.get("ids", [])
+    except Exception:
+        ids = []
+    cases = [c for c in all_cases if c["id"] in ids] if ids else all_cases
 
     if mode == "batch":
         batch_requests = []
