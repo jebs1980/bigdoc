@@ -137,6 +137,7 @@
   <button class="nav-btn" onclick="showTab('stats',this)">📊 Stats</button>
   <button class="nav-btn" onclick="showTab('devis',this)">📄 Devis</button>
   <button class="nav-btn" onclick="showTab('catalogue',this)">🛍 Produits</button>
+  <button class="nav-btn" onclick="showTab('eval',this)">🔬 Eval</button>
   <button class="nav-btn" onclick="showTab('settings',this)">⚙️ Paramètres</button>
 </nav>
 
@@ -244,6 +245,68 @@
             <th>Date</th><th>Client</th><th>Email</th><th>Prestation</th><th>Montant HT</th><th>Statut</th><th></th>
           </tr></thead>
           <tbody id="quotes-tbody"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── EVAL ── -->
+  <div class="tab" id="tab-eval">
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">
+        <span class="card-title">🔬 Évaluation du prompt</span>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <button class="btn btn-outline" onclick="runEval('normal')">▶ Lancer 50 cas</button>
+          <button class="btn btn-outline" onclick="runEval('batch')">🚀 Batch API</button>
+          <button class="btn btn-primary" onclick="loadEvalResults()">↻ Actualiser</button>
+        </div>
+      </div>
+      <div id="eval-run-status" style="display:none;padding:.85rem 1.25rem;border-top:1px solid var(--border)">
+        <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:.5rem" id="eval-status-text">En cours...</div>
+        <div style="height:6px;background:var(--border);border-radius:999px;overflow:hidden">
+          <div id="eval-progress-bar" style="height:100%;background:var(--indigo);border-radius:999px;width:0%;transition:width .3s"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="eval-batches-card" style="display:none;margin-bottom:1.25rem">
+      <div class="card-header"><span class="card-title">Batches Anthropic</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Cas</th><th>Lancé</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="eval-batches-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="eval-rapport-card" style="display:none;margin-bottom:1.25rem">
+      <div class="card-header"><span class="card-title">Rapport agrégé</span></div>
+      <div class="card-body" id="eval-rapport-body"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Bilans générés</span>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <select id="eval-filter" onchange="filterEvalResults()" style="padding:.4rem .75rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito Sans',sans-serif">
+            <option value="">Tous</option>
+            <option value="bon">👍 Bon</option>
+            <option value="douteux">🔆 Douteux</option>
+            <option value="a_revoir">💬 À revoir</option>
+            <option value="sans_feedback">Sans feedback</option>
+            <option value="erreur">❌ Erreur</option>
+          </select>
+          <span id="eval-count" style="font-size:.78rem;color:var(--muted)"></span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Spécialité</th><th>Ville</th><th>Score</th>
+            <th>Titre</th><th>Feedback</th><th></th>
+          </tr></thead>
+          <tbody id="eval-tbody"><tr><td colspan="7" class="empty">Lance un eval pour voir les résultats</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -402,6 +465,62 @@
   </div>
 </div>
 
+
+<!-- ── MODAL EVAL FEEDBACK ── -->
+<div class="modal" id="eval-modal">
+  <div class="modal-box" style="max-width:680px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
+      <div>
+        <div class="modal-title" id="eval-modal-title">—</div>
+        <div style="font-size:.78rem;color:var(--muted)" id="eval-modal-sub">—</div>
+      </div>
+      <button onclick="closeEvalModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--muted)">✕</button>
+    </div>
+    <div style="background:var(--lavender);border-radius:12px;padding:1rem;margin-bottom:1rem">
+      <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+        <div style="text-align:center;flex-shrink:0">
+          <div style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:var(--indigo)" id="em-score">—</div>
+          <div style="font-size:.65rem;color:var(--muted)">/100</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;color:var(--navy)" id="em-titre">—</div>
+          <div style="font-size:.78rem;color:#78350F;font-style:italic;margin-top:.25rem" id="em-insight">—</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="section-title">Message bilan</div>
+      <p style="font-size:.82rem;line-height:1.6;color:var(--navy)" id="em-message">—</p>
+    </div>
+    <div id="em-texte-libre-block" style="margin-bottom:1rem;display:none">
+      <div class="section-title">Ce que le médecin a écrit</div>
+      <p style="font-size:.8rem;line-height:1.55;color:var(--muted);font-style:italic" id="em-texte-libre">—</p>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="section-title">Quick wins</div>
+      <div id="em-quickwins" style="font-size:.8rem;line-height:1.6;color:var(--navy)">—</div>
+    </div>
+    <div style="margin-bottom:1.25rem">
+      <div class="section-title">Dimensions</div>
+      <div id="em-dims" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.76rem"></div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:1rem">
+      <div class="section-title">Ton feedback</div>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">
+        <button class="feedback-btn" data-val="bon" onclick="setEvalFeedback('bon')" style="flex:1;padding:.65rem;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700">👍 Bon</button>
+        <button class="feedback-btn" data-val="douteux" onclick="setEvalFeedback('douteux')" style="flex:1;padding:.65rem;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700">🔆 Pourrait l'être plus</button>
+        <button class="feedback-btn" data-val="a_revoir" onclick="setEvalFeedback('a_revoir')" style="flex:1;padding:.65rem;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700">💬 Aspect à approfondir</button>
+      </div>
+      <div id="em-note-block" style="display:none">
+        <textarea id="em-note" class="note-input" placeholder="Qu'est-ce qui mériterait d'être davantage traité ?"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEvalModal()">Fermer</button>
+      <button class="btn btn-primary" onclick="saveEvalFeedback()">Enregistrer</button>
+    </div>
+  </div>
+</div>
 
 <div class="modal" id="modal">
   <div class="modal-box">
@@ -598,6 +717,7 @@ function showTab(name, btn) {
   if (name === 'leads') loadLeads();
   if (name === 'stats') { loadStats(); loadStripeStats(); }
   if (name === 'devis') { loadQuotes(); loadProducts(); }
+  if (name === 'eval') loadEvalResults();
   if (name === 'settings') loadSettings();
   if (name === 'catalogue') loadProducts();
 }
@@ -1309,7 +1429,267 @@ document.getElementById('invoice-modal').addEventListener('click', function(e){
 
 
 
-// ─── INIT ───
+// ─── EVAL ───
+let evalResults = [];
+let currentEvalId = null;
+let currentEvalFeedback = null;
+let evalFeedbacks = {}; // stocké localement
+
+async function runEval(mode) {
+  const btn = mode === 'batch'
+    ? document.querySelectorAll('#tab-eval .btn-outline')[1]
+    : document.querySelectorAll('#tab-eval .btn-outline')[0];
+  btn.disabled = true;
+
+  const statusDiv = document.getElementById('eval-run-status');
+  const statusText = document.getElementById('eval-status-text');
+  const progressBar = document.getElementById('eval-progress-bar');
+  statusDiv.style.display = 'block';
+
+  try {
+    const resp = await fetch(`/api/admin/eval/run?mode=${mode}`, {
+      credentials: 'include', method: 'POST'
+    });
+    const data = await resp.json();
+
+    if (mode === 'batch') {
+      statusText.textContent = `✅ Batch lancé : ${data.batch_id} — résultats dans ~2h`;
+      progressBar.style.width = '100%';
+      loadEvalBatches();
+    } else {
+      // Mode normal — streaming de progression via polling
+      statusText.textContent = `En cours : 0/${data.total} cas`;
+      progressBar.style.width = '0%';
+      pollEvalProgress(data.job_id, data.total, statusText, progressBar, btn, statusDiv);
+    }
+  } catch(e) {
+    statusText.textContent = '❌ Erreur : ' + e.message;
+    btn.disabled = false;
+  }
+}
+
+async function pollEvalProgress(jobId, total, statusText, progressBar, btn, statusDiv) {
+  const interval = setInterval(async () => {
+    try {
+      const r = await fetch(`/api/admin/eval/status/${jobId}`, {credentials: 'include'});
+      const d = await r.json();
+      const pct = Math.round((d.done / total) * 100);
+      statusText.textContent = `En cours : ${d.done}/${total} cas`;
+      progressBar.style.width = pct + '%';
+      if (d.status === 'done' || d.done >= total) {
+        clearInterval(interval);
+        statusText.textContent = `✅ Terminé — ${d.done} cas traités`;
+        btn.disabled = false;
+        loadEvalResults();
+      }
+    } catch(e) { clearInterval(interval); btn.disabled = false; }
+  }, 2000);
+}
+
+async function loadEvalResults() {
+  try {
+    const r = await fetch('/api/admin/eval/results', {credentials: 'include'});
+    if (!r.ok) { console.error('Eval results not available'); return; }
+    evalResults = await r.json();
+    // Charger feedbacks locaux
+    try {
+      const stored = localStorage.getItem('eval_feedbacks');
+      if (stored) evalFeedbacks = JSON.parse(stored);
+    } catch(e) {}
+    renderEvalResults(evalResults);
+    renderEvalRapport();
+    loadEvalBatches();
+  } catch(e) { console.error('Eval load error:', e); }
+}
+
+async function loadEvalBatches() {
+  try {
+    const r = await fetch('/api/admin/eval/batches', {credentials: 'include'});
+    if (!r.ok) return;
+    const batches = await r.json();
+    const card = document.getElementById('eval-batches-card');
+    if (!batches.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    document.getElementById('eval-batches-tbody').innerHTML = batches.map(b => `
+      <tr>
+        <td style="font-family:monospace;font-size:.75rem">${b.batch_id}</td>
+        <td>${b.case_count || '—'}</td>
+        <td style="color:var(--muted);font-size:.76rem">${(b.launched_at||'').split('T')[0]}</td>
+        <td><span style="font-weight:700;color:${b.status==='ended'?'var(--green)':'var(--amber)'}">${b.status}</span></td>
+        <td>
+          <button class="btn-sm" onclick="checkBatch('${b.batch_id}')">Statut</button>
+          ${b.status==='ended'?`<button class="btn-sm" onclick="getBatch('${b.batch_id}')">Récupérer</button>`:''}
+        </td>
+      </tr>`).join('');
+  } catch(e) {}
+}
+
+async function checkBatch(batchId) {
+  const r = await fetch(`/api/admin/eval/batch-status/${batchId}`, {credentials: 'include'});
+  const d = await r.json();
+  alert(`Batch ${batchId}\nStatut: ${d.status}\nSuccès: ${d.succeeded}\nErreurs: ${d.errored}`);
+  loadEvalBatches();
+}
+
+async function getBatch(batchId) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Récupération...';
+  await fetch(`/api/admin/eval/batch-get/${batchId}`, {credentials: 'include', method: 'POST'});
+  loadEvalResults();
+  btn.disabled = false; btn.textContent = 'Récupérer';
+}
+
+const FEEDBACK_LABELS = {bon:'👍 Bon', douteux:'🔆 Douteux', a_revoir:'💬 À revoir'};
+const FEEDBACK_COLORS = {bon:'var(--green)', douteux:'var(--amber)', a_revoir:'var(--indigo)'};
+
+function renderEvalResults(results) {
+  const filter = document.getElementById('eval-filter').value;
+  let filtered = results;
+  if (filter === 'erreur') filtered = results.filter(r => r.status === 'erreur');
+  else if (filter === 'sans_feedback') filtered = results.filter(r => !evalFeedbacks[r.id]);
+  else if (filter) filtered = results.filter(r => evalFeedbacks[r.id]?.feedback === filter);
+
+  document.getElementById('eval-count').textContent = `${filtered.length}/${results.length}`;
+  const tb = document.getElementById('eval-tbody');
+  if (!filtered.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">Aucun résultat</td></tr>'; return; }
+
+  const dimLabels = {administration:'Admin',achats_materiel:'Matériel',informatique:'Infra',
+    comptabilite:'Compta',charge_mentale:'Charge',financement:'Financement',developpement:'Dev'};
+
+  tb.innerHTML = filtered.map(r => {
+    const b = r.bilan || {};
+    const fb = evalFeedbacks[r.id];
+    const scoreColor = !b.score_global ? 'var(--muted)' :
+      b.score_global<=25 ? 'var(--red)' : b.score_global<=50 ? 'var(--amber)' :
+      b.score_global<=75 ? 'var(--indigo)' : 'var(--green)';
+    return `<tr style="${r.status==='erreur'?'opacity:.5':''}">
+      <td style="font-family:monospace;font-size:.75rem;color:var(--muted)">${r.id}</td>
+      <td style="font-size:.8rem">${r.specialite||'—'}</td>
+      <td style="font-size:.78rem;color:var(--muted)">${(r.ville||'—').split('(')[0].trim()}</td>
+      <td><span style="font-family:'Nunito',sans-serif;font-weight:900;color:${scoreColor}">${b.score_global||'❌'}</span></td>
+      <td style="font-size:.78rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.titre_personnalise||''}">
+        ${b.titre_personnalise||b.niveau||'—'}
+      </td>
+      <td>${fb ? `<span style="font-size:.76rem;font-weight:700;color:${FEEDBACK_COLORS[fb.feedback]}">${FEEDBACK_LABELS[fb.feedback]}</span>` : '<span style="color:var(--muted);font-size:.75rem">—</span>'}</td>
+      <td><button class="btn-sm" onclick="openEvalModal('${r.id}')">Voir</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterEvalResults() { renderEvalResults(evalResults); }
+
+function renderEvalRapport() {
+  if (!evalResults.length) return;
+  const card = document.getElementById('eval-rapport-card');
+  card.style.display = 'block';
+
+  const total = evalResults.filter(r => r.status === 'ok').length;
+  const withFeedback = Object.keys(evalFeedbacks).length;
+  const bons = Object.values(evalFeedbacks).filter(f => f.feedback === 'bon').length;
+  const douteux = Object.values(evalFeedbacks).filter(f => f.feedback === 'douteux').length;
+  const aRevoir = Object.values(evalFeedbacks).filter(f => f.feedback === 'a_revoir').length;
+  const pct = total > 0 ? Math.round((bons / total) * 100) : 0;
+
+  document.getElementById('eval-rapport-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem">
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Bilans générés</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--green)">${bons}</div><div class="stat-label">Bons</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--amber)">${douteux}</div><div class="stat-label">Douteux</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--indigo)">${aRevoir}</div><div class="stat-label">À revoir</div></div>
+    </div>
+    ${withFeedback < total ? `<p style="font-size:.82rem;color:var(--muted)">${total - withFeedback} cas sans feedback — clique sur "Voir" pour évaluer.</p>` : ''}
+    ${aRevoir > 0 ? `
+      <div class="section-title" style="margin-top:1rem">Notes à revoir</div>
+      ${Object.entries(evalFeedbacks).filter(([,f]) => f.feedback === 'a_revoir' && f.note).map(([id, f]) => `
+        <div style="background:#FEF3C7;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.8rem">
+          <span style="font-family:monospace;color:var(--muted);margin-right:.5rem">${id}</span>
+          <span>${f.note}</span>
+        </div>`).join('')}
+    ` : ''}`;
+}
+
+function openEvalModal(id) {
+  const r = evalResults.find(r => r.id === id);
+  if (!r) return;
+  currentEvalId = id;
+  currentEvalFeedback = evalFeedbacks[id]?.feedback || null;
+
+  const b = r.bilan || {};
+  document.getElementById('eval-modal-title').textContent = `${r.id} — ${r.label}`;
+  document.getElementById('eval-modal-sub').textContent = `${r.specialite} · ${r.ville}`;
+  document.getElementById('em-score').textContent = b.score_global || '—';
+  document.getElementById('em-titre').textContent = b.titre_personnalise || b.niveau || '—';
+  document.getElementById('em-insight').textContent = b.ce_que_vous_nignorez_probablement_pas || '';
+  document.getElementById('em-message').textContent = b.message_bilan || '—';
+
+  const tl = r.texte_libre || '';
+  const tlBlock = document.getElementById('em-texte-libre-block');
+  tlBlock.style.display = tl ? 'block' : 'none';
+  document.getElementById('em-texte-libre').textContent = tl;
+
+  const qw = (b.quick_wins || []).map((w, i) => `<div style="padding:.3rem 0;border-bottom:1px solid var(--border)">${i+1}. ${w}</div>`).join('');
+  document.getElementById('em-quickwins').innerHTML = qw || '—';
+
+  const dimColors = {0:'var(--red)',1:'var(--red)',2:'var(--red)',3:'var(--amber)',4:'var(--amber)',5:'var(--amber)',6:'var(--amber)',7:'var(--amber)',8:'var(--amber)',9:'var(--amber)',10:'var(--amber)',11:'var(--amber)',12:'var(--amber)',13:'var(--amber)',14:'var(--green)',15:'var(--green)',16:'var(--green)',17:'var(--green)',18:'var(--green)',19:'var(--green)',20:'var(--green)'};
+  const dimNames = {administration:'Admin',achats_materiel:'Matériel',informatique:'Infra',comptabilite:'Compta',charge_mentale:'Charge',financement:'Financement',developpement:'Dev'};
+  document.getElementById('em-dims').innerHTML = Object.entries(b.dimensions||{}).map(([k,d]) => `
+    <div style="background:var(--lavender);border-radius:8px;padding:.5rem .75rem">
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-weight:700">${dimNames[k]||k}</span>
+        <span style="font-weight:900;color:${dimColors[d.score]||'var(--muted)'}">${d.score}/20</span>
+      </div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem;line-height:1.4">${(d.commentaire||'').substring(0,100)}${(d.commentaire||'').length>100?'…':''}</div>
+    </div>`).join('');
+
+  // Restaurer feedback
+  const fb = evalFeedbacks[id];
+  document.querySelectorAll('.feedback-btn').forEach(btn => {
+    btn.style.borderColor = 'var(--border)';
+    btn.style.background = 'white';
+  });
+  if (fb) {
+    setEvalFeedbackUI(fb.feedback);
+    document.getElementById('em-note').value = fb.note || '';
+    if (fb.feedback !== 'bon') document.getElementById('em-note-block').style.display = 'block';
+  } else {
+    document.getElementById('em-note-block').style.display = 'none';
+    document.getElementById('em-note').value = '';
+  }
+
+  document.getElementById('eval-modal').classList.add('open');
+}
+
+function closeEvalModal() { document.getElementById('eval-modal').classList.remove('open'); }
+document.getElementById('eval-modal').addEventListener('click', function(e){ if(e.target===this) closeEvalModal(); });
+
+function setEvalFeedback(val) {
+  currentEvalFeedback = val;
+  setEvalFeedbackUI(val);
+  document.getElementById('em-note-block').style.display = val === 'bon' ? 'none' : 'block';
+}
+
+function setEvalFeedbackUI(val) {
+  const colors = {bon:'var(--green)',douteux:'var(--amber)',a_revoir:'var(--indigo)'};
+  document.querySelectorAll('.feedback-btn').forEach(btn => {
+    const isActive = btn.dataset.val === val;
+    btn.style.borderColor = isActive ? colors[val] : 'var(--border)';
+    btn.style.background = isActive ? (val==='bon'?'#F0FDF4':val==='douteux'?'#FFFBEB':'#EEF2FF') : 'white';
+  });
+}
+
+function saveEvalFeedback() {
+  if (!currentEvalId || !currentEvalFeedback) { alert('Choisis un feedback'); return; }
+  evalFeedbacks[currentEvalId] = {
+    feedback: currentEvalFeedback,
+    note: document.getElementById('em-note').value.trim()
+  };
+  try { localStorage.setItem('eval_feedbacks', JSON.stringify(evalFeedbacks)); } catch(e) {}
+  closeEvalModal();
+  renderEvalResults(evalResults);
+  renderEvalRapport();
+}
+
+
 checkAuth();
 </script>
 </body>
