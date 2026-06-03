@@ -2158,7 +2158,7 @@ function renderResult() {
       <div style="height:5px;background:rgba(0,0,0,.06);border-radius:999px;margin-bottom:.35rem">
         <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
       </div>
-      <p style="font-size:.7rem;color:#9CA3AF;line-height:1.4;margin:0">${(dim.commentaire||'').substring(0,90)}${(dim.commentaire||'').length>90?'…':''}</p>
+      <p style="font-size:.72rem;color:#6B7280;line-height:1.5;margin:0">${dim.commentaire||''}</p>
     </div>`;
   }).join('');
 
@@ -2169,29 +2169,30 @@ function renderResult() {
     </div>`).join('');
 
   card.innerHTML = `
-    <!-- HEADER COMPACT -->
-    <div style="background:#1A1060;padding:1.75rem 2.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;border:4px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
+    <!-- HEADER -->
+    <div style="background:#1A1060;padding:1.75rem 2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;border:3px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
         <div style="text-align:center">
-          <div style="font-family:'Nunito',sans-serif;font-size:2.2rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
-          <div style="font-size:.52rem;color:rgba(200,200,255,.45);letter-spacing:2px;font-weight:700">/100</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
+          <div style="font-size:.5rem;color:rgba(200,200,255,.45);letter-spacing:2px;font-weight:700">/100</div>
         </div>
       </div>
       <div style="flex:1;min-width:180px">
-        <div style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:white;margin-bottom:.4rem">${b.niveau}</div>
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <div style="font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:900;color:white;margin-bottom:.25rem">${b.titre_personnalise || b.niveau}</div>
+        ${b.titre_personnalise ? `<div style="font-size:.7rem;color:rgba(165,180,252,.7);margin-bottom:.4rem">${b.niveau}</div>` : ''}
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
           <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
-            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
-            <span style="font-size:.65rem;color:rgba(252,165,165,.65);margin-left:.25rem">/sem</span>
+            <span style="font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
+            <span style="font-size:.62rem;color:rgba(252,165,165,.65);margin-left:.25rem">/sem</span>
           </div>
           <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
-            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
-            <span style="font-size:.65rem;color:rgba(252,211,77,.65);margin-left:.25rem">/an</span>
+            <span style="font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
+            <span style="font-size:.62rem;color:rgba(252,211,77,.65);margin-left:.25rem">/an</span>
           </div>
         </div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;max-width:340px;border:1px solid rgba(255,255,255,.1);flex:1">
-        <svg width="72" height="90" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
+      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;border:1px solid rgba(255,255,255,.1);flex:1;min-width:220px;max-width:360px">
+        <svg width="60" height="75" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
           <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
           <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
           <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
@@ -2222,17 +2223,23 @@ function renderResult() {
           <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
           <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
         </svg>
-        <p style="font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.55;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,160)}…</p>
+        <p style="font-size:.76rem;color:rgba(255,255,255,.9);line-height:1.6;margin:0;font-weight:500">${b.message_bilan||''}</p>
       </div>
     </div>
 
-    ${b.alerte_urgente?`<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.65rem 2rem;display:flex;gap:.5rem;align-items:center">
+    ${b.ce_que_vous_nignorez_probablement_pas ? `
+    <div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:.85rem 1.5rem;display:flex;gap:.65rem;align-items:flex-start">
+      <span style="font-size:1rem;flex-shrink:0;margin-top:.1rem">💡</span>
+      <p style="font-size:.82rem;color:#78350F;line-height:1.55;margin:0;font-weight:600;font-style:italic">${b.ce_que_vous_nignorez_probablement_pas}</p>
+    </div>` : ''}
+
+    ${b.alerte_urgente ? `<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.65rem 1.5rem;display:flex;gap:.5rem;align-items:center">
       <span style="flex-shrink:0">⚠️</span>
-      <p style="font-size:.76rem;color:#991B1B;line-height:1.4;margin:0;font-weight:600">${b.alerte_urgente.substring(0,200)}…</p>
-    </div>`:''}
+      <p style="font-size:.76rem;color:#991B1B;line-height:1.4;margin:0;font-weight:600">${b.alerte_urgente}</p>
+    </div>` : ''}
 
     <!-- BODY -->
-    <div style="padding:1.5rem 2rem">
+    <div style="padding:1.25rem 1.5rem">
 
       <!-- RADAR + DIMENSIONS -->
       <div style="display:grid;grid-template-columns:260px 1fr;gap:1.5rem;margin-bottom:1.5rem;align-items:start">
