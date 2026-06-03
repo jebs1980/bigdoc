@@ -1761,6 +1761,7 @@ const BIGDOC_SPEECHES = {
   5: "Tout ce que vous gérez en dehors des soins a un coût en temps et en énergie. Estimons-le.",
   6: "Le financement d'un projet médical est un domaine à part. Voyons où vous en êtes.",
   7: "Le développement de votre cabinet mérite une vraie stratégie. Qu'avez-vous en tête ?",
+  8: "Dernière question — et la plus importante. C'est celle qui rendra votre diagnostic vraiment personnel.",
 };
 
 function bigdocMiniSVG(size = 36) {
@@ -1805,6 +1806,31 @@ function renderQuestion() {
   }
 
   const area = document.getElementById('question-area');
+
+  // Question de type texte libre
+  if (q.type === 'text') {
+    area.innerHTML = `
+      <div class="question-number">Question ${state.currentStep + 1}</div>
+      <div class="question-text" style="font-size:1.05rem;margin-bottom:1.25rem">${q.question}</div>
+      <textarea id="text-answer"
+        placeholder="${q.placeholder || 'Écrivez librement…'}"
+        style="width:100%;min-height:130px;padding:1rem;border:2px solid var(--border);border-radius:14px;
+               font-family:'Nunito Sans',sans-serif;font-size:.95rem;line-height:1.6;resize:vertical;
+               outline:none;transition:border .2s;box-sizing:border-box"
+        onfocus="this.style.borderColor='var(--indigo)'"
+        onblur="this.style.borderColor='var(--border)'"
+        oninput="state.reponses['${q.id}']=this.value"
+      >${state.reponses[q.id] || ''}</textarea>
+      <div style="font-size:.75rem;color:var(--muted);margin-top:.5rem;text-align:right" id="text-hint">
+        Optionnel — mais plus vous êtes précis, plus le diagnostic sera juste
+      </div>
+    `;
+    document.getElementById('btn-back').style.visibility = state.currentStep === 0 ? 'hidden' : 'visible';
+    document.getElementById('btn-next').disabled = false;
+    document.getElementById('btn-next').textContent = 'Obtenir mon diagnostic →';
+    return;
+  }
+
   area.innerHTML = `
     <div class="question-number">Question ${state.currentStep + 1}</div>
     <div class="question-text">${q.question}${q.type === 'multi_select' ? ' <span style="font-size:.65rem;font-weight:700;color:#6366F1;background:#EEF2FF;padding:.15rem .5rem;border-radius:999px;vertical-align:middle;letter-spacing:.5px">Plusieurs réponses possibles</span>' : ''}</div>
@@ -1990,13 +2016,17 @@ async function submitLead() {
 
   // Lancer le diagnostic IA
   try {
+    // Fusionner la question ouverte finale dans texte_libre
+    const preoccupation = (state.reponses['preoccupation'] || '').trim();
+    const texteLibreFinal = [state.texteLibre, preoccupation].filter(Boolean).join('\n\n');
+
     const r = await fetch('/api/diagnostic', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         session_id: state.sessionId,
         reponses: state.reponses,
-        texte_libre: state.texteLibre,
+        texte_libre: texteLibreFinal,
         turnstile_token: '',
         specialite: document.getElementById('lead-specialite').value,
         ville: document.getElementById('lead-ville').value,
