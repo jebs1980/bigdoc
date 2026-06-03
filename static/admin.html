@@ -4,169 +4,167 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Bigdoc Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root{--navy:#0B2545;--teal:#1A7A5E;--cream:#FAF3E0;--warm:#F4A261;--grey:#8A9BB0;--white:#fff;--red:#C0392B}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'DM Sans',sans-serif;background:#F0F2F5;color:var(--navy);min-height:100vh}
-    header{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
-    .logo{font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:#FAF3E0;flex-shrink:0}
-    .logo span{font-weight:700}
-    .badge{background:rgba(244,162,97,.2);color:var(--warm);font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;padding:.2rem .6rem;border-radius:4px;margin-left:.5rem}
-    nav{display:flex;gap:.25rem}
-    .nav-btn{padding:.5rem 1rem;border:none;background:transparent;color:rgba(250,243,224,.5);font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;border-radius:6px;transition:all .2s}
-    .nav-btn.active,.nav-btn:hover{background:rgba(255,255,255,.1);color:#FAF3E0}
-    .container{max-width:1100px;margin:0 auto;padding:2rem 1.5rem}
+    :root{--indigo:#4F46E5;--navy:#1A1060;--lavender:#F5F3FF;--indigo-light:#EEF2FF;--border:#E5E7EB;--text:#1A1060;--muted:#6B7280;--green:#10B981;--red:#EF4444;--amber:#F59E0B}
+    body{font-family:'Nunito Sans',sans-serif;background:#F5F3FF;color:var(--text);min-height:100vh}
+    /* ── HEADER ── */
+    header{background:var(--navy);padding:.9rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .logo{font-family:'Nunito',sans-serif;font-size:1.2rem;font-weight:900;color:white;letter-spacing:-1px}
+    .logo span{color:#A5B4FC}
+    .header-right{display:flex;align-items:center;gap:.75rem}
+    #admin-username{font-size:.78rem;font-weight:700;color:#A5B4FC}
+    .btn-logout{background:rgba(255,255,255,.1);color:white;border:none;border-radius:999px;padding:.4rem .9rem;font-family:'Nunito',sans-serif;font-size:.75rem;font-weight:700;cursor:pointer}
+    .btn-logout:hover{background:rgba(255,255,255,.2)}
+    /* ── NAV ── */
+    nav{background:white;border-bottom:1px solid var(--border);padding:0 1.25rem;display:flex;gap:.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .nav-btn{padding:.85rem 1rem;border:none;background:transparent;color:var(--muted);font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700;cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;transition:all .2s}
+    .nav-btn.active{color:var(--indigo);border-bottom-color:var(--indigo)}
+    .nav-btn:hover{color:var(--indigo)}
+    /* ── CONTAINER ── */
+    .container{max-width:1100px;margin:0 auto;padding:1.25rem}
     .tab{display:none}.tab.active{display:block}
-    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
-    .stat-card{background:var(--white);border-radius:12px;padding:1.25rem;box-shadow:0 2px 12px rgba(11,37,69,.06)}
-    .stat-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:var(--navy)}
-    .stat-label{font-size:.72rem;color:var(--grey);margin-top:.25rem}
-    .section{background:var(--white);border-radius:12px;box-shadow:0 2px 12px rgba(11,37,69,.06);overflow:hidden;margin-bottom:1.5rem}
-    .section-header{padding:1.25rem 1.5rem;border-bottom:1px solid #F0F2F5;display:flex;align-items:center;justify-content:space-between}
-    .section-title{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600}
-    table{width:100%;border-collapse:collapse}
-    th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--grey);font-weight:400;padding:.75rem 1.5rem;text-align:left;border-bottom:1px solid #F0F2F5;white-space:nowrap}
-    td{padding:.85rem 1.5rem;font-size:.85rem;border-bottom:1px solid #F8F9FA;vertical-align:middle}
-    tr:hover td{background:#FAFBFC}
-    .score-badge{display:inline-block;padding:.2rem .6rem;border-radius:6px;font-size:.75rem;font-weight:500}
-    .score-red{background:rgba(192,57,43,.1);color:var(--red)}
-    .score-orange{background:rgba(230,126,34,.1);color:#E67E22}
-    .score-yellow{background:rgba(244,162,97,.15);color:#C77B30}
-    .score-green{background:rgba(26,122,94,.1);color:var(--teal)}
-    .phase-badge{font-size:.7rem;padding:.15rem .5rem;border-radius:4px;background:#F0F2F5;color:var(--grey)}
-    .btn-sm{padding:.3rem .75rem;border-radius:6px;font-size:.75rem;border:1px solid #E8EBF0;background:white;cursor:pointer;color:var(--navy);transition:all .15s;text-decoration:none;display:inline-block}
-    .btn-sm:hover{border-color:var(--teal);color:var(--teal)}
-    .btn-primary{padding:.6rem 1.25rem;background:var(--teal);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s}
-    .btn-primary:hover{background:#22A37D}
-    .empty{text-align:center;padding:3rem;color:var(--grey);font-size:.9rem}
-    .filter-bar{padding:.75rem 1.5rem;border-bottom:1px solid #F0F2F5;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
-    input[type=text],input[type=email],input[type=url],input[type=number],select{padding:.5rem .85rem;border:1px solid #E8EBF0;border-radius:6px;font-size:.85rem;font-family:'DM Sans',sans-serif;color:var(--navy)}
-    input:focus,select:focus{outline:none;border-color:var(--teal)}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;padding:1.5rem}
-    .form-group{display:flex;flex-direction:column;gap:.35rem}
-    .form-group label{font-size:.75rem;color:var(--grey);font-weight:400}
-    .form-group input,.form-group select{width:100%}
-    .form-group.full{grid-column:1/-1}
-    .form-section-title{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);padding:1.25rem 1.5rem .5rem;font-weight:500}
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(11,37,69,.5);z-index:100;align-items:center;justify-content:center;padding:1rem}
-    .modal-overlay.open{display:flex}
-    .modal{background:white;border-radius:16px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;padding:2rem}
-    .close-btn{float:right;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--grey)}
-    .stripe-stat{background:linear-gradient(135deg,#635BFF10,#635BFF05);border:1px solid #635BFF30;border-radius:12px;padding:1.25rem}
-    .stripe-num{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#635BFF}
-    .tag-live{background:rgba(26,122,94,.1);color:var(--teal);font-size:.62rem;padding:.15rem .5rem;border-radius:4px;letter-spacing:.06em;text-transform:uppercase}
-    .tag-test{background:rgba(244,162,97,.15);color:#C77B30;font-size:.62rem;padding:.15rem .5rem;border-radius:4px;letter-spacing:.06em;text-transform:uppercase}
-    .save-bar{position:sticky;bottom:0;background:white;border-top:1px solid #F0F2F5;padding:1rem 1.5rem;display:flex;justify-content:flex-end;gap:.75rem}
-    @media(max-width:700px){.stats-grid{grid-template-columns:1fr 1fr}.container{padding:1rem}.form-grid{grid-template-columns:1fr}}
+    /* ── CARDS ── */
+    .card{background:white;border-radius:16px;box-shadow:0 2px 12px rgba(79,70,229,.06);overflow:hidden;margin-bottom:1.25rem}
+    .card-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem}
+    .card-title{font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;color:var(--navy)}
+    .card-body{padding:1.25rem}
+    /* ── STATS GRID ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem;margin-bottom:1.25rem}
+    @media(min-width:600px){.stats-grid{grid-template-columns:repeat(4,1fr)}}
+    .stat-card{background:white;border-radius:14px;padding:1rem;box-shadow:0 2px 12px rgba(79,70,229,.06)}
+    .stat-num{font-family:'Nunito',sans-serif;font-size:1.6rem;font-weight:900;color:var(--indigo)}
+    .stat-label{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.15rem}
+    /* ── TABLE ── */
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    table{width:100%;border-collapse:collapse;min-width:600px}
+    th{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;padding:.75rem 1rem;text-align:left;border-bottom:2px solid var(--border);white-space:nowrap;background:#FAFAFA}
+    td{padding:.8rem 1rem;font-size:.82rem;border-bottom:1px solid var(--border);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#FAFAFE}
+    .empty{text-align:center;color:var(--muted);padding:2rem;font-size:.85rem}
+    /* ── BADGES ── */
+    .score-badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:800}
+    .score-red{background:#FEF2F2;color:#DC2626}
+    .score-orange{background:#FFF7ED;color:#EA580C}
+    .score-yellow{background:#FEFCE8;color:#CA8A04}
+    .score-green{background:#F0FDF4;color:#16A34A}
+    .tag{display:inline-block;padding:.2rem .55rem;border-radius:6px;font-size:.68rem;font-weight:700;background:var(--indigo-light);color:var(--indigo)}
+    .tag-live{background:#F0FDF4;color:#16A34A;padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:800}
+    .tag-test{background:#FFF7ED;color:#EA580C;padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:800}
+    /* ── BOUTONS ── */
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.1rem;border-radius:999px;border:none;font-family:'Nunito',sans-serif;font-size:.8rem;font-weight:800;cursor:pointer;transition:all .2s}
+    .btn-primary{background:var(--indigo);color:white}.btn-primary:hover{background:#4338CA}
+    .btn-outline{background:white;color:var(--indigo);border:2px solid rgba(99,102,241,.25)}.btn-outline:hover{border-color:var(--indigo)}
+    .btn-sm{padding:.3rem .7rem;font-size:.72rem;border-radius:8px;border:1px solid var(--border);background:white;color:var(--navy);cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700}
+    .btn-sm:hover{background:var(--indigo-light);border-color:var(--indigo);color:var(--indigo)}
+    .btn-danger{border-color:#FECACA;color:var(--red)}.btn-danger:hover{background:#FEF2F2}
+    /* ── FILTERS ── */
+    .filters{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+    .filters input,.filters select{padding:.5rem .85rem;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:.82rem;color:var(--navy);outline:none;background:white}
+    .filters input:focus,.filters select:focus{border-color:var(--indigo)}
+    .filters input{min-width:180px}
+    /* ── FORM ── */
+    .form-grid{display:grid;grid-template-columns:1fr;gap:1rem}
+    @media(min-width:600px){.form-grid-2{grid-template-columns:1fr 1fr}}
+    .input-group{display:flex;flex-direction:column;gap:.35rem}
+    .input-group label{font-size:.78rem;font-weight:700;color:var(--navy)}
+    .input-group input,.input-group select,.input-group textarea{padding:.75rem .9rem;border:2px solid var(--border);border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:.85rem;color:var(--navy);outline:none;transition:border .2s}
+    .input-group input:focus,.input-group select:focus,.input-group textarea:focus{border-color:var(--indigo)}
+    .input-hint{font-size:.72rem;color:var(--muted)}
+    /* ── MODAL ── */
+    .modal{display:none;position:fixed;inset:0;background:rgba(26,16,96,.45);z-index:200;align-items:center;justify-content:center;padding:1rem}
+    .modal.open{display:flex}
+    .modal-box{background:white;border-radius:20px;padding:1.75rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+    .modal-title{font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:800;color:var(--navy);margin-bottom:1.25rem}
+    .modal-actions{display:flex;gap:.75rem;margin-top:1.5rem;justify-content:flex-end}
+    /* ── DETAIL MODAL ── */
+    .detail-kpi{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem}
+    .detail-kpi-card{background:var(--lavender);border-radius:12px;padding:.85rem 1rem}
+    .detail-kpi-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:.25rem}
+    .detail-kpi-val{font-family:'Nunito',sans-serif;font-size:1.4rem;font-weight:900;color:var(--indigo)}
+    /* ── SECTION TITLE ── */
+    .section-title{font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+    /* ── STRIPE STATUS ── */
+    .stripe-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+    @media(min-width:600px){.stripe-grid{grid-template-columns:repeat(3,1fr)}}
+    .stripe-card{background:var(--lavender);border-radius:12px;padding:.85rem 1rem}
+    .stripe-val{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:var(--indigo)}
+    .stripe-label{font-size:.72rem;color:var(--muted);font-weight:600;margin-top:.15rem}
+    /* ── LEAD PANEL ── */
+    .lead-panel{position:fixed;top:0;right:-100%;width:min(520px,100vw);height:100vh;background:white;box-shadow:-8px 0 40px rgba(26,16,96,.15);z-index:500;transition:right .3s ease;display:flex;flex-direction:column;overflow:hidden}
+    .lead-panel.open{right:0}
+    .lead-panel-header{padding:1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:var(--navy)}
+    .lead-panel-title{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:800;color:white}
+    .lead-panel-sub{font-size:.75rem;color:#A5B4FC;margin-top:.1rem}
+    .lead-panel-body{flex:1;overflow-y:auto;padding:1.25rem}
+    .lead-panel-close{background:rgba(255,255,255,.1);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center}
+    .panel-section{margin-bottom:1.5rem}
+    .panel-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border)}
+    .status-select{padding:.55rem .85rem;border:2px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:.85rem;font-weight:700;color:var(--navy);outline:none;background:white;width:100%;transition:border .2s}
+    .status-select:focus{border-color:var(--indigo)}
+    .timeline{display:flex;flex-direction:column;gap:.6rem}
+    .tl-item{display:flex;gap:.75rem;align-items:flex-start}
+    .tl-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:.35rem}
+    .tl-dot-note{background:var(--indigo)}
+    .tl-dot-status{background:var(--amber)}
+    .tl-dot-diag{background:var(--green)}
+    .tl-content{flex:1;font-size:.82rem;line-height:1.45}
+    .tl-date{font-size:.7rem;color:var(--muted);margin-top:.1rem}
+    .tl-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.75rem;padding:.1rem .3rem;border-radius:4px}
+    .tl-delete:hover{color:var(--red);background:#FEF2F2}
+    .note-input{width:100%;padding:.75rem;border:2px solid var(--border);border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:.85rem;resize:vertical;min-height:70px;outline:none;transition:border .2s}
+    .note-input:focus{border-color:var(--indigo)}
+    .diag-card{background:var(--lavender);border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem}
+    .diag-card-score{font-family:'Nunito',sans-serif;font-size:1.3rem;font-weight:900;color:var(--indigo)}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:499;display:none}
+    .overlay.open{display:block}
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">big<span>doc</span> <span class="badge">Admin</span></div>
-  <nav>
-    <button class="nav-btn active" onclick="showTab('dashboard')">Dashboard</button>
-    <button class="nav-btn" onclick="showTab('leads')">Leads</button>
-    <button class="nav-btn" onclick="showTab('catalogue')">Catalogue</button>
-    <button class="nav-btn" onclick="showTab('stripe')">Paiements</button>
-    <button class="nav-btn" onclick="showTab('settings')">Paramètres</button>
-  </nav>
-  <div style="font-size:.72rem;color:rgba(250,243,224,.35)" id="last-refresh"></div>
+  <div class="logo">big<span>doc</span> <span style="font-size:.65rem;font-weight:700;background:rgba(165,180,252,.15);color:#A5B4FC;padding:.15rem .5rem;border-radius:6px;letter-spacing:.05em">ADMIN</span></div>
+  <div class="header-right">
+    <span id="admin-username"></span>
+    <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
+  </div>
 </header>
 
-<!-- LOGIN -->
-<div id="login-screen" style="display:none;max-width:360px;margin:4rem auto;background:white;border-radius:14px;padding:2rem;box-shadow:0 4px 30px rgba(11,37,69,.1)">
-  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.5rem;text-align:center">Accès administrateur</h2>
-  <div style="margin-bottom:1rem">
-    <label style="font-size:.8rem;color:var(--grey);display:block;margin-bottom:.3rem">Identifiant</label>
-    <input id="login-user" type="text" placeholder="admin" style="width:100%;padding:.75rem 1rem"/>
-  </div>
-  <div style="margin-bottom:1.5rem">
-    <label style="font-size:.8rem;color:var(--grey);display:block;margin-bottom:.3rem">Mot de passe</label>
-    <input id="login-pass" type="password" placeholder="••••••••" style="width:100%;padding:.75rem 1rem" onkeydown="if(event.key==='Enter')doLogin()"/>
-  </div>
-  <button onclick="doLogin()" class="btn-primary" style="width:100%;padding:.85rem">Connexion</button>
-  <div id="login-error" style="color:var(--red);font-size:.8rem;text-align:center;margin-top:.75rem;display:none">Identifiants incorrects</div>
-</div>
+<nav>
+  <button class="nav-btn active" onclick="showTab('leads',this)">👥 Leads</button>
+  <button class="nav-btn" onclick="showTab('stats',this)">📊 Stats</button>
+  <button class="nav-btn" onclick="showTab('devis',this)">📄 Devis</button>
+  <button class="nav-btn" onclick="showTab('catalogue',this)">🛍 Produits</button>
+  <button class="nav-btn" onclick="showTab('eval',this)">🔬 Eval</button>
+  <button class="nav-btn" onclick="showTab('settings',this)">⚙️ Paramètres</button>
+</nav>
 
-<div id="main-content" style="display:none">
 <div class="container">
 
-  <!-- ══ DASHBOARD ══ -->
-  <div id="tab-dashboard" class="tab active">
-
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-num" id="s-total">—</div><div class="stat-label">Diagnostics total</div></div>
-      <div class="stat-card"><div class="stat-num" id="s-score">—</div><div class="stat-label">Score moyen /100</div></div>
-      <div class="stat-card"><div class="stat-num" id="s-hours">—</div><div class="stat-label">Heures perdues moy.</div></div>
-      <div class="stat-card"><div class="stat-num" id="s-euros">—</div><div class="stat-label">€ évitables moy./an</div></div>
-    </div>
-
-    <!-- CA Stripe -->
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Chiffre d'affaires <span id="stripe-mode-badge"></span></div>
-        <button class="btn-sm" onclick="loadStripeStats()">↻ Actualiser</button>
+  <!-- ── LEADS ── -->
+  <div class="tab active" id="tab-leads">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Diagnostics & Leads</span>
+        <div class="filters">
+          <input type="text" id="search" placeholder="Rechercher…" oninput="filterTable()">
+          <select id="filter-score" onchange="filterTable()">
+            <option value="">Tous les scores</option>
+            <option value="urgent">🔴 Urgent (0-25)</option>
+            <option value="fragile">🟠 Fragile (26-50)</option>
+            <option value="passable">🟡 Passable (51-75)</option>
+            <option value="ok">🟢 OK (76+)</option>
+          </select>
+          <button class="btn btn-outline" onclick="exportCSV()">⬇ CSV</button>
+        </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;padding:1.5rem" id="stripe-stats">
-        <div class="stripe-stat"><div class="stripe-num" id="ca-mois">—</div><div style="font-size:.72rem;color:var(--grey);margin-top:.25rem">CA ce mois</div></div>
-        <div class="stripe-stat"><div class="stripe-num" id="ca-total">—</div><div style="font-size:.72rem;color:var(--grey);margin-top:.25rem">CA total</div></div>
-        <div class="stripe-stat"><div class="stripe-num" id="abonnes">—</div><div style="font-size:.72rem;color:var(--grey);margin-top:.25rem">Abonnés actifs</div></div>
-      </div>
-      <div style="padding:0 1.5rem 1.25rem;font-size:.75rem;color:var(--grey)">
-        Données en temps réel depuis Stripe · 
-        <a href="https://dashboard.stripe.com" target="_blank" style="color:var(--teal)">Ouvrir Stripe Dashboard →</a>
-      </div>
-    </div>
-
-    <!-- Derniers leads -->
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Derniers diagnostics</div>
-        <button class="btn-sm" onclick="showTab('leads')">Voir tous →</button>
-      </div>
-      <div style="overflow-x:auto">
+      <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Date</th><th>Email</th><th>Spécialité</th><th>Ville</th><th>Score</th><th>Palier</th>
-          </tr></thead>
-          <tbody id="recent-tbody"><tr><td colspan="6" class="empty">Chargement…</td></tr></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ LEADS ══ -->
-  <div id="tab-leads" class="tab">
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Diagnostics & Leads</div>
-        <button onclick="loadLeads()" class="btn-sm">↻ Actualiser</button>
-      </div>
-      <div class="filter-bar">
-        <input type="text" id="search" placeholder="Email, prénom, ville…" oninput="filterTable()" style="width:220px"/>
-        <select id="filter-phase" onchange="filterTable()">
-          <option value="">Toutes phases</option>
-          <option value="installation">Installation</option>
-          <option value="consolidation">Consolidation</option>
-          <option value="croissance">Croissance</option>
-          <option value="transmission">Transmission</option>
-        </select>
-        <select id="filter-score" onchange="filterTable()">
-          <option value="">Tous scores</option>
-          <option value="urgent">0-25 Urgent</option>
-          <option value="fragile">26-50 Fragile</option>
-          <option value="passable">51-75 Passable</option>
-          <option value="ok">76-100 OK</option>
-        </select>
-        <button class="btn-sm" onclick="exportCSV()">⬇ CSV</button>
-      </div>
-      <div style="overflow-x:auto">
-        <table>
-          <thead><tr>
-            <th>Date</th><th>Email</th><th>Prénom</th><th>Spécialité</th><th>Ville</th>
-            <th>Phase</th><th>Score</th><th>Heures</th><th>€/an</th><th>Palier</th><th></th>
+            <th>Date</th><th>Email</th><th>Prénom</th><th>Nom</th><th>Spécialité</th><th>Ville</th>
+            <th>Score</th><th>Statut</th><th></th>
           </tr></thead>
           <tbody id="leads-tbody"><tr><td colspan="11" class="empty">Chargement…</td></tr></tbody>
         </table>
@@ -174,191 +172,510 @@
     </div>
   </div>
 
-  <!-- ══ CATALOGUE ══ -->
-  <div id="tab-catalogue" class="tab">
-    <div class="section">
-      <div class="section-header">
-        <div class="section-title">Catalogue des services</div>
-        <button class="btn-primary" onclick="openProductModal()">+ Nouveau service</button>
+  <!-- ── STATS ── -->
+  <div class="tab" id="tab-stats">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="s-total">—</div>
+        <div class="stat-label">Diagnostics</div>
       </div>
-      <div style="overflow-x:auto">
+      <div class="stat-card">
+        <div class="stat-num" id="s-score">—</div>
+        <div class="stat-label">Score moyen /100</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="s-hours">—</div>
+        <div class="stat-label">Heures perdues/sem</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="s-euros">—</div>
+        <div class="stat-label">€ évitables/an moy.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Stripe</span>
+        <span id="stripe-mode-badge"></span>
+      </div>
+      <div class="card-body">
+        <div class="stripe-grid">
+          <div class="stripe-card">
+            <div class="stripe-val" id="ca-mois">—</div>
+            <div class="stripe-label">CA ce mois</div>
+          </div>
+          <div class="stripe-card">
+            <div class="stripe-val" id="ca-total">—</div>
+            <div class="stripe-label">CA total</div>
+          </div>
+          <div class="stripe-card">
+            <div class="stripe-val" id="abonnes">—</div>
+            <div class="stripe-label">Abonnés actifs</div>
+          </div>
+          <div class="stripe-card">
+            <div class="stripe-val" id="p-mois">—</div>
+            <div class="stripe-label">Transactions/mois</div>
+          </div>
+          <div class="stripe-card">
+            <div class="stripe-val" id="p-abonnes">—</div>
+            <div class="stripe-label">Abonnés</div>
+          </div>
+          <div class="stripe-card">
+            <div class="stripe-val" id="p-ca">—</div>
+            <div class="stripe-label">Revenu total</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DEVIS ── -->
+  <div class="tab" id="tab-devis">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Devis Stripe</span>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-outline" onclick="openInvoiceModal()">⚡ Facture directe</button>
+          <button class="btn btn-primary" onclick="openQuoteModal()">+ Nouveau devis</button>
+        </div>
+      </div>
+      <div class="table-wrap">
         <table>
           <thead><tr>
-            <th>Ordre</th><th>Nom</th><th>Description</th><th>Prix</th><th>Type</th><th>Bouton bilan</th><th>Stripe Price ID</th><th>Statut</th><th></th>
+            <th>Date</th><th>Client</th><th>Email</th><th>Prestation</th><th>Montant HT</th><th>Statut</th><th></th>
           </tr></thead>
-          <tbody id="products-tbody"><tr><td colspan="9" class="empty">Chargement…</td></tr></tbody>
+          <tbody id="quotes-tbody"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- ══ PAIEMENTS ══ -->
-  <div id="tab-stripe" class="tab">
-    <div class="section">
-      <div class="section-header"><div class="section-title">Paiements Stripe</div></div>
-      <div style="padding:2rem;text-align:center">
-        <p style="color:var(--grey);font-size:.9rem;margin-bottom:1.25rem">
-          Le détail des transactions, remboursements et abonnements est géré directement dans Stripe.
-        </p>
-        <a href="https://dashboard.stripe.com/payments" target="_blank" class="btn-primary" style="text-decoration:none;display:inline-block">
-          Ouvrir Stripe Dashboard →
-        </a>
-        <div style="margin-top:2rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem" id="stripe-payments">
-          <div class="stat-card"><div class="stat-num" id="p-mois">—</div><div class="stat-label">Transactions ce mois</div></div>
-          <div class="stat-card"><div class="stat-num" id="p-abonnes">—</div><div class="stat-label">Abonnés actifs</div></div>
-          <div class="stat-card"><div class="stat-num" id="p-ca">—</div><div class="stat-label">CA total</div></div>
+
+  <!-- ── EVAL ── -->
+  <div class="tab" id="tab-eval">
+    <div class="card" style="margin-bottom:1.25rem">
+      <div class="card-header">
+        <span class="card-title">🔬 Évaluation du prompt</span>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+          <input type="text" id="eval-case-ids" placeholder="TC001 TC006 TC028… (vide = tous)" style="flex:1;min-width:200px;padding:.5rem .85rem;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito Sans',sans-serif;font-size:.82rem">
+          <button class="btn btn-outline" onclick="runEval('normal')">▶ Lancer</button>
+          <button class="btn btn-outline" onclick="runEval('batch')">🚀 Batch API</button>
+          <button class="btn btn-primary" onclick="loadEvalResults()">↻ Actualiser</button>
+          <button class="btn btn-outline" id="eval-save-feedbacks-btn" onclick="saveEvalFeedbacksToServer()">💾 Sauvegarder feedbacks</button>
+          <a href="/api/admin/eval/export-word" class="btn btn-outline" target="_blank">📄 Exporter Word</a>
         </div>
+      </div>
+      <div id="eval-run-status" style="display:none;padding:.85rem 1.25rem;border-top:1px solid var(--border)">
+        <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:.5rem" id="eval-status-text">En cours...</div>
+        <div style="height:6px;background:var(--border);border-radius:999px;overflow:hidden">
+          <div id="eval-progress-bar" style="height:100%;background:var(--indigo);border-radius:999px;width:0%;transition:width .3s"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="eval-batches-card" style="display:none;margin-bottom:1.25rem">
+      <div class="card-header"><span class="card-title">Batches Anthropic</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>ID</th><th>Cas</th><th>Lancé</th><th>Statut</th><th></th></tr></thead>
+          <tbody id="eval-batches-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" id="eval-rapport-card" style="display:none;margin-bottom:1.25rem">
+      <div class="card-header"><span class="card-title">Rapport agrégé</span></div>
+      <div class="card-body" id="eval-rapport-body"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Bilans générés</span>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <select id="eval-filter" onchange="filterEvalResults()" style="padding:.4rem .75rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito Sans',sans-serif">
+            <option value="">Tous</option>
+            <option value="bon">👍 Bon</option>
+            <option value="douteux">🔆 Douteux</option>
+            <option value="a_revoir">💬 À revoir</option>
+            <option value="sans_feedback">Sans feedback</option>
+            <option value="erreur">❌ Erreur</option>
+          </select>
+          <span id="eval-count" style="font-size:.78rem;color:var(--muted)"></span>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Spécialité</th><th>Ville</th><th>Score</th>
+            <th>Titre</th><th>Feedback</th><th></th>
+          </tr></thead>
+          <tbody id="eval-tbody"><tr><td colspan="7" class="empty">Lance un eval pour voir les résultats</td></tr></tbody>
+        </table>
       </div>
     </div>
   </div>
 
-  <!-- ══ PARAMÈTRES ══ -->
-  <div id="tab-settings" class="tab">
 
-    <!-- Stripe -->
-    <div class="section">
-      <div class="form-section-title">Stripe — Paiements</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Mode</label>
-          <select id="s-mode">
-            <option value="test">Test (développement)</option>
-            <option value="live">Live (production)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Clé publique (pk_...)</label>
-          <input type="text" id="s-pk" placeholder="pk_test_..." />
-        </div>
-        <div class="form-group full">
-          <label>Clé secrète — stockée côté serveur uniquement (sk_...)</label>
-          <input type="text" id="s-sk" placeholder="sk_test_... (ne jamais partager)" />
-        </div>
+  <div class="tab" id="tab-catalogue">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Produits & Services</span>
+        <button class="btn btn-primary" onclick="openProductModal()">+ Nouveau</button>
       </div>
-      <div class="form-section-title" style="margin-top:.5rem">Prix des services</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Plan d'action (€)</label>
-          <input type="number" id="p-plan-action" placeholder="35" />
-        </div>
-        <div class="form-group">
-          <label>Audit express (€)</label>
-          <input type="number" id="p-audit" placeholder="39" />
-        </div>
-        <div class="form-group">
-          <label>Prestation ponctuelle (€)</label>
-          <input type="number" id="p-prestation" placeholder="250" />
-        </div>
-        <div class="form-group">
-          <label>Business plan (€)</label>
-          <input type="number" id="p-bizplan" placeholder="250" />
-        </div>
-        <div class="form-group">
-          <label>Abonnement Sérénité (€/mois)</label>
-          <input type="number" id="p-serenite" placeholder="90" />
-        </div>
-        <div class="form-group">
-          <label>Abonnement Confort (€/mois)</label>
-          <input type="number" id="p-confort" placeholder="250" />
-        </div>
-        <div class="form-group">
-          <label>Abonnement Cabinet libéré (€/mois)</label>
-          <input type="number" id="p-libere" placeholder="590" />
-        </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>Nom</th><th>Prix</th><th>Type</th><th>Stripe ID</th><th>Statut</th><th></th>
+          </tr></thead>
+          <tbody id="products-tbody"><tr><td colspan="7" class="empty">Chargement…</td></tr></tbody>
+        </table>
       </div>
     </div>
+  </div>
 
-    <!-- Contact & RDV -->
-    <div class="section">
-      <div class="form-section-title">Prise de rendez-vous</div>
-      <div class="form-grid">
-        <div class="form-group full">
-          <label>URL Calendly (ou autre outil de prise de RDV)</label>
-          <input type="url" id="s-calendly" placeholder="https://calendly.com/ton-lien" />
-        </div>
-        <div class="form-group">
-          <label>Email de contact affiché dans le bilan</label>
-          <input type="email" id="s-email-contact" placeholder="bonjour@bigdoc.fr" />
-        </div>
-        <div class="form-group">
-          <label>Téléphone affiché dans le bilan</label>
-          <input type="text" id="s-tel" placeholder="+33 6 XX XX XX XX" />
+  <!-- ── SETTINGS ── -->
+  <div class="tab" id="tab-settings">
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Paramètres</span>
+        <div style="display:flex;align-items:center;gap:1rem">
+          <span id="save-status"></span>
+          <button class="btn btn-primary" onclick="saveSettings()">Enregistrer</button>
         </div>
       </div>
-    </div>
+      <div class="card-body">
 
-    <!-- Seuils d'aiguillage -->
-    <div class="section">
-      <div class="form-section-title">Seuils d'aiguillage — bouton bilan</div>
-      <div class="form-grid">
-        <div class="form-group full" style="padding:0 0 .5rem">
-          <label style="color:var(--navy);font-size:.82rem">
-            En dessous de ce score → bouton "Prendre RDV" (pas de paiement direct)
-          </label>
-          <div style="display:flex;align-items:center;gap:1rem;margin-top:.5rem">
-            <input type="number" id="s-seuil-rdv" placeholder="50" style="width:100px" />
-            <span style="font-size:.82rem;color:var(--grey)">
-              Au-dessus → bouton "Payer maintenant" pour les petits tickets
-            </span>
+        <div class="section-title">Stripe</div>
+        <div class="form-grid form-grid-2" style="margin-bottom:1.5rem">
+          <div class="input-group">
+            <label>Mode</label>
+            <select id="s-mode">
+              <option value="test">Test</option>
+              <option value="live">Live</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Clé publique (pk_)</label>
+            <input type="text" id="s-pk" placeholder="pk_test_…">
+          </div>
+          <div class="input-group" style="grid-column:1/-1">
+            <label>Clé secrète (sk_)</label>
+            <input type="password" id="s-sk" placeholder="sk_test_…">
+          </div>
+          <div class="input-group" style="grid-column:1/-1">
+            <label>Webhook Secret (whsec_)</label>
+            <input type="password" id="s-webhook" placeholder="whsec_…">
+            <span class="input-hint">Stripe → Développeurs → Webhooks → ton endpoint</span>
           </div>
         </div>
+
+        <div class="section-title">Contact & RDV</div>
+        <div class="form-grid form-grid-2" style="margin-bottom:1.5rem">
+          <div class="input-group" style="grid-column:1/-1">
+            <label>URL Calendly</label>
+            <input type="text" id="s-calendly" placeholder="https://calendly.com/…">
+          </div>
+          <div class="input-group">
+            <label>Email contact</label>
+            <input type="email" id="s-email-contact" placeholder="bonjour@bigdoc.fr">
+          </div>
+          <div class="input-group">
+            <label>Téléphone</label>
+            <input type="text" id="s-tel" placeholder="+33 6 …">
+          </div>
+          <div class="input-group">
+            <label>Seuil score → RDV suggéré</label>
+            <input type="number" id="s-seuil-rdv" placeholder="50">
+            <span class="input-hint">En dessous de ce score, le RDV est mis en avant</span>
+          </div>
+        </div>
+
       </div>
     </div>
-
-    <div class="save-bar">
-      <span id="save-status" style="font-size:.8rem;color:var(--teal);align-self:center"></span>
-      <button class="btn-sm" onclick="loadSettings()">Annuler</button>
-      <button class="btn-primary" onclick="saveSettings()">Sauvegarder</button>
-    </div>
-
   </div>
 
 </div>
+
+<!-- ── OVERLAY ── -->
+<div class="overlay" id="panel-overlay" onclick="closeLeadPanel()"></div>
+
+<!-- ── LEAD PANEL ── -->
+<div class="lead-panel" id="lead-panel">
+  <div class="lead-panel-header">
+    <div>
+      <div class="lead-panel-title" id="panel-name">—</div>
+      <div class="lead-panel-sub" id="panel-sub">—</div>
+    </div>
+    <button class="lead-panel-close" onclick="closeLeadPanel()">✕</button>
+  </div>
+  <div class="lead-panel-body">
+
+    <!-- Statut -->
+    <div class="panel-section">
+      <div class="panel-section-title">Statut</div>
+      <select class="status-select" id="panel-status" onchange="updateLeadStatus()">
+        <option value="lead">🔵 Lead</option>
+        <option value="rdv">📅 RDV planifié</option>
+        <option value="devis_envoye">📄 Devis envoyé</option>
+        <option value="devis_accepte">✅ Devis accepté</option>
+        <option value="en_cours">⚙️ En cours</option>
+        <option value="livre">🎉 Livré</option>
+        <option value="cloture">🔒 Clôturé</option>
+        <option value="perdu">❌ Perdu</option>
+      </select>
+    </div>
+
+    <!-- Infos -->
+    <div class="panel-section">
+      <div class="panel-section-title">Infos</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem">
+        <div class="input-group"><label>Prénom</label><input type="text" id="panel-prenom" onchange="updateLeadInfo()"></div>
+        <div class="input-group"><label>Nom</label><input type="text" id="panel-nom" onchange="updateLeadInfo()"></div>
+        <div class="input-group"><label>Spécialité</label><input type="text" id="panel-specialite" onchange="updateLeadInfo()"></div>
+        <div class="input-group"><label>Ville</label><input type="text" id="panel-ville" onchange="updateLeadInfo()"></div>
+      </div>
+      <div class="input-group"><label>N° RPPS</label><input type="text" id="panel-rpps" placeholder="10 chiffres" onchange="updateLeadInfo()"></div>
+    </div>
+
+    <!-- Diagnostics -->
+    <div class="panel-section">
+      <div class="panel-section-title">Diagnostics</div>
+      <div id="panel-diagnostics"><span style="color:var(--muted);font-size:.82rem">Aucun diagnostic</span></div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="panel-section">
+      <div class="panel-section-title">Historique</div>
+      <div class="timeline" id="panel-timeline"></div>
+    </div>
+
+    <!-- Ajouter note -->
+    <div class="panel-section">
+      <div class="panel-section-title">Ajouter une note</div>
+      <textarea class="note-input" id="panel-note-input" placeholder="Compte-rendu RDV, observations…"></textarea>
+      <button class="btn btn-primary" style="margin-top:.5rem;width:100%" onclick="addNote()">Enregistrer la note</button>
+    </div>
+
+    <!-- Actions -->
+    <div class="panel-section">
+      <div class="panel-section-title">Actions</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn btn-outline" onclick="openQuoteFromPanel()">📄 Créer un devis</button>
+        <button class="btn btn-outline" onclick="openInvoiceFromPanel()">⚡ Facture directe</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
-<!-- Modal produit -->
-<div class="modal-overlay" id="product-modal">
-  <div class="modal" style="max-width:520px">
-    <button class="close-btn" onclick="closeProductModal()">✕</button>
-    <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;margin-bottom:1.5rem" id="product-modal-title">Nouveau service</h2>
-    <input type="hidden" id="pm-id"/>
-    <div class="form-grid" style="padding:0;gap:.85rem">
-      <div class="form-group full">
+
+<!-- ── MODAL EVAL FEEDBACK ── -->
+<div class="modal" id="eval-modal">
+  <div class="modal-box" style="max-width:680px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
+      <div>
+        <div class="modal-title" id="eval-modal-title">—</div>
+        <div style="font-size:.78rem;color:var(--muted)" id="eval-modal-sub">—</div>
+      </div>
+      <button onclick="closeEvalModal()" style="background:none;border:none;font-size:1.25rem;cursor:pointer;color:var(--muted)">✕</button>
+    </div>
+    <div style="background:var(--lavender);border-radius:12px;padding:1rem;margin-bottom:1rem">
+      <div style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+        <div style="text-align:center;flex-shrink:0">
+          <div style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:var(--indigo)" id="em-score">—</div>
+          <div style="font-size:.65rem;color:var(--muted)">/100</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;color:var(--navy)" id="em-titre">—</div>
+          <div style="font-size:.78rem;color:#78350F;font-style:italic;margin-top:.25rem" id="em-insight">—</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="section-title">Message bilan</div>
+      <p style="font-size:.82rem;line-height:1.6;color:var(--navy)" id="em-message">—</p>
+    </div>
+    <div id="em-texte-libre-block" style="margin-bottom:1rem;display:none">
+      <div class="section-title">Ce que le médecin a écrit</div>
+      <p style="font-size:.8rem;line-height:1.55;color:var(--muted);font-style:italic" id="em-texte-libre">—</p>
+    </div>
+    <div style="margin-bottom:1rem">
+      <div class="section-title">Quick wins</div>
+      <div id="em-quickwins" style="font-size:.8rem;line-height:1.6;color:var(--navy)">—</div>
+    </div>
+    <div style="margin-bottom:1.25rem">
+      <div class="section-title">Dimensions</div>
+      <div id="em-dims" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.76rem"></div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:1rem">
+      <div class="section-title">Ton feedback</div>
+      <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">
+        <button class="feedback-btn" data-val="bon" onclick="setEvalFeedback('bon')" style="flex:1;padding:.65rem;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700">👍 Bon</button>
+        <button class="feedback-btn" data-val="douteux" onclick="setEvalFeedback('douteux')" style="flex:1;padding:.65rem;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700">🔆 Pourrait l'être plus</button>
+        <button class="feedback-btn" data-val="a_revoir" onclick="setEvalFeedback('a_revoir')" style="flex:1;padding:.65rem;border-radius:10px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:700">💬 Aspect à approfondir</button>
+      </div>
+      <div id="em-note-block" style="display:none">
+        <textarea id="em-note" class="note-input" placeholder="Qu'est-ce qui mériterait d'être davantage traité ?"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEvalModal()">Fermer</button>
+      <button class="btn btn-primary" onclick="saveEvalFeedback()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-box">
+    <div id="modal-content"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL FACTURE DIRECTE ── -->
+<div class="modal" id="invoice-modal">
+  <div class="modal-box">
+    <div class="modal-title">Facture directe</div>
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:1.25rem">Crée et envoie une facture immédiatement sans devis préalable.</p>
+    <div class="form-grid form-grid-2" style="gap:.85rem">
+      <div class="input-group">
+        <label>Prénom</label>
+        <input type="text" id="inv-prenom" placeholder="Marie">
+      </div>
+      <div class="input-group">
+        <label>Nom</label>
+        <input type="text" id="inv-nom" placeholder="Dupont">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Email *</label>
+        <input type="email" id="inv-email" placeholder="dr.dupont@cabinet.fr">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Prestation *</label>
+        <input type="text" id="inv-description" placeholder="Accompagnement cabinet médical — Sérénité">
+      </div>
+      <div class="input-group">
+        <label>Prix HT (€) *</label>
+        <input type="number" id="inv-prix" placeholder="250" oninput="updateInvoiceTTC()">
+      </div>
+      <div class="input-group">
+        <label>TVA (%)</label>
+        <input type="number" id="inv-tva" value="20" oninput="updateInvoiceTTC()">
+      </div>
+      <div id="inv-ttc" style="grid-column:1/-1;background:var(--lavender);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:var(--navy);font-weight:700"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeInvoiceModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="createDirectInvoice()">Créer et envoyer</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" id="quote-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="quote-modal-title">Nouveau devis</div>
+    <div class="form-grid form-grid-2" style="gap:.85rem">
+      <div class="input-group">
+        <label>Prénom</label>
+        <input type="text" id="qm-prenom" placeholder="Marie">
+      </div>
+      <div class="input-group">
+        <label>Nom</label>
+        <input type="text" id="qm-nom" placeholder="Dupont">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Email *</label>
+        <input type="email" id="qm-email" placeholder="dr.dupont@cabinet.fr">
+      </div>
+      <div class="input-group" style="position:relative">
+        <label>Spécialité</label>
+        <input type="text" id="qm-specialite" placeholder="Gynécologie…" autocomplete="off"
+               oninput="adminFilterSpe(this.value)"
+               onblur="setTimeout(()=>document.getElementById('drop-qm-spe').style.display='none',200)">
+        <div id="drop-qm-spe" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:300;max-height:180px;overflow-y:auto"></div>
+      </div>
+      <div class="input-group" style="position:relative">
+        <label>Ville</label>
+        <input type="text" id="qm-ville" placeholder="Lyon…" autocomplete="off"
+               oninput="adminSearchVille(this.value)"
+               onblur="setTimeout(()=>document.getElementById('drop-qm-ville').style.display='none',200)">
+        <div id="drop-qm-ville" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1.5px solid var(--border);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.1);z-index:300;max-height:180px;overflow-y:auto"></div>
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Prestation *</label>
+        <select id="qm-produit" onchange="fillQuotePrice()">
+          <option value="">Sélectionner…</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Prix HT (€) *</label>
+        <input type="number" id="qm-prix" placeholder="250">
+      </div>
+      <div class="input-group">
+        <label>TVA (%)</label>
+        <input type="number" id="qm-tva" value="20">
+      </div>
+      <div class="input-group">
+        <label>Validité (jours)</label>
+        <input type="number" id="qm-expires" value="30">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Note personnalisée</label>
+        <input type="text" id="qm-note" placeholder="Suite à notre échange du…">
+      </div>
+      <div id="qm-ttc" style="grid-column:1/-1;background:var(--lavender);border-radius:10px;padding:.75rem 1rem;font-size:.85rem;color:var(--navy);font-weight:700"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeQuoteModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="createQuote()">Créer le devis</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal" id="product-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="product-modal-title">Nouveau service</div>
+    <input type="hidden" id="pm-id">
+    <div class="form-grid form-grid-2" style="gap:.85rem">
+      <div class="input-group" style="grid-column:1/-1">
         <label>Nom du service *</label>
-        <input type="text" id="pm-nom" placeholder="Ex : Audit express"/>
+        <input type="text" id="pm-nom" placeholder="Ex : Abonnement Sérénité">
       </div>
-      <div class="form-group full">
-        <label>Description courte</label>
-        <input type="text" id="pm-desc" placeholder="Ce que le médecin reçoit exactement"/>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Description</label>
+        <input type="text" id="pm-desc" placeholder="Courte description">
       </div>
-      <div class="form-group">
-        <label>Prix (€) — 0 = gratuit</label>
-        <input type="number" id="pm-prix" placeholder="0"/>
+      <div class="input-group">
+        <label>Prix (€)</label>
+        <input type="number" id="pm-prix" placeholder="0">
       </div>
-      <div class="form-group">
+      <div class="input-group">
         <label>Type</label>
         <select id="pm-type">
-          <option value="unique">Prestation unique</option>
+          <option value="unique">Paiement unique</option>
           <option value="abonnement">Abonnement mensuel</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Bouton dans le bilan</label>
+      <div class="input-group">
+        <label>Bouton CTA</label>
         <select id="pm-bouton">
-          <option value="payer">Payer maintenant (Stripe)</option>
-          <option value="rdv">Prendre RDV (Calendly)</option>
-          <option value="aucun">Aucun bouton</option>
+          <option value="rdv">📅 Prendre RDV</option>
+          <option value="payer">💳 Payer</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>Ordre d'affichage</label>
-        <input type="number" id="pm-ordre" placeholder="1"/>
+      <div class="input-group">
+        <label>Ordre</label>
+        <input type="number" id="pm-ordre" placeholder="1">
       </div>
-      <div class="form-group full">
-        <label>Stripe Price ID (optionnel — si vide, créé à la volée)</label>
-        <input type="text" id="pm-stripe" placeholder="price_1ABC..."/>
+      <div class="input-group" style="grid-column:1/-1">
+        <label>Stripe Price ID</label>
+        <input type="text" id="pm-stripe" placeholder="price_…">
       </div>
-      <div class="form-group">
+      <div class="input-group">
         <label>Statut</label>
         <select id="pm-actif">
           <option value="1">Actif</option>
@@ -366,77 +683,55 @@
         </select>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.5rem">
-      <button class="btn-sm" onclick="closeProductModal()">Annuler</button>
-      <button class="btn-primary" onclick="saveProduct()">Sauvegarder</button>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeProductModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveProduct()">Enregistrer</button>
     </div>
-  </div>
-</div>
-
-<!-- Modal détail diagnostic -->
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <button class="close-btn" onclick="closeModal()">✕</button>
-    <div id="modal-content"></div>
   </div>
 </div>
 
 <script>
 let allLeads = [];
-let adminToken = '';
 let settings = {};
 
 // ─── AUTH ───
-function checkAuth() {
-  adminToken = sessionStorage.getItem('bigdoc_admin_token') || '';
-  if (!adminToken) {
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('main-content').style.display = 'none';
-  } else {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('main-content').style.display = 'block';
+async function checkAuth() {
+  try {
+    const r = await fetch('/api/admin/me', {credentials:'include'});
+    if (!r.ok) { window.location.href = '/admin/login'; return; }
+    const data = await r.json();
+    const el = document.getElementById('admin-username');
+    if (el) el.textContent = data.username || 'Admin';
     initDashboard();
-  }
+  } catch(e) { window.location.href = '/admin/login'; }
 }
 
-async function doLogin() {
-  const username = document.getElementById('login-user').value;
-  const password = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-error');
-  err.style.display = 'none';
-  try {
-    const r = await fetch('/api/admin/login', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({username, password})
-    });
-    if (!r.ok) { err.style.display = 'block'; return; }
-    const data = await r.json();
-    adminToken = data.token;
-    sessionStorage.setItem('bigdoc_admin_token', adminToken);
-    checkAuth();
-  } catch(e) { err.style.display = 'block'; }
+async function doLogout() {
+  await fetch('/api/admin/logout', {method:'POST', credentials:'include'});
+  window.location.href = '/admin/login';
 }
 
 // ─── TABS ───
-function showTab(name) {
+function showTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
-  event.target.classList.add('active');
+  if (btn) btn.classList.add('active');
   if (name === 'leads') loadLeads();
-  if (name === 'stripe') loadStripeStats();
+  if (name === 'stats') { loadStats(); loadStripeStats(); }
+  if (name === 'devis') { loadQuotes(); loadProducts(); }
+  if (name === 'eval') loadEvalResults();
   if (name === 'settings') loadSettings();
   if (name === 'catalogue') loadProducts();
 }
 
 // ─── DASHBOARD ───
 async function initDashboard() {
-  loadStats();
   loadLeads();
+  loadStats();
   loadStripeStats();
   loadSettings();
-  document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString('fr');
-  setInterval(() => { loadStats(); loadStripeStats(); }, 60000);
+  await loadProducts(); // nécessaire pour le modal devis
 }
 
 async function loadStats() {
@@ -453,12 +748,10 @@ async function loadStats() {
 
 async function loadStripeStats() {
   try {
-    const r = await fetch('/api/admin/stripe-stats', {
-      headers: {'X-Admin-Token': adminToken}
-    });
+    const r = await fetch('/api/admin/stripe-stats', {credentials:'include'});
     if (!r.ok) return;
     const s = await r.json();
-    const fmt = (cents) => (cents/100).toLocaleString('fr', {style:'currency', currency:'EUR'});
+    const fmt = (c) => (c/100).toLocaleString('fr', {style:'currency', currency:'EUR'});
     document.getElementById('ca-mois').textContent = fmt(s.ca_mois || 0);
     document.getElementById('ca-total').textContent = fmt(s.ca_total || 0);
     document.getElementById('abonnes').textContent = s.abonnes || '0';
@@ -475,62 +768,48 @@ async function loadStripeStats() {
 // ─── LEADS ───
 async function loadLeads() {
   try {
-    const r = await fetch('/api/admin/leads', {headers:{'X-Admin-Token': adminToken}});
-    if (r.status === 401) { checkAuth(); return; }
+    const r = await fetch('/api/admin/leads', {credentials:'include'});
+    if (r.status === 401) { window.location.href='/admin/login'; return; }
     allLeads = await r.json();
     renderTable(allLeads);
-    renderRecent(allLeads.slice(0,5));
   } catch(e) {
-    document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="11" class="empty">Erreur</td></tr>';
+    document.getElementById('leads-tbody').innerHTML = '<tr><td colspan="11" class="empty">Erreur de chargement</td></tr>';
   }
 }
 
 function scoreBadge(s) {
-  if (!s && s !== 0) return '<span style="color:var(--grey)">—</span>';
+  if (!s && s !== 0) return '<span style="color:var(--muted)">—</span>';
   const cls = s<=25?'score-red':s<=50?'score-orange':s<=75?'score-yellow':'score-green';
   return `<span class="score-badge ${cls}">${s}/100</span>`;
 }
 
 function renderTable(leads) {
   const tb = document.getElementById('leads-tbody');
-  if (!leads.length) { tb.innerHTML = '<tr><td colspan="11" class="empty">Aucun diagnostic</td></tr>'; return; }
-  tb.innerHTML = leads.map(l => `
-    <tr>
-      <td style="white-space:nowrap;color:var(--grey);font-size:.78rem">${(l.date||'').split('T')[0]||'—'}</td>
-      <td style="font-weight:500">${l.email||'<span style="color:var(--grey)">Anonyme</span>'}</td>
-      <td>${l.prenom||'—'}</td>
-      <td>${l.specialite||'—'}</td>
-      <td>${l.ville||'—'}</td>
-      <td><span class="phase-badge">${l.phase||'—'}</span></td>
-      <td>${scoreBadge(l.score_global)}</td>
-      <td>${l.heures_perdues_semaine?l.heures_perdues_semaine+'h':'—'}</td>
-      <td>${l.euros_evitables_an?l.euros_evitables_an.toLocaleString('fr')+'€':'—'}</td>
-      <td style="font-size:.78rem;color:var(--teal)">${l.recommandation_palier||'—'}</td>
-      <td><button class="btn-sm" onclick="showDetail('${l.session_id}')">Détail</button></td>
-    </tr>`).join('');
-}
+  if (!leads.length) { tb.innerHTML = '<tr><td colspan="11" class="empty">Aucun diagnostic pour l\'instant</td></tr>'; return; }
+  const STATUS_LABELS = {lead:'🔵 Lead',rdv:'📅 RDV',devis_envoye:'📄 Devis',devis_accepte:'✅ Accepté',en_cours:'⚙️ En cours',livre:'🎉 Livré',cloture:'🔒 Clôturé',perdu:'❌ Perdu'};
 
-function renderRecent(leads) {
-  const tb = document.getElementById('recent-tbody');
-  if (!leads.length) { tb.innerHTML = '<tr><td colspan="6" class="empty">Aucun diagnostic</td></tr>'; return; }
   tb.innerHTML = leads.map(l => `
     <tr>
-      <td style="color:var(--grey);font-size:.78rem">${(l.date||'').split('T')[0]||'—'}</td>
-      <td style="font-weight:500">${l.email||'Anonyme'}</td>
+      <td style="color:var(--muted);font-size:.76rem;white-space:nowrap">${(l.date||'').split('T')[0]||'—'}</td>
+      <td style="font-weight:600">${l.email||'<span style="color:var(--muted)">Anonyme</span>'}</td>
+      <td>${l.prenom||'—'}</td>
+      <td>${l.nom||'—'}</td>
       <td>${l.specialite||'—'}</td>
       <td>${l.ville||'—'}</td>
       <td>${scoreBadge(l.score_global)}</td>
-      <td style="font-size:.78rem;color:var(--teal)">${l.recommandation_palier||'—'}</td>
+      <td><span style="font-size:.76rem;font-weight:700">${STATUS_LABELS[l.status||'lead']||'🔵 Lead'}</span></td>
+      <td style="white-space:nowrap;display:flex;gap:.35rem">
+        <button class="btn-sm" onclick="openLeadPanel(${l.id})">📋 Fiche</button>
+        <button class="btn-sm" onclick='openQuoteModal(${JSON.stringify({email:l.email,prenom:l.prenom,nom:l.nom,specialite:l.specialite,ville:l.ville,recommandation_palier:l.recommandation_palier})})'>Devis</button>
+      </td>
     </tr>`).join('');
 }
 
 function filterTable() {
   const search = document.getElementById('search').value.toLowerCase();
-  const phase = document.getElementById('filter-phase').value;
   const sf = document.getElementById('filter-score').value;
   const filtered = allLeads.filter(l => {
-    const ms = !search||['email','prenom','ville','specialite'].some(k=>(l[k]||'').toLowerCase().includes(search));
-    const mp = !phase||l.phase===phase;
+    const ms = !search||['email','prenom','nom','ville','specialite'].some(k=>(l[k]||'').toLowerCase().includes(search));
     let msc = true;
     if (sf) {
       const s = l.score_global||0;
@@ -539,15 +818,15 @@ function filterTable() {
       else if (sf==='passable') msc=s>50&&s<=75;
       else if (sf==='ok') msc=s>75;
     }
-    return ms&&mp&&msc;
+    return ms&&msc;
   });
   renderTable(filtered);
 }
 
 function exportCSV() {
-  const headers = ['Date','Email','Prénom','Spécialité','Ville','Phase','Score','Heures/sem','€/an','Palier'];
+  const headers = ['Date','Email','Prénom','Nom','Spécialité','Ville','Score','Heures/sem','€/an','Palier'];
   const rows = allLeads.map(l => [
-    (l.date||'').split('T')[0], l.email||'', l.prenom||'',
+    (l.date||'').split('T')[0], l.email||'', l.prenom||'', l.nom||'',
     l.specialite||'', l.ville||'', l.phase||'',
     l.score_global||'', l.heures_perdues_semaine||'',
     l.euros_evitables_an||'', l.recommandation_palier||''
@@ -559,22 +838,16 @@ function exportCSV() {
   a.click();
 }
 
-// ─── PARAMÈTRES ───
+// ─── SETTINGS ───
 async function loadSettings() {
   try {
-    const r = await fetch('/api/admin/settings', {headers:{'X-Admin-Token':adminToken}});
+    const r = await fetch('/api/admin/settings', {credentials:'include'});
     if (!r.ok) return;
     settings = await r.json();
     document.getElementById('s-mode').value = settings.stripe_mode||'test';
     document.getElementById('s-pk').value = settings.stripe_pk||'';
     document.getElementById('s-sk').value = settings.stripe_sk||'';
-    document.getElementById('p-plan-action').value = settings.prix_plan_action||35;
-    document.getElementById('p-audit').value = settings.prix_audit||39;
-    document.getElementById('p-prestation').value = settings.prix_prestation||250;
-    document.getElementById('p-bizplan').value = settings.prix_bizplan||250;
-    document.getElementById('p-serenite').value = settings.prix_serenite||90;
-    document.getElementById('p-confort').value = settings.prix_confort||250;
-    document.getElementById('p-libere').value = settings.prix_libere||590;
+    document.getElementById('s-webhook').value = settings.stripe_webhook_secret||'';
     document.getElementById('s-calendly').value = settings.calendly_url||'';
     document.getElementById('s-email-contact').value = settings.email_contact||'bonjour@bigdoc.fr';
     document.getElementById('s-tel').value = settings.telephone||'';
@@ -587,13 +860,7 @@ async function saveSettings() {
     stripe_mode: document.getElementById('s-mode').value,
     stripe_pk: document.getElementById('s-pk').value,
     stripe_sk: document.getElementById('s-sk').value,
-    prix_plan_action: +document.getElementById('p-plan-action').value,
-    prix_audit: +document.getElementById('p-audit').value,
-    prix_prestation: +document.getElementById('p-prestation').value,
-    prix_bizplan: +document.getElementById('p-bizplan').value,
-    prix_serenite: +document.getElementById('p-serenite').value,
-    prix_confort: +document.getElementById('p-confort').value,
-    prix_libere: +document.getElementById('p-libere').value,
+    stripe_webhook_secret: document.getElementById('s-webhook').value,
     calendly_url: document.getElementById('s-calendly').value,
     email_contact: document.getElementById('s-email-contact').value,
     telephone: document.getElementById('s-tel').value,
@@ -601,54 +868,45 @@ async function saveSettings() {
   };
   try {
     const r = await fetch('/api/admin/settings', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','X-Admin-Token':adminToken},
+      credentials:'include', method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(data)
     });
     const el = document.getElementById('save-status');
     if (r.ok) {
-      el.textContent = '✅ Sauvegardé';
-      settings = data;
+      el.textContent = '✅ Sauvegardé'; settings = data;
       setTimeout(()=>el.textContent='', 3000);
-    } else {
-      el.textContent = '❌ Erreur lors de la sauvegarde';
-    }
-  } catch(e) {
-    document.getElementById('save-status').textContent = '❌ Erreur réseau';
-  }
+    } else { el.textContent = '❌ Erreur'; }
+  } catch(e) { document.getElementById('save-status').textContent = '❌ Erreur réseau'; }
 }
 
-// ─── DÉTAIL MODAL ───
+// ─── MODAL DETAIL ───
 async function showDetail(sessionId) {
   try {
     const r = await fetch(`/api/bilan/${sessionId}`);
     const data = await r.json();
     const b = data.bilan;
     document.getElementById('modal-content').innerHTML = `
-      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.5rem">Détail du diagnostic</h2>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem">
-        <div style="background:#F8F9FA;border-radius:8px;padding:1rem">
-          <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:.25rem">Score global</div>
-          <div style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:600">${b.score_global}/100</div>
-          <div style="font-size:.8rem;color:var(--grey)">${b.niveau}</div>
+      <div class="modal-title">Détail du diagnostic</div>
+      <div class="detail-kpi">
+        <div class="detail-kpi-card">
+          <div class="detail-kpi-label">Score global</div>
+          <div class="detail-kpi-val">${b.score_global}/100</div>
+          <div style="font-size:.78rem;color:var(--muted)">${b.niveau||''}</div>
         </div>
-        <div style="background:#F8F9FA;border-radius:8px;padding:1rem">
-          <div style="font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;color:var(--grey);margin-bottom:.25rem">Impact</div>
-          <div style="font-size:.9rem;font-weight:500">${b.heures_perdues_semaine}h/sem perdues</div>
-          <div style="font-size:.9rem;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €/an évitables</div>
+        <div class="detail-kpi-card">
+          <div class="detail-kpi-label">Impact</div>
+          <div class="detail-kpi-val">${b.heures_perdues_semaine||'—'}h</div>
+          <div style="font-size:.78rem;color:var(--red)">${(b.euros_evitables_an||0).toLocaleString('fr')} €/an</div>
         </div>
       </div>
-      <div style="margin-bottom:1rem">
-        <div style="font-size:.75rem;font-weight:500;margin-bottom:.5rem;color:var(--grey)">ORDONNANCE</div>
-        <div style="font-weight:500">${b.recommandation_principale?.service}</div>
-        <div style="color:var(--teal);font-size:.85rem">${b.recommandation_principale?.tarif}</div>
-        <div style="font-size:.82rem;color:var(--grey);margin-top:.4rem">${b.recommandation_principale?.justification}</div>
-      </div>
-      ${b.alerte_urgente?`<div style="background:rgba(192,57,43,.08);border-left:3px solid var(--red);padding:.75rem 1rem;border-radius:6px;font-size:.82rem;color:var(--red);margin-bottom:1rem">⚠️ ${b.alerte_urgente}</div>`:''}
-      <div>
-        <div style="font-size:.75rem;font-weight:500;margin-bottom:.5rem;color:var(--grey)">MESSAGE BILAN</div>
-        <p style="font-size:.85rem;line-height:1.6;color:var(--navy)">${b.message_bilan}</p>
-      </div>`;
+      ${b.alerte_urgente?`<div style="background:#FEF2F2;border-left:3px solid var(--red);padding:.75rem 1rem;border-radius:8px;font-size:.82rem;color:var(--red);margin-bottom:1rem">⚠️ ${b.alerte_urgente}</div>`:''}
+      <div class="section-title">Ordonnance</div>
+      <div style="font-weight:700;margin-bottom:.25rem">${b.recommandation_principale?.service||'—'}</div>
+      <div style="color:var(--indigo);font-size:.85rem;margin-bottom:.5rem">${b.recommandation_principale?.tarif||''}</div>
+      <div style="font-size:.82rem;color:var(--muted);line-height:1.5">${b.recommandation_principale?.justification||''}</div>
+      <div class="section-title" style="margin-top:1.25rem">Message bilan</div>
+      <p style="font-size:.85rem;line-height:1.6;color:var(--navy)">${b.message_bilan||''}</p>`;
     document.getElementById('modal').classList.add('open');
   } catch(e) { alert('Impossible de charger ce diagnostic'); }
 }
@@ -656,46 +914,39 @@ async function showDetail(sessionId) {
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 document.getElementById('modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 
-// ─── CATALOGUE PRODUITS ───
+// ─── CATALOGUE ───
 let allProducts = [];
 
 async function loadProducts() {
   try {
-    const r = await fetch('/api/admin/products', {headers:{'X-Admin-Token':adminToken}});
+    const r = await fetch('/api/admin/products', {credentials:'include'});
     allProducts = await r.json();
     renderProducts();
   } catch(e) {
-    document.getElementById('products-tbody').innerHTML = '<tr><td colspan="9" class="empty">Erreur chargement</td></tr>';
+    document.getElementById('products-tbody').innerHTML = '<tr><td colspan="7" class="empty">Erreur chargement</td></tr>';
   }
 }
 
 function renderProducts() {
   const tb = document.getElementById('products-tbody');
   if (!allProducts.length) {
-    tb.innerHTML = '<tr><td colspan="9" class="empty">Aucun service — créez votre premier produit</td></tr>';
-    return;
+    tb.innerHTML = '<tr><td colspan="7" class="empty">Aucun service — créez votre premier produit</td></tr>'; return;
   }
   tb.innerHTML = allProducts.map(p => {
     const prix = p.prix_cents > 0
       ? (p.prix_cents/100).toLocaleString('fr') + '€' + (p.type==='abonnement'?'/mois':'')
       : 'Gratuit';
-    const boutonLabel = p.bouton==='payer'?'💳 Payer':p.bouton==='rdv'?'📅 RDV':'—';
-    const statutBadge = p.actif
-      ? '<span style="color:var(--teal);font-size:.78rem">● Actif</span>'
-      : '<span style="color:var(--grey);font-size:.78rem">○ Inactif</span>';
-    return `<tr style="${!p.actif?'opacity:.5':''}">
-      <td style="color:var(--grey)">${p.ordre}</td>
-      <td style="font-weight:500">${p.nom}</td>
-      <td style="color:var(--grey);font-size:.82rem;max-width:200px">${p.description||'—'}</td>
-      <td style="font-weight:500;color:var(--teal)">${prix}</td>
-      <td><span class="phase-badge">${p.type}</span></td>
-      <td style="font-size:.82rem">${boutonLabel}</td>
-      <td style="font-size:.75rem;color:var(--grey);font-family:monospace">${p.stripe_price_id||'—'}</td>
-      <td>${statutBadge}</td>
-      <td style="white-space:nowrap">
+    return `<tr style="${!p.actif?'opacity:.45':''}">
+      <td style="color:var(--muted)">${p.ordre}</td>
+      <td style="font-weight:700">${p.nom}</td>
+      <td style="font-weight:700;color:var(--indigo)">${prix}</td>
+      <td><span class="tag">${p.type}</span></td>
+      <td style="font-size:.72rem;color:var(--muted);font-family:monospace">${p.stripe_price_id||'—'}</td>
+      <td><span style="font-size:.78rem;font-weight:700;color:${p.actif?'var(--green)':'var(--muted)'}">${p.actif?'● Actif':'○ Inactif'}</span></td>
+      <td style="white-space:nowrap;display:flex;gap:.35rem">
         <button class="btn-sm" onclick="editProduct(${p.id})">Modifier</button>
-        <button class="btn-sm" onclick="toggleProductStatus(${p.id})" style="margin-left:.25rem">${p.actif?'Désactiver':'Activer'}</button>
-        <button class="btn-sm" onclick="confirmDeleteProduct(${p.id})" style="margin-left:.25rem;color:var(--red);border-color:var(--red)">✕</button>
+        <button class="btn-sm" onclick="toggleProductStatus(${p.id})">${p.actif?'Désactiver':'Activer'}</button>
+        <button class="btn-sm btn-danger" onclick="confirmDeleteProduct(${p.id})">✕</button>
       </td>
     </tr>`;
   }).join('');
@@ -715,9 +966,7 @@ function openProductModal(product = null) {
   document.getElementById('product-modal').classList.add('open');
 }
 
-function closeProductModal() {
-  document.getElementById('product-modal').classList.remove('open');
-}
+function closeProductModal() { document.getElementById('product-modal').classList.remove('open'); }
 
 function editProduct(id) {
   const p = allProducts.find(p => p.id === id);
@@ -737,13 +986,12 @@ async function saveProduct() {
     actif: document.getElementById('pm-actif').value === '1',
   };
   if (!data.nom) { alert('Le nom est obligatoire'); return; }
-
   const url = id ? `/api/admin/products/${id}` : '/api/admin/products';
   const method = id ? 'PUT' : 'POST';
-
   try {
     const r = await fetch(url, {
-      method, headers: {'Content-Type':'application/json','X-Admin-Token':adminToken},
+      credentials:'include', method,
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(data)
     });
     if (r.ok) { closeProductModal(); loadProducts(); }
@@ -752,19 +1000,14 @@ async function saveProduct() {
 }
 
 async function toggleProductStatus(id) {
-  await fetch(`/api/admin/products/${id}/toggle`, {
-    method:'POST', headers:{'X-Admin-Token':adminToken}
-  });
+  await fetch(`/api/admin/products/${id}/toggle`, {credentials:'include', method:'POST'});
   loadProducts();
 }
 
 async function confirmDeleteProduct(id) {
   const p = allProducts.find(p => p.id === id);
-  if (!p) return;
-  if (!confirm(`Supprimer "${p.nom}" définitivement ?`)) return;
-  await fetch(`/api/admin/products/${id}`, {
-    method:'DELETE', headers:{'X-Admin-Token':adminToken}
-  });
+  if (!p || !confirm(`Supprimer "${p.nom}" ?`)) return;
+  await fetch(`/api/admin/products/${id}`, {credentials:'include', method:'DELETE'});
   loadProducts();
 }
 
@@ -772,7 +1015,738 @@ document.getElementById('product-modal').addEventListener('click', function(e){
   if(e.target===this) closeProductModal();
 });
 
-// ─── INIT ───
+// ─── LEAD PANEL CRM ───
+let currentLead = null;
+
+async function openLeadPanel(leadId) {
+  try {
+    const r = await fetch(`/api/admin/leads/${leadId}`, {credentials:'include'});
+    if (!r.ok) { alert('Erreur chargement fiche'); return; }
+    currentLead = await r.json();
+    renderLeadPanel(currentLead);
+    document.getElementById('lead-panel').classList.add('open');
+    document.getElementById('panel-overlay').classList.add('open');
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+function closeLeadPanel() {
+  document.getElementById('lead-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('open');
+  currentLead = null;
+}
+
+function renderLeadPanel(lead) {
+  const nom = [lead.prenom, lead.nom].filter(Boolean).join(' ') || lead.email;
+  document.getElementById('panel-name').textContent = nom ? `Dr. ${nom}` : lead.email;
+  document.getElementById('panel-sub').textContent = [lead.specialite, lead.ville].filter(Boolean).join(' — ') || '—';
+  document.getElementById('panel-status').value = lead.status || 'lead';
+  document.getElementById('panel-prenom').value = lead.prenom || '';
+  document.getElementById('panel-nom').value = lead.nom || '';
+  document.getElementById('panel-specialite').value = lead.specialite || '';
+  document.getElementById('panel-ville').value = lead.ville || '';
+  document.getElementById('panel-rpps').value = lead.rpps || '';
+
+  // Diagnostics
+  const diags = lead.diagnostics || [];
+  document.getElementById('panel-diagnostics').innerHTML = diags.length
+    ? diags.map(d => `
+      <div class="diag-card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="diag-card-score">${d.score_global||'—'}/100</div>
+          <span class="tag">${d.recommandation_palier||'—'}</span>
+        </div>
+        <div style="font-size:.76rem;color:var(--muted);margin-top:.25rem">
+          ${(d.created_at||'').split('T')[0]} · ${d.heures_perdues_semaine||'—'}h/sem · ${d.euros_evitables_an?d.euros_evitables_an.toLocaleString('fr')+'€/an':'—'}
+        </div>
+      </div>`).join('')
+    : '<span style="color:var(--muted);font-size:.82rem">Aucun diagnostic</span>';
+
+  // Timeline
+  const events = lead.events || [];
+  document.getElementById('panel-timeline').innerHTML = events.length
+    ? events.map(e => `
+      <div class="tl-item">
+        <div class="tl-dot tl-dot-${e.type === 'note' ? 'note' : e.type === 'status' ? 'status' : 'diag'}"></div>
+        <div class="tl-content">
+          <div>${e.content || ''}</div>
+          <div class="tl-date">${(e.created_at||'').split('T')[0]}</div>
+        </div>
+        ${e.type === 'note' ? `<button class="tl-delete" onclick="deleteNote(${lead.id},${e.id})">✕</button>` : ''}
+      </div>`).join('')
+    : '<span style="color:var(--muted);font-size:.82rem">Aucun historique</span>';
+}
+
+async function updateLeadStatus() {
+  if (!currentLead) return;
+  const status = document.getElementById('panel-status').value;
+  await fetch(`/api/admin/leads/${currentLead.id}/status`, {
+    credentials:'include', method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({status})
+  });
+  // Refresh panel events
+  const r = await fetch(`/api/admin/leads/${currentLead.id}`, {credentials:'include'});
+  currentLead = await r.json();
+  renderLeadPanel(currentLead);
+  loadLeads();
+}
+
+let infoTimer = null;
+function updateLeadInfo() {
+  if (!currentLead) return;
+  clearTimeout(infoTimer);
+  infoTimer = setTimeout(async () => {
+    await fetch(`/api/admin/leads/${currentLead.id}/info`, {
+      credentials:'include', method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prenom: document.getElementById('panel-prenom').value,
+        nom: document.getElementById('panel-nom').value,
+        specialite: document.getElementById('panel-specialite').value,
+        ville: document.getElementById('panel-ville').value,
+        rpps: document.getElementById('panel-rpps').value,
+      })
+    });
+  }, 800);
+}
+
+async function addNote() {
+  if (!currentLead) return;
+  const content = document.getElementById('panel-note-input').value.trim();
+  if (!content) return;
+  await fetch(`/api/admin/leads/${currentLead.id}/notes`, {
+    credentials:'include', method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({content})
+  });
+  document.getElementById('panel-note-input').value = '';
+  const r = await fetch(`/api/admin/leads/${currentLead.id}`, {credentials:'include'});
+  currentLead = await r.json();
+  renderLeadPanel(currentLead);
+}
+
+async function deleteNote(leadId, eventId) {
+  if (!confirm('Supprimer cette note ?')) return;
+  await fetch(`/api/admin/leads/${leadId}/notes/${eventId}`, {credentials:'include', method:'DELETE'});
+  const r = await fetch(`/api/admin/leads/${leadId}`, {credentials:'include'});
+  currentLead = await r.json();
+  renderLeadPanel(currentLead);
+}
+
+function openQuoteFromPanel() {
+  if (!currentLead) return;
+  closeLeadPanel();
+  openQuoteModal(currentLead);
+}
+
+function openInvoiceFromPanel() {
+  if (!currentLead) return;
+  closeLeadPanel();
+  openInvoiceModal(currentLead);
+}
+
+
+const SPECIALITES = [
+  "Généraliste","Médecine générale","Gynécologie-obstétrique","Gynécologie médicale",
+  "Cardiologie","Pédiatrie","Dermatologie","Ophtalmologie","Psychiatrie","Neurologie",
+  "Orthopédie","Chirurgie générale","Chirurgie digestive","Chirurgie vasculaire",
+  "Anesthésie-réanimation","Radiologie","Gastro-entérologie","Pneumologie",
+  "Rhumatologie","Endocrinologie","Néphrologie","Urologie","ORL","Stomatologie",
+  "Médecine interne","Infectiologie","Hématologie","Oncologie","Gériatrie",
+  "Médecine du travail","Médecine d'urgence","Médecine vasculaire","Allergologie"
+];
+
+function normalizeStr(s) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,'');
+}
+
+function adminFilterSpe(val) {
+  const drop = document.getElementById('drop-qm-spe');
+  if (!val || val.length < 2) { drop.style.display='none'; return; }
+  const norm = normalizeStr(val);
+  const matches = SPECIALITES.filter(s => normalizeStr(s).includes(norm)).slice(0,8);
+  if (!matches.length) { drop.style.display='none'; return; }
+  drop.innerHTML = matches.map(s =>
+    `<div onclick="document.getElementById('qm-specialite').value='${s}';document.getElementById('drop-qm-spe').style.display='none'"
+          style="padding:.6rem 1rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border)"
+          onmouseover="this.style.background='var(--lavender)'" onmouseout="this.style.background=''">${s}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+let adminVilleTimer = null;
+const ARRONDISSEMENTS_ADMIN = {
+  paris: Array.from({length:20},(_,i)=>({label:`Paris ${i+1}e arrondissement`,value:`Paris ${i+1}e (750${String(i+1).padStart(2,'0')})`})),
+  lyon: Array.from({length:9},(_,i)=>({label:`Lyon ${i+1}e arrondissement`,value:`Lyon ${i+1}e (6900${i+1})`})),
+  marseille: Array.from({length:16},(_,i)=>{const a=i+1,cp=a<=9?`1300${a}`:`130${a}`;return{label:`Marseille ${a}e arrondissement`,value:`Marseille ${a}e (${cp})`};}),
+};
+
+async function adminSearchVille(val) {
+  const drop = document.getElementById('drop-qm-ville');
+  if (!val || val.length < 2) { drop.style.display='none'; return; }
+  const vl = val.toLowerCase().trim();
+  clearTimeout(adminVilleTimer);
+  const grand = ['paris','lyon','marseille'].find(g => vl.startsWith(g) || g.startsWith(vl));
+  if (grand) {
+    const arr = ARRONDISSEMENTS_ADMIN[grand];
+    const nm = vl.replace(grand,'').trim().match(/\d+/);
+    const filtered = nm ? arr.filter(a=>a.label.includes(nm[0])) : arr;
+    adminRenderVille(drop, filtered.slice(0,12)); return;
+  }
+  adminVilleTimer = setTimeout(async () => {
+    try {
+      const r = await fetch(`https://geo.api.gouv.fr/communes?nom=${encodeURIComponent(val)}&fields=nom,codesPostaux,departement&boost=population&limit=8`);
+      const villes = await r.json();
+      adminRenderVille(drop, villes.map(v=>({label:`${v.nom} <span style="color:var(--muted);font-size:.75rem">${v.codesPostaux?.[0]||''} — ${v.departement?.nom||''}</span>`,value:`${v.nom} (${v.codesPostaux?.[0]||''})`})));
+    } catch(e) { drop.style.display='none'; }
+  }, 250);
+}
+
+function adminRenderVille(drop, items) {
+  if (!items.length) { drop.style.display='none'; return; }
+  drop.innerHTML = items.map(i =>
+    `<div onclick="document.getElementById('qm-ville').value='${i.value.replace(/'/g,"\\'")}';document.getElementById('drop-qm-ville').style.display='none'"
+          style="padding:.6rem 1rem;cursor:pointer;font-size:.85rem;border-bottom:1px solid var(--border)"
+          onmouseover="this.style.background='var(--lavender)'" onmouseout="this.style.background=''">${i.label}</div>`
+  ).join('');
+  drop.style.display = 'block';
+}
+
+
+const QUOTE_STATUS = {
+  draft: {label:'Brouillon', color:'var(--muted)'},
+  open: {label:'Envoyé', color:'var(--indigo)'},
+  accepted: {label:'Accepté', color:'var(--green)'},
+  canceled: {label:'Annulé', color:'var(--red)'},
+};
+
+async function loadQuotes() {
+  try {
+    const r = await fetch('/api/admin/quotes', {credentials:'include'});
+    if (!r.ok) { document.getElementById('quotes-tbody').innerHTML='<tr><td colspan="7" class="empty">Stripe non configuré</td></tr>'; return; }
+    const quotes = await r.json();
+    const tb = document.getElementById('quotes-tbody');
+    if (!quotes.length) { tb.innerHTML='<tr><td colspan="7" class="empty">Aucun devis</td></tr>'; return; }
+    tb.innerHTML = quotes.map(q => {
+      const st = QUOTE_STATUS[q.status] || {label:q.status, color:'var(--muted)'};
+      const montant = q.amount_total ? (q.amount_total/100).toLocaleString('fr')+'€' : '—';
+      const date = q.created ? new Date(q.created*1000).toLocaleDateString('fr') : '—';
+      const actions = q.status === 'draft'
+        ? `<button class="btn-sm" onclick="finalizeQuote('${q.id}')">Envoyer</button>
+           <button class="btn-sm btn-danger" onclick="cancelQuote('${q.id}')">Annuler</button>`
+        : q.status === 'open'
+        ? `<button class="btn-sm" onclick="acceptQuote('${q.id}')">Accepter</button>
+           <button class="btn-sm btn-danger" onclick="cancelQuote('${q.id}')">Annuler</button>`
+        : '';
+      return `<tr>
+        <td style="color:var(--muted);font-size:.76rem">${date}</td>
+        <td style="font-weight:700">${q.customer_name||'—'}</td>
+        <td style="font-size:.8rem">${q.customer_email||'—'}</td>
+        <td style="font-size:.8rem">${q.description||'—'}</td>
+        <td style="font-weight:700;color:var(--indigo)">${montant}</td>
+        <td><span style="font-size:.78rem;font-weight:700;color:${st.color}">${st.label}</span></td>
+        <td style="white-space:nowrap;display:flex;gap:.35rem">${actions}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) {
+    document.getElementById('quotes-tbody').innerHTML='<tr><td colspan="7" class="empty">Erreur</td></tr>';
+  }
+}
+
+async function openQuoteModal(lead = null) {
+  try {
+    if (!allProducts.length) await loadProducts();
+    const sel = document.getElementById('qm-produit');
+    if (!sel) { alert('Erreur: element qm-produit introuvable'); return; }
+    sel.innerHTML = '<option value="">Sélectionner…</option>' +
+      allProducts.filter(p=>p.actif).map(p =>
+        `<option value="${p.id}" data-prix="${p.prix_cents/100}">${p.nom} — ${p.prix_cents>0?(p.prix_cents/100)+'€':'Gratuit'}</option>`
+      ).join('');
+    if (lead) {
+      document.getElementById('qm-email').value = lead.email||'';
+      document.getElementById('qm-prenom').value = lead.prenom||'';
+      document.getElementById('qm-nom').value = lead.nom||'';
+      document.getElementById('qm-specialite').value = lead.specialite||'';
+      document.getElementById('qm-ville').value = lead.ville||'';
+      if (lead.recommandation_palier) {
+        const opt = [...sel.options].find(o => o.text.toLowerCase().includes(lead.recommandation_palier.toLowerCase()));
+        if (opt) { sel.value = opt.value; fillQuotePrice(); }
+      }
+    }
+    updateTTC();
+    const modal = document.getElementById('quote-modal');
+    if (!modal) { alert('Erreur: modal quote-modal introuvable'); return; }
+    modal.classList.add('open');
+  } catch(e) {
+    alert('Erreur openQuoteModal: ' + e.message);
+  }
+}
+
+function closeQuoteModal() { document.getElementById('quote-modal').classList.remove('open'); }
+
+function fillQuotePrice() {
+  const sel = document.getElementById('qm-produit');
+  const opt = sel.options[sel.selectedIndex];
+  if (opt && opt.dataset.prix) {
+    document.getElementById('qm-prix').value = opt.dataset.prix;
+    updateTTC();
+  }
+}
+
+function updateTTC() {
+  const ht = parseFloat(document.getElementById('qm-prix').value||0);
+  const tva = parseFloat(document.getElementById('qm-tva').value||20);
+  const ttc = ht * (1 + tva/100);
+  document.getElementById('qm-ttc').textContent =
+    ht > 0 ? `Total TTC : ${ttc.toFixed(2).replace('.',',')} € (HT : ${ht.toFixed(2).replace('.',',')} € + TVA ${tva}% : ${(ttc-ht).toFixed(2).replace('.',',')} €)` : '';
+}
+
+document.getElementById('qm-prix')?.addEventListener('input', updateTTC);
+document.getElementById('qm-tva')?.addEventListener('input', updateTTC);
+
+async function createQuote() {
+  const email = document.getElementById('qm-email').value.trim();
+  const prix = parseFloat(document.getElementById('qm-prix').value||0);
+  if (!email) { alert('Email obligatoire'); return; }
+  if (!prix) { alert('Prix obligatoire'); return; }
+  const sel = document.getElementById('qm-produit');
+  const produit_nom = sel.options[sel.selectedIndex]?.text?.split(' — ')[0] || document.getElementById('qm-note').value || 'Prestation RMS';
+  const btn = document.querySelector('#quote-modal .btn-primary');
+  btn.disabled=true; btn.textContent='Création…';
+  try {
+    const r = await fetch('/api/admin/quotes', {
+      credentials:'include', method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email,
+        prenom: document.getElementById('qm-prenom').value,
+        nom: document.getElementById('qm-nom').value,
+        specialite: document.getElementById('qm-specialite').value,
+        ville: document.getElementById('qm-ville').value,
+        produit_nom,
+        prix_ht: prix,
+        tva: parseFloat(document.getElementById('qm-tva').value||20),
+        note: document.getElementById('qm-note').value,
+        expires_jours: parseInt(document.getElementById('qm-expires').value||30),
+      })
+    });
+    const data = await r.json();
+    if (r.ok) {
+      closeQuoteModal();
+      loadQuotes();
+    } else {
+      alert('Erreur : ' + (data.detail||'Inconnue'));
+      btn.disabled=false; btn.textContent='Créer le devis';
+    }
+  } catch(e) {
+    alert('Erreur réseau'); btn.disabled=false; btn.textContent='Créer le devis';
+  }
+}
+
+async function finalizeQuote(id) {
+  if (!confirm('Finaliser et envoyer ce devis au client ?')) return;
+  try {
+    const r = await fetch(`/api/admin/quotes/${id}/finalize`, {credentials:'include', method:'POST'});
+    if (r.ok) loadQuotes();
+    else { const d=await r.json(); alert('Erreur : '+(d.detail||'Inconnue')); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+async function acceptQuote(id) {
+  if (!confirm('Marquer ce devis comme accepté et créer la facture ?')) return;
+  try {
+    const r = await fetch(`/api/admin/quotes/${id}/accept`, {credentials:'include', method:'POST'});
+    if (r.ok) loadQuotes();
+    else { const d=await r.json(); alert('Erreur : '+(d.detail||'Inconnue')); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+async function cancelQuote(id) {
+  if (!confirm('Annuler ce devis ?')) return;
+  try {
+    const r = await fetch(`/api/admin/quotes/${id}/cancel`, {credentials:'include', method:'POST'});
+    if (r.ok) loadQuotes();
+    else { const d=await r.json(); alert('Erreur : '+(d.detail||'Inconnue')); }
+  } catch(e) { alert('Erreur réseau'); }
+}
+
+function openInvoiceModal(lead = null) {
+  if (lead) {
+    document.getElementById('inv-email').value = lead.email||'';
+    document.getElementById('inv-prenom').value = lead.prenom||'';
+    document.getElementById('inv-nom').value = lead.nom||'';
+  }
+  updateInvoiceTTC();
+  document.getElementById('invoice-modal').classList.add('open');
+}
+
+function closeInvoiceModal() { document.getElementById('invoice-modal').classList.remove('open'); }
+
+function updateInvoiceTTC() {
+  const ht = parseFloat(document.getElementById('inv-prix').value||0);
+  const tva = parseFloat(document.getElementById('inv-tva').value||20);
+  const ttc = ht * (1 + tva/100);
+  document.getElementById('inv-ttc').textContent =
+    ht > 0 ? `Total TTC : ${ttc.toFixed(2).replace('.',',')} € (HT : ${ht.toFixed(2).replace('.',',')} € + TVA ${tva}% : ${(ttc-ht).toFixed(2).replace('.',',')} €)` : '';
+}
+
+async function createDirectInvoice() {
+  const email = document.getElementById('inv-email').value.trim();
+  const prix = parseFloat(document.getElementById('inv-prix').value||0);
+  const description = document.getElementById('inv-description').value.trim();
+  if (!email) { alert('Email obligatoire'); return; }
+  if (!prix) { alert('Prix obligatoire'); return; }
+  if (!description) { alert('Description obligatoire'); return; }
+  const btn = document.querySelector('#invoice-modal .btn-primary');
+  btn.disabled=true; btn.textContent='Création…';
+  try {
+    const r = await fetch('/api/admin/invoices', {
+      credentials:'include', method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email,
+        prenom: document.getElementById('inv-prenom').value,
+        nom: document.getElementById('inv-nom').value,
+        description,
+        prix_ht: prix,
+        tva: parseFloat(document.getElementById('inv-tva').value||20),
+      })
+    });
+    const data = await r.json();
+    if (r.ok) {
+      closeInvoiceModal();
+      alert('✅ Facture créée et envoyée à ' + email);
+      loadQuotes();
+    } else {
+      alert('Erreur : ' + (data.detail||'Inconnue'));
+      btn.disabled=false; btn.textContent='Créer et envoyer';
+    }
+  } catch(e) {
+    alert('Erreur réseau'); btn.disabled=false; btn.textContent='Créer et envoyer';
+  }
+}
+
+document.getElementById('invoice-modal').addEventListener('click', function(e){
+  if(e.target===this) closeInvoiceModal();
+});
+
+
+
+// ─── EVAL ───
+let evalResults = [];
+let currentEvalId = null;
+let currentEvalFeedback = null;
+let evalFeedbacks = {}; // stocké localement
+
+async function runEval(mode) {
+  const statusDiv = document.getElementById('eval-run-status');
+  const statusText = document.getElementById('eval-status-text');
+  const progressBar = document.getElementById('eval-progress-bar');
+  statusDiv.style.display = 'block';
+  statusText.textContent = 'Démarrage…';
+
+  let idsInput = '', ids = [];
+  try {
+    const el = document.getElementById('eval-case-ids');
+    idsInput = el ? el.value.trim() : '';
+    ids = idsInput ? idsInput.split(/[\s,]+/).filter(Boolean) : [];
+  } catch(e) { console.error('IDs error:', e); }
+
+  const btns = Array.from(document.querySelectorAll('#tab-eval .btn'));
+  btns.forEach(b => b.disabled = true);
+
+  try {
+    const body = ids.length ? {ids} : {};
+    const resp = await fetch(`/api/admin/eval/run?mode=${mode}`, {
+      credentials: 'include', method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      statusText.textContent = '❌ Erreur : ' + (data.detail || JSON.stringify(data));
+      btns.forEach(b => b.disabled = false);
+      return;
+    }
+    if (mode === 'batch') {
+      statusText.textContent = `✅ Batch lancé : ${data.batch_id} — résultats dans ~2h`;
+      progressBar.style.width = '100%';
+      loadEvalBatches();
+    } else {
+      const total = data.total || ids.length || 50;
+      statusText.textContent = `En cours : 0/${total} cas`;
+      progressBar.style.width = '0%';
+      pollEvalProgress(data.job_id, total, statusText, progressBar, btns, statusDiv);
+    }
+  } catch(e) {
+    statusText.textContent = '❌ Erreur : ' + e.message;
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+async function pollEvalProgress(jobId, total, statusText, progressBar, btns, statusDiv) {
+  if (!jobId || jobId === 'undefined') {
+    statusText.textContent = '❌ Erreur : job_id invalide';
+    if (Array.isArray(btns)) btns.forEach(b => b.disabled = false);
+    else btns.disabled = false;
+    return;
+  }
+  const interval = setInterval(async () => {
+    try {
+      const r = await fetch(`/api/admin/eval/status/${jobId}`, {credentials: 'include'});
+      const d = await r.json();
+      const pct = Math.round((d.done / total) * 100);
+      statusText.textContent = `En cours : ${d.done}/${total} cas`;
+      progressBar.style.width = pct + '%';
+      if (d.status === 'done' || d.done >= total) {
+        clearInterval(interval);
+        statusText.textContent = `✅ Terminé — ${d.done} cas traités`;
+        if (Array.isArray(btns)) btns.forEach(b => b.disabled = false);
+        else btns.disabled = false;
+        loadEvalResults();
+      }
+    } catch(e) {
+      clearInterval(interval);
+      if (Array.isArray(btns)) btns.forEach(b => b.disabled = false);
+      else btns.disabled = false;
+    }
+  }, 2000);
+}
+
+async function loadEvalResults() {
+  try {
+    const r = await fetch('/api/admin/eval/results', {credentials: 'include'});
+    if (!r.ok) { console.error('Eval results not available'); return; }
+    evalResults = await r.json();
+    // Charger feedbacks depuis le serveur (priorité) puis localStorage
+    try {
+      const fr = await fetch('/api/admin/eval/feedback', {credentials: 'include'});
+      if (fr.ok) {
+        const serverFeedbacks = await fr.json();
+        if (Object.keys(serverFeedbacks).length > 0) {
+          evalFeedbacks = serverFeedbacks;
+        } else {
+          // Fallback localStorage
+          const stored = localStorage.getItem('eval_feedbacks');
+          if (stored) evalFeedbacks = JSON.parse(stored);
+        }
+      }
+    } catch(e) {
+      const stored = localStorage.getItem('eval_feedbacks');
+      if (stored) evalFeedbacks = JSON.parse(stored);
+    }
+    renderEvalResults(evalResults);
+    renderEvalRapport();
+    loadEvalBatches();
+  } catch(e) { console.error('Eval load error:', e); }
+}
+
+async function saveEvalFeedbacksToServer() {
+  const btn = document.getElementById('eval-save-feedbacks-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sauvegarde…'; }
+  try {
+    const r = await fetch('/api/admin/eval/feedback', {
+      credentials: 'include', method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(evalFeedbacks)
+    });
+    const d = await r.json();
+    if (btn) { btn.textContent = `✅ ${d.count} feedbacks sauvegardés`; setTimeout(() => { btn.textContent = '💾 Sauvegarder'; btn.disabled = false; }, 2500); }
+  } catch(e) {
+    if (btn) { btn.textContent = '❌ Erreur'; btn.disabled = false; }
+  }
+}
+
+async function loadEvalBatches() {
+  try {
+    const r = await fetch('/api/admin/eval/batches', {credentials: 'include'});
+    if (!r.ok) return;
+    const batches = await r.json();
+    const card = document.getElementById('eval-batches-card');
+    if (!batches.length) { card.style.display = 'none'; return; }
+    card.style.display = 'block';
+    document.getElementById('eval-batches-tbody').innerHTML = batches.map(b => `
+      <tr>
+        <td style="font-family:monospace;font-size:.75rem">${b.batch_id}</td>
+        <td>${b.case_count || '—'}</td>
+        <td style="color:var(--muted);font-size:.76rem">${(b.launched_at||'').split('T')[0]}</td>
+        <td><span style="font-weight:700;color:${b.status==='ended'?'var(--green)':'var(--amber)'}">${b.status}</span></td>
+        <td>
+          <button class="btn-sm" onclick="checkBatch('${b.batch_id}')">Statut</button>
+          ${b.status==='ended'?`<button class="btn-sm" onclick="getBatch('${b.batch_id}')">Récupérer</button>`:''}
+        </td>
+      </tr>`).join('');
+  } catch(e) {}
+}
+
+async function checkBatch(batchId) {
+  const r = await fetch(`/api/admin/eval/batch-status/${batchId}`, {credentials: 'include'});
+  const d = await r.json();
+  alert(`Batch ${batchId}\nStatut: ${d.status}\nSuccès: ${d.succeeded}\nErreurs: ${d.errored}`);
+  loadEvalBatches();
+}
+
+async function getBatch(batchId) {
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = 'Récupération...';
+  await fetch(`/api/admin/eval/batch-get/${batchId}`, {credentials: 'include', method: 'POST'});
+  loadEvalResults();
+  btn.disabled = false; btn.textContent = 'Récupérer';
+}
+
+const FEEDBACK_LABELS = {bon:'👍 Bon', douteux:'🔆 Douteux', a_revoir:'💬 À revoir'};
+const FEEDBACK_COLORS = {bon:'var(--green)', douteux:'var(--amber)', a_revoir:'var(--indigo)'};
+
+function renderEvalResults(results) {
+  const filter = document.getElementById('eval-filter').value;
+  let filtered = results;
+  if (filter === 'erreur') filtered = results.filter(r => r.status === 'erreur');
+  else if (filter === 'sans_feedback') filtered = results.filter(r => !evalFeedbacks[r.id]);
+  else if (filter) filtered = results.filter(r => evalFeedbacks[r.id]?.feedback === filter);
+
+  document.getElementById('eval-count').textContent = `${filtered.length}/${results.length}`;
+  const tb = document.getElementById('eval-tbody');
+  if (!filtered.length) { tb.innerHTML = '<tr><td colspan="7" class="empty">Aucun résultat</td></tr>'; return; }
+
+  const dimLabels = {administration:'Admin',achats_materiel:'Matériel',informatique:'Infra',
+    comptabilite:'Compta',charge_mentale:'Charge',financement:'Financement',developpement:'Dev'};
+
+  tb.innerHTML = filtered.map(r => {
+    const b = r.bilan || {};
+    const fb = evalFeedbacks[r.id];
+    const scoreColor = !b.score_global ? 'var(--muted)' :
+      b.score_global<=25 ? 'var(--red)' : b.score_global<=50 ? 'var(--amber)' :
+      b.score_global<=75 ? 'var(--indigo)' : 'var(--green)';
+    return `<tr style="${r.status==='erreur'?'opacity:.5':''}">
+      <td style="font-family:monospace;font-size:.75rem;color:var(--muted)">${r.id}</td>
+      <td style="font-size:.8rem">${r.specialite||'—'}</td>
+      <td style="font-size:.78rem;color:var(--muted)">${(r.ville||'—').split('(')[0].trim()}</td>
+      <td><span style="font-family:'Nunito',sans-serif;font-weight:900;color:${scoreColor}">${b.score_global||'❌'}</span></td>
+      <td style="font-size:.78rem;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${b.titre_personnalise||''}">
+        ${b.titre_personnalise||b.niveau||'—'}
+      </td>
+      <td>${fb ? `<span style="font-size:.76rem;font-weight:700;color:${FEEDBACK_COLORS[fb.feedback]}">${FEEDBACK_LABELS[fb.feedback]}</span>` : '<span style="color:var(--muted);font-size:.75rem">—</span>'}</td>
+      <td><button class="btn-sm" onclick="openEvalModal('${r.id}')">Voir</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterEvalResults() { renderEvalResults(evalResults); }
+
+function renderEvalRapport() {
+  if (!evalResults.length) return;
+  const card = document.getElementById('eval-rapport-card');
+  card.style.display = 'block';
+
+  const total = evalResults.filter(r => r.status === 'ok').length;
+  const withFeedback = Object.keys(evalFeedbacks).length;
+  const bons = Object.values(evalFeedbacks).filter(f => f.feedback === 'bon').length;
+  const douteux = Object.values(evalFeedbacks).filter(f => f.feedback === 'douteux').length;
+  const aRevoir = Object.values(evalFeedbacks).filter(f => f.feedback === 'a_revoir').length;
+  const pct = total > 0 ? Math.round((bons / total) * 100) : 0;
+
+  document.getElementById('eval-rapport-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1rem">
+      <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Bilans générés</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--green)">${bons}</div><div class="stat-label">Bons</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--amber)">${douteux}</div><div class="stat-label">Douteux</div></div>
+      <div class="stat-card"><div class="stat-num" style="color:var(--indigo)">${aRevoir}</div><div class="stat-label">À revoir</div></div>
+    </div>
+    ${withFeedback < total ? `<p style="font-size:.82rem;color:var(--muted)">${total - withFeedback} cas sans feedback — clique sur "Voir" pour évaluer.</p>` : ''}
+    ${aRevoir > 0 ? `
+      <div class="section-title" style="margin-top:1rem">Notes à revoir</div>
+      ${Object.entries(evalFeedbacks).filter(([,f]) => f.feedback === 'a_revoir' && f.note).map(([id, f]) => `
+        <div style="background:#FEF3C7;border-radius:8px;padding:.6rem .9rem;margin-bottom:.4rem;font-size:.8rem">
+          <span style="font-family:monospace;color:var(--muted);margin-right:.5rem">${id}</span>
+          <span>${f.note}</span>
+        </div>`).join('')}
+    ` : ''}`;
+}
+
+function openEvalModal(id) {
+  const r = evalResults.find(r => r.id === id);
+  if (!r) return;
+  currentEvalId = id;
+  currentEvalFeedback = evalFeedbacks[id]?.feedback || null;
+
+  const b = r.bilan || {};
+  document.getElementById('eval-modal-title').textContent = `${r.id} — ${r.label}`;
+  document.getElementById('eval-modal-sub').textContent = `${r.specialite} · ${r.ville}`;
+  document.getElementById('em-score').textContent = b.score_global || '—';
+  document.getElementById('em-titre').textContent = b.titre_personnalise || b.niveau || '—';
+  document.getElementById('em-insight').textContent = b.ce_que_vous_nignorez_probablement_pas || '';
+  document.getElementById('em-message').textContent = b.message_bilan || '—';
+
+  const tl = r.texte_libre || '';
+  const tlBlock = document.getElementById('em-texte-libre-block');
+  tlBlock.style.display = tl ? 'block' : 'none';
+  document.getElementById('em-texte-libre').textContent = tl;
+
+  const qw = (b.quick_wins || []).map((w, i) => `<div style="padding:.3rem 0;border-bottom:1px solid var(--border)">${i+1}. ${w}</div>`).join('');
+  document.getElementById('em-quickwins').innerHTML = qw || '—';
+
+  const dimColors = {0:'var(--red)',1:'var(--red)',2:'var(--red)',3:'var(--amber)',4:'var(--amber)',5:'var(--amber)',6:'var(--amber)',7:'var(--amber)',8:'var(--amber)',9:'var(--amber)',10:'var(--amber)',11:'var(--amber)',12:'var(--amber)',13:'var(--amber)',14:'var(--green)',15:'var(--green)',16:'var(--green)',17:'var(--green)',18:'var(--green)',19:'var(--green)',20:'var(--green)'};
+  const dimNames = {administration:'Admin',achats_materiel:'Matériel',informatique:'Infra',comptabilite:'Compta',charge_mentale:'Charge',financement:'Financement',developpement:'Dev'};
+  document.getElementById('em-dims').innerHTML = Object.entries(b.dimensions||{}).map(([k,d]) => `
+    <div style="background:var(--lavender);border-radius:8px;padding:.5rem .75rem">
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-weight:700">${dimNames[k]||k}</span>
+        <span style="font-weight:900;color:${dimColors[d.score]||'var(--muted)'}">${d.score}/20</span>
+      </div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:.2rem;line-height:1.4">${(d.commentaire||'').substring(0,100)}${(d.commentaire||'').length>100?'…':''}</div>
+    </div>`).join('');
+
+  // Restaurer feedback
+  const fb = evalFeedbacks[id];
+  document.querySelectorAll('.feedback-btn').forEach(btn => {
+    btn.style.borderColor = 'var(--border)';
+    btn.style.background = 'white';
+  });
+  if (fb) {
+    setEvalFeedbackUI(fb.feedback);
+    document.getElementById('em-note').value = fb.note || '';
+    if (fb.feedback !== 'bon') document.getElementById('em-note-block').style.display = 'block';
+  } else {
+    document.getElementById('em-note-block').style.display = 'none';
+    document.getElementById('em-note').value = '';
+  }
+
+  document.getElementById('eval-modal').classList.add('open');
+}
+
+function closeEvalModal() { document.getElementById('eval-modal').classList.remove('open'); }
+document.getElementById('eval-modal').addEventListener('click', function(e){ if(e.target===this) closeEvalModal(); });
+
+function setEvalFeedback(val) {
+  currentEvalFeedback = val;
+  setEvalFeedbackUI(val);
+  document.getElementById('em-note-block').style.display = val === 'bon' ? 'none' : 'block';
+}
+
+function setEvalFeedbackUI(val) {
+  const colors = {bon:'var(--green)',douteux:'var(--amber)',a_revoir:'var(--indigo)'};
+  document.querySelectorAll('.feedback-btn').forEach(btn => {
+    const isActive = btn.dataset.val === val;
+    btn.style.borderColor = isActive ? colors[val] : 'var(--border)';
+    btn.style.background = isActive ? (val==='bon'?'#F0FDF4':val==='douteux'?'#FFFBEB':'#EEF2FF') : 'white';
+  });
+}
+
+function saveEvalFeedback() {
+  if (!currentEvalId || !currentEvalFeedback) { alert('Choisis un feedback'); return; }
+  evalFeedbacks[currentEvalId] = {
+    feedback: currentEvalFeedback,
+    note: document.getElementById('em-note').value.trim()
+  };
+  try { localStorage.setItem('eval_feedbacks', JSON.stringify(evalFeedbacks)); } catch(e) {}
+  // Auto-save serveur
+  saveEvalFeedbacksToServer();
+  closeEvalModal();
+  renderEvalResults(evalResults);
+  renderEvalRapport();
+}
+
+
 checkAuth();
 </script>
 </body>

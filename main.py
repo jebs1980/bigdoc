@@ -1,9 +1,13 @@
 import json
+import time
+from pathlib import Path
+from datetime import datetime
 import secrets
 import httpx
 import os
 import logging
 from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,11 +26,16 @@ from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
     create_partage_token, get_diagnostic_by_token,
     delete_lead_data, get_stats, get_all_leads,
-    get_lead_by_session, verify_admin,
+    get_lead_by_session, verify_admin, init_admin,
+    is_admin_setup_done, setup_admin,
+    create_admin_session, verify_admin_session,
+    delete_admin_session, create_reset_token, reset_admin_password,
     get_app_settings, save_app_settings,
     init_products, get_products, get_product,
     create_product, update_product, delete_product,
-    toggle_product, get_catalogue_for_prompt
+    toggle_product, get_catalogue_for_prompt,
+    get_lead_fiche, update_lead_status, add_lead_note,
+    delete_lead_event, update_lead_info, LEAD_STATUTS
 )
 
 # Modèle Anthropic — configurable dans .env
@@ -142,18 +151,29 @@ def get_demographic_context(specialite: str, ville: str) -> str:
         dept_nom = dept_info.get("nom", dept)
         type_labels = {
             "sous_dote": "Zone avec besoins non couverts (ZIP ARS)",
-            "sur_dote": "Zone à densité élevée",
+            "densite_elevee": "Zone à densité médicale élevée",
+            "sur_dote": "Zone à densité médicale élevée",  # legacy compat
             "intermédiaire": "Zone intermédiaire"
         }
         lines.append(f"Territoire : {dept_nom} ({dept}) — {type_labels.get(dept_type, dept_type)}")
         if dept_type == "sous_dote":
             lines.append("→ Zone sous-dotée ARS : aides CAIM jusqu'à 50 000€, DAC, CPTS — patientèle garantie dès l'ouverture. Valoriser dans le bilan.")
-        elif dept_type == "sur_dote":
-            lines.append("→ IMPORTANT — Densité élevée ne signifie PAS saturation. En France, il y a des besoins non couverts partout :")
-            lines.append("  • 6,7M de patients sans médecin traitant (Ameli 2023) — y compris dans les grandes villes")
-            lines.append("  • Les délais d'accès aux spécialistes restent longs même en zone dense (49j en moyenne Ameli 2023)")
-            lines.append("  • Une densité plus haute crée des opportunités de spécialisation et de coordination, pas de concurrence")
-            lines.append("  → Ne pas décourager l'installation — orienter vers la différenciation et les niches sous-couvertes localement")
+        elif dept_type in ("densite_elevee", "sur_dote"):
+            ville_propre = ville.split('(')[0].strip().split(' ')[0] if ville else "cette zone"
+            delais = DEMOGRAPHICS.get("donnees_drees_etat", {}).get("acces_soins", {}).get("variation_specialites", {})
+            delai_spe = None
+            for key, val in delais.items():
+                if spe_norm and (key.lower() in spe_norm.lower() or spe_norm.lower() in key.lower()):
+                    delai_spe = val
+                    break
+            delai_txt = f"{delai_spe} jours" if delai_spe else "49 jours"
+            spe_label = spe_norm if spe_norm else "spécialiste"
+            lines.append(f"→ Zone dite surdotée — mais cette appellation est trompeuse :")
+            lines.append(f"  • Délai national moyen pour un RDV {spe_label} : {delai_txt} (Ameli / Doctolib 2025 — moyenne nationale)")
+            lines.append(f"  • Dans les grandes villes comme {ville_propre}, les délais sont généralement plus courts qu'en zone rurale — mais restent significatifs : les créneaux sont pris et les besoins persistent")
+            lines.append(f"  • 6,7M de patients sans médecin traitant en France, y compris dans les grandes villes (Ameli 2023)")
+            lines.append(f"  → Ne jamais citer le chiffre national comme étant le chiffre local exact. Dire que le délai est probablement inférieur à {ville_propre} mais reste réel.")
+            lines.append(f"  → Positionner {ville_propre} comme une opportunité : file active plus rapide qu'en rural, patientèle existante, différenciation par spécialisation")
 
     if densite_locale and densite_nationale:
         ratio = densite_locale / densite_nationale
@@ -271,6 +291,7 @@ anthropic_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 async def startup():
     init_db()
     init_products()
+    init_admin()
     load_demographics()
     # Vérifier que le modèle Anthropic est accessible
     try:
@@ -322,6 +343,14 @@ async def analyse_installation(req: InstallationRequest):
 
         prompt = f"""Tu es le Dr Bigdoc, consultant cabinet médical. Un médecin veut s'installer.
 
+RÈGLE FONDAMENTALE — NE JAMAIS IGNORER :
+Les zones "dites surdotées" manquent elles aussi de médecins. En France, les besoins médicaux sont non couverts PARTOUT.
+→ 6,7M de patients sans médecin traitant (Ameli 2023), y compris à Paris et dans les grandes métropoles
+→ Délai moyen RDV spécialiste : 49 jours même en Île-de-France — les patients attendent partout
+→ Ne jamais décourager une installation. Toujours montrer les opportunités de différenciation.
+→ Zone à forte densité = file active rapide, patientèle solvable, opportunité de spécialisation
+→ Si la zone est "dite surdotée" : le préciser avec les guillemets et expliquer que les besoins existent quand même
+
 PROJET :
 - Spécialité : {req.specialite}
 - Zone cible : {req.zone}
@@ -330,10 +359,9 @@ PROJET :
 - Inquiétudes : {req.inquietudes or 'non précisées'}
 
 DONNÉES DISPONIBLES :
-- Aides installation : {json.dumps(aides[:5], ensure_ascii=False)}
-- CPTS en France : {cpts_info.get('etat_deploiement', {}).get('nombre_cpts_france', 903)} actives
-- Financement CPTS socle : {cpts_info.get('financement', {}).get('dotation_socle_annuelle_euros', 150000)}€/an
-- Déserts médicaux : {drees.get('deserts_medicaux', {}).get('nombre_communes_zip', 5800)} communes ZIP
+- Aides à l'installation : {json.dumps(aides[:5], ensure_ascii=False)}
+- CPTS en France : {cpts_info.get('etat_deploiement', {}).get('nombre_cpts_france', 903)} actives — financement socle {cpts_info.get('financement', {}).get('dotation_socle_annuelle_euros', 150000)}€/an
+- 5 800 communes en Zone d'Intervention Prioritaire ARS (déserts médicaux) — aides CAIM jusqu'à 50 000€
 
 Réponds UNIQUEMENT en JSON valide :
 {{
@@ -390,6 +418,7 @@ class LeadRequest(BaseModel):
     session_id: str
     email: EmailStr
     prenom: str = ""
+    nom: str = ""
     specialite: str = ""
     ville: str = ""
     rgpd_consent: bool = True
@@ -581,7 +610,7 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
 async def capture_lead(request: Request, body: LeadRequest):
     """Capture le contact après affichage du score partiel."""
     lead_id = save_lead(
-        body.session_id, body.email, body.prenom, body.specialite, body.ville
+        body.session_id, body.email, body.prenom, body.specialite, body.ville, body.nom
     )
     return {"success": True, "lead_id": lead_id}
 
@@ -734,9 +763,62 @@ async def delete_data(body: DeleteRequest):
 # ─────────────────────────────────────────
 # ADMIN
 # ─────────────────────────────────────────
+def get_admin_from_request(request: Request) -> dict | None:
+    """Extrait et vérifie le token de session depuis le cookie ou header."""
+    token = request.cookies.get("admin_session") or request.headers.get("X-Admin-Token", "")
+    return verify_admin_session(token)
+
+def require_admin(request: Request) -> dict:
+    """Dependency — lève 401 si pas authentifié."""
+    admin = get_admin_from_request(request)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Session expirée — veuillez vous reconnecter")
+    return admin
+
+
 @app.get("/admin", response_class=HTMLResponse)
-async def admin_page():
+async def admin_page(request: Request):
+    if not is_admin_setup_done():
+        return RedirectResponse("/admin/setup")
     with open("static/admin.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/admin/setup", response_class=HTMLResponse)
+async def admin_setup_page():
+    if is_admin_setup_done():
+        return RedirectResponse("/admin/login")
+    with open("static/admin_setup.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+
+class AdminSetupRequest(BaseModel):
+    email: str
+    username: str
+    password: str
+
+
+@app.post("/api/admin/setup")
+async def admin_setup(body: AdminSetupRequest):
+    if is_admin_setup_done():
+        raise HTTPException(status_code=403, detail="Setup déjà effectué")
+    if len(body.password) < 8:
+        raise HTTPException(status_code=400, detail="Mot de passe trop court (8 caractères minimum)")
+    if not "@" in body.email:
+        raise HTTPException(status_code=400, detail="Email invalide")
+    ok = setup_admin(body.email, body.username, body.password)
+    if not ok:
+        raise HTTPException(status_code=403, detail="Setup déjà effectué")
+    return {"success": True}
+
+
+@app.get("/admin/login", response_class=HTMLResponse)
+async def admin_login_page():
+    with open("static/admin_login.html", "r", encoding="utf-8") as f:
+        return f.read()
+
+@app.get("/admin/reset-password", response_class=HTMLResponse)
+async def admin_reset_page():
+    with open("static/admin_reset.html", "r", encoding="utf-8") as f:
         return f.read()
 
 
@@ -744,41 +826,147 @@ class AdminLoginRequest(BaseModel):
     username: str
     password: str
 
+class AdminResetRequestBody(BaseModel):
+    email: str
+
+class AdminNewPasswordBody(BaseModel):
+    token: str
+    password: str
+
 
 @app.post("/api/admin/login")
-async def admin_login(body: AdminLoginRequest):
-    """Authentification admin — renvoie un token de session."""
-    if verify_admin(body.username, body.password):
-        # Token de session simple (valable le temps de la session navigateur)
-        session_token = secrets.token_urlsafe(32)
-        return {"success": True, "token": session_token}
-    raise HTTPException(status_code=401, detail="Identifiants incorrects")
+async def admin_login(body: AdminLoginRequest, response: Response):
+    try:
+        admin = verify_admin(body.username, body.password)
+    except ValueError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    if not admin:
+        raise HTTPException(status_code=401, detail="Identifiants incorrects")
+    token = create_admin_session(admin["id"] if admin.get("id") else 0)
+    response.set_cookie(
+        key="admin_session", value=token,
+        httponly=True, secure=True, samesite="lax",
+        max_age=86400
+    )
+    return {"success": True}
+
+
+@app.post("/api/admin/logout")
+async def admin_logout(request: Request, response: Response):
+    token = request.cookies.get("admin_session", "")
+    if token:
+        delete_admin_session(token)
+    response.delete_cookie("admin_session")
+    return {"success": True}
+
+
+@app.post("/api/admin/reset-request")
+async def admin_reset_request(body: AdminResetRequestBody):
+    """Envoie un email de reset/déblocage."""
+    token = create_reset_token(body.email)
+    if token:
+        host = "dev.bigdoc.fr" if "dev" in body.email else "bigdoc.fr"
+        reset_url = f"https://{host}/admin/reset-password?token={token}"
+        try:
+            import resend
+            resend.api_key = RESEND_API_KEY
+            resend.Emails.send({
+                "from": FROM_EMAIL,
+                "to": body.email,
+                "subject": "Bigdoc Admin — Réinitialisation de votre mot de passe",
+                "html": f"""
+                <p>Bonjour,</p>
+                <p>Cliquez sur le lien ci-dessous pour réinitialiser votre mot de passe admin Bigdoc :</p>
+                <p><a href="{reset_url}">{reset_url}</a></p>
+                <p>Ce lien expire dans 1 heure.</p>
+                <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+                """
+            })
+        except Exception as e:
+            logger.error(f"Erreur email reset: {e}")
+    # Toujours retourner succès (sécurité — ne pas révéler si email existe)
+    return {"success": True, "message": "Si cet email existe, un lien de réinitialisation a été envoyé."}
+
+
+@app.post("/api/admin/reset-password")
+async def admin_reset_password_route(body: AdminNewPasswordBody):
+    if len(body.password) < 8:
+        raise HTTPException(status_code=400, detail="Mot de passe trop court (8 caractères minimum)")
+    ok = reset_admin_password(body.token, body.password)
+    if not ok:
+        raise HTTPException(status_code=400, detail="Lien invalide ou expiré")
+    return {"success": True}
+
+
+@app.get("/api/admin/me")
+async def admin_me(request: Request):
+    """Vérifie la session en cours."""
+    admin = get_admin_from_request(request)
+    if not admin:
+        raise HTTPException(status_code=401, detail="Non authentifié")
+    return {"username": admin.get("username"), "email": admin.get("email")}
 
 
 @app.get("/api/admin/leads")
 async def admin_leads(request: Request):
-    """Liste tous les diagnostics — protégé par login DB."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     return get_all_leads()
+
+
+# ── CRM — FICHE LEAD ──
+@app.get("/api/admin/leads/{lead_id}")
+async def get_lead_detail(lead_id: int, request: Request):
+    require_admin(request)
+    fiche = get_lead_fiche(lead_id)
+    if not fiche:
+        raise HTTPException(status_code=404, detail="Lead introuvable")
+    return fiche
+
+@app.patch("/api/admin/leads/{lead_id}/status")
+async def update_status(lead_id: int, request: Request):
+    require_admin(request)
+    data = await request.json()
+    status = data.get("status", "")
+    note = data.get("note", "")
+    if not update_lead_status(lead_id, status, note):
+        raise HTTPException(status_code=400, detail=f"Statut invalide. Valeurs: {LEAD_STATUTS}")
+    return {"success": True}
+
+@app.post("/api/admin/leads/{lead_id}/notes")
+async def add_note(lead_id: int, request: Request):
+    require_admin(request)
+    data = await request.json()
+    content = data.get("content", "").strip()
+    if not content:
+        raise HTTPException(status_code=400, detail="Note vide")
+    event_id = add_lead_note(lead_id, content)
+    return {"success": True, "event_id": event_id}
+
+@app.delete("/api/admin/leads/{lead_id}/notes/{event_id}")
+async def delete_note(lead_id: int, event_id: int, request: Request):
+    require_admin(request)
+    delete_lead_event(event_id)
+    return {"success": True}
+
+@app.patch("/api/admin/leads/{lead_id}/info")
+async def update_info(lead_id: int, request: Request):
+    require_admin(request)
+    data = await request.json()
+    update_lead_info(lead_id, data)
+    return {"success": True}
+
+
 
 
 @app.get("/api/admin/settings")
 async def get_settings_route(request: Request):
-    """Récupère les paramètres depuis la base."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     return get_app_settings()
 
 
 @app.post("/api/admin/settings")
 async def save_settings_route(request: Request):
-    """Sauvegarde les paramètres dans la base."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     data = await request.json()
     save_app_settings(data)
     return {"success": True}
@@ -804,15 +992,13 @@ async def public_settings():
 
 @app.get("/api/admin/products")
 async def admin_list_products(request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     return get_products()
 
 
 @app.post("/api/admin/products")
 async def admin_create_product(request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     data = await request.json()
     product_id = create_product(data)
     return {"success": True, "id": product_id}
@@ -820,8 +1006,7 @@ async def admin_create_product(request: Request):
 
 @app.put("/api/admin/products/{product_id}")
 async def admin_update_product(product_id: int, request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     data = await request.json()
     update_product(product_id, data)
     return {"success": True}
@@ -829,16 +1014,14 @@ async def admin_update_product(product_id: int, request: Request):
 
 @app.delete("/api/admin/products/{product_id}")
 async def admin_delete_product(product_id: int, request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     delete_product(product_id)
     return {"success": True}
 
 
 @app.post("/api/admin/products/{product_id}/toggle")
 async def admin_toggle_product(product_id: int, request: Request):
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth: raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
     actif = toggle_product(product_id)
     return {"success": True, "actif": actif}
 
@@ -846,9 +1029,7 @@ async def admin_toggle_product(product_id: int, request: Request):
 @app.get("/api/admin/stripe-stats")
 async def stripe_stats_route(request: Request):
     """Stats CA depuis Stripe."""
-    auth = request.headers.get("X-Admin-Token", "")
-    if not auth:
-        raise HTTPException(status_code=401, detail="Non autorisé")
+    require_admin(request)
 
     settings = get_app_settings()
     sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
@@ -965,12 +1146,23 @@ async def create_checkout(body: CheckoutRequest):
         raise HTTPException(status_code=400, detail="Stripe non configuré — ajoutez vos clés dans les paramètres admin")
     stripe.api_key = sk
 
-    # Chercher le produit dans le catalogue
+    # Chercher le produit dans le catalogue — par ID ou par clé
     product = None
     try:
         product = get_product(int(body.produit))
     except (ValueError, TypeError):
         pass
+
+    if not product:
+        key_map = {
+            "serenite": 9,
+            "confort": 10,
+            "cabinet_libere": 11,
+            "plan_action": 2,
+        }
+        pid = key_map.get(body.produit.lower())
+        if pid:
+            product = get_product(pid)
 
     if not product:
         raise HTTPException(status_code=400, detail="Produit introuvable dans le catalogue")
@@ -1003,8 +1195,8 @@ async def create_checkout(body: CheckoutRequest):
             mode=mode,
             line_items=[line_item],
             customer_email=body.email or None,
-            success_url=f"https://bigdoc.fr/bilan/{body.session_id}?paiement=ok",
-            cancel_url=f"https://bigdoc.fr/bilan/{body.session_id}",
+            success_url=f"https://bigdoc.fr/?session={body.session_id}&paiement=ok",
+            cancel_url=f"https://bigdoc.fr/?session={body.session_id}&paiement=cancel",
             metadata={"session_id": body.session_id, "produit_id": str(product["id"]), "produit_nom": nom}
         )
         return {"checkout_url": session.url}
@@ -1014,7 +1206,7 @@ async def create_checkout(body: CheckoutRequest):
 
 @app.post("/api/stripe-webhook")
 async def stripe_webhook(request: Request):
-    """Webhook Stripe — confirme les paiements."""
+    """Webhook Stripe — gère paiements, quotes, échecs."""
     import stripe
     settings = get_app_settings()
     sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
@@ -1024,17 +1216,644 @@ async def stripe_webhook(request: Request):
     sig = request.headers.get("stripe-signature", "")
     webhook_secret = settings.get("stripe_webhook_secret") or STRIPE_WEBHOOK_SECRET
 
-    try:
-        event = stripe.Webhook.construct_event(payload, sig, webhook_secret)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Signature Stripe invalide")
+    if not webhook_secret:
+        # Pas de secret configuré — on accepte mais on log un warning
+        logger.warning("⚠️ Webhook reçu sans secret configuré — vérification signature désactivée")
+        try:
+            event = stripe.Event.construct_from(
+                json.loads(payload), stripe.api_key
+            )
+        except Exception:
+            raise HTTPException(status_code=400, detail="Payload invalide")
+    else:
+        try:
+            event = stripe.Webhook.construct_event(payload, sig, webhook_secret)
+        except Exception:
+            raise HTTPException(status_code=400, detail="Signature Stripe invalide")
 
-    if event["type"] in ("checkout.session.completed", "invoice.payment_succeeded"):
-        session = event["data"]["object"]
-        meta = session.get("metadata", {})
-        logger.info(f"✅ Paiement confirmé — session {meta.get('session_id')} / {meta.get('produit_nom')}")
+    evt_type = event["type"]
+    obj = event["data"]["object"]
+    logger.info(f"📩 Webhook Stripe : {evt_type}")
+
+    # ── Paiement checkout réussi ──
+    if evt_type == "checkout.session.completed":
+        meta = obj.get("metadata", {})
+        session_id = meta.get("session_id", "")
+        produit_nom = meta.get("produit_nom", "")
+        customer_email = obj.get("customer_email") or obj.get("customer_details", {}).get("email", "")
+        logger.info(f"✅ Checkout — session {session_id} / {produit_nom} / {customer_email}")
+
+    # ── Facture payée ──
+    elif evt_type == "invoice.payment_succeeded":
+        customer_email = obj.get("customer_email", "")
+        amount = obj.get("amount_paid", 0)
+        invoice_id = obj.get("id", "")
+        logger.info(f"✅ Invoice payée — {invoice_id} / {amount/100:.2f}€ / {customer_email}")
+        # Envoyer email de confirmation si Resend configuré
+        if customer_email and RESEND_API_KEY:
+            try:
+                import resend
+                resend.api_key = RESEND_API_KEY
+                resend.Emails.send({
+                    "from": FROM_EMAIL,
+                    "to": customer_email,
+                    "subject": "✅ Paiement confirmé — RMS",
+                    "html": f"""
+                    <p>Bonjour,</p>
+                    <p>Votre paiement de <strong>{amount/100:.2f} €</strong> a bien été reçu.</p>
+                    <p>Numéro de facture : <strong>{invoice_id}</strong></p>
+                    <p>L'équipe RMS vous contactera très prochainement pour démarrer l'accompagnement.</p>
+                    <p>Cordialement,<br>L'équipe RMS</p>
+                    """
+                })
+            except Exception as e:
+                logger.error(f"Erreur email confirmation : {e}")
+
+    # ── Paiement échoué ──
+    elif evt_type == "invoice.payment_failed":
+        customer_email = obj.get("customer_email", "")
+        invoice_id = obj.get("id", "")
+        logger.warning(f"❌ Paiement échoué — {invoice_id} / {customer_email}")
+        if customer_email and RESEND_API_KEY:
+            try:
+                import resend
+                resend.api_key = RESEND_API_KEY
+                resend.Emails.send({
+                    "from": FROM_EMAIL,
+                    "to": customer_email,
+                    "subject": "⚠️ Problème de paiement — RMS",
+                    "html": f"""
+                    <p>Bonjour,</p>
+                    <p>Votre paiement n'a pas pu être traité.</p>
+                    <p>Veuillez vérifier vos coordonnées bancaires ou nous contacter à <a href="mailto:{FROM_EMAIL}">{FROM_EMAIL}</a>.</p>
+                    <p>Cordialement,<br>L'équipe RMS</p>
+                    """
+                })
+            except Exception as e:
+                logger.error(f"Erreur email échec : {e}")
+
+    # ── Devis accepté ──
+    elif evt_type == "quote.accepted":
+        customer_id = obj.get("customer", "")
+        quote_number = obj.get("number", "")
+        logger.info(f"✅ Devis accepté — {quote_number} / customer {customer_id}")
 
     return {"received": True}
+
+
+
+
+# ─────────────────────────────────────────
+# DEVIS — STRIPE QUOTES
+# ─────────────────────────────────────────
+class QuoteRequest(BaseModel):
+    email: str
+    prenom: str = ""
+    nom: str = ""
+    specialite: str = ""
+    ville: str = ""
+    produit_nom: str = ""
+    prix_ht: float = 0
+    tva: float = 20.0
+    note: str = ""
+    expires_jours: int = 30
+    session_id: str = ""
+
+
+def _get_stripe():
+    import stripe as stripe_lib
+    settings = get_app_settings()
+    sk = settings.get("stripe_sk") or STRIPE_SECRET_KEY
+    if not sk:
+        raise HTTPException(status_code=400, detail="Stripe non configuré")
+    stripe_lib.api_key = sk
+    return stripe_lib
+
+
+@app.get("/api/admin/quotes")
+async def list_quotes(request: Request):
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quotes = stripe.Quote.list(limit=50)
+        result = []
+        for q in quotes.data:
+            customer = None
+            if q.customer:
+                try:
+                    customer = stripe.Customer.retrieve(q.customer)
+                except Exception:
+                    pass
+            result.append({
+                "id": q.id,
+                "status": q.status,
+                "amount_total": q.amount_total,
+                "currency": q.currency,
+                "created": q.created,
+                "expires_at": q.expires_at,
+                "customer_email": customer.email if customer else q.get("customer_email", ""),
+                "customer_name": customer.name if customer else "",
+                "description": q.description or "",
+                "pdf": q.pdf if hasattr(q, 'pdf') else None,
+            })
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes")
+async def create_quote(request: Request, body: QuoteRequest):
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        from datetime import datetime, timedelta
+
+        # Créer ou récupérer le customer Stripe
+        customers = stripe.Customer.list(email=body.email, limit=1)
+        if customers.data:
+            customer = customers.data[0]
+        else:
+            customer = stripe.Customer.create(
+                email=body.email,
+                name=f"Dr. {body.prenom} {body.nom}".strip(),
+                metadata={
+                    "specialite": body.specialite,
+                    "ville": body.ville,
+                    "session_id": body.session_id,
+                }
+            )
+
+        prix_ht_cents = int(round(body.prix_ht * 100))
+        expires_at = int((datetime.now() + timedelta(days=body.expires_jours)).timestamp())
+
+        # price_data dans les Quotes exige un product ID existant
+        # On crée un produit Stripe inline puis on l'utilise
+        product = stripe.Product.create(
+            name=body.produit_nom or "Prestation RMS",
+            description=f"Dr. {body.prenom} {body.nom} — {body.specialite} — {body.ville}".strip(" —"),
+        )
+
+        quote = stripe.Quote.create(
+            customer=customer.id,
+            expires_at=expires_at,
+            description=body.note or f"Accompagnement cabinet médical — {body.produit_nom}",
+            collection_method="send_invoice",
+            invoice_settings={"days_until_due": 30},
+            line_items=[{
+                "price_data": {
+                    "currency": "eur",
+                    "product": product.id,
+                    "unit_amount": prix_ht_cents,
+                    "tax_behavior": "exclusive",
+                },
+                "quantity": 1,
+            }],
+        )
+
+        return {"success": True, "quote_id": quote.id, "status": quote.status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes/{quote_id}/finalize")
+async def finalize_quote(quote_id: str, request: Request):
+    """Finalise le devis et envoie le PDF par email via Resend."""
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        # Finaliser le quote (lui assigne un numéro)
+        quote = stripe.Quote.finalize_quote(quote_id)
+
+        # Récupérer l'email du customer
+        customer_email = ""
+        if quote.customer:
+            try:
+                customer = stripe.Customer.retrieve(quote.customer)
+                customer_email = customer.email or ""
+            except Exception:
+                pass
+
+        # Télécharger le PDF
+        pdf_response = stripe.Quote.pdf(quote_id)
+        pdf_bytes = pdf_response.read()
+
+        # Envoyer par email via Resend
+        if customer_email and RESEND_API_KEY:
+            import resend, base64
+            resend.api_key = RESEND_API_KEY
+            resend.Emails.send({
+                "from": FROM_EMAIL,
+                "to": customer_email,
+                "subject": f"Votre devis RMS — {quote.number}",
+                "html": f"""
+                <p>Bonjour,</p>
+                <p>Veuillez trouver ci-joint votre devis <strong>{quote.number}</strong>.</p>
+                <p>Ce devis est valable jusqu'au {quote.expires_at}.</p>
+                <p>Pour toute question, contactez-nous à <a href="mailto:{FROM_EMAIL}">{FROM_EMAIL}</a>.</p>
+                <p>Cordialement,<br>L'équipe RMS</p>
+                """,
+                "attachments": [{
+                    "filename": f"devis-{quote.number}.pdf",
+                    "content": base64.b64encode(pdf_bytes).decode(),
+                }]
+            })
+
+        return {"success": True, "status": quote.status, "number": quote.number, "email_sent": bool(customer_email)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes/{quote_id}/accept")
+async def accept_quote(quote_id: str, request: Request):
+    """Accepte le devis et crée l'invoice."""
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quote = stripe.Quote.accept(quote_id)
+        return {"success": True, "status": quote.status, "invoice": getattr(quote, 'invoice', None)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class InvoiceRequest(BaseModel):
+    email: str
+    prenom: str = ""
+    nom: str = ""
+    description: str = ""
+    prix_ht: float = 0
+    tva: float = 20.0
+
+
+@app.post("/api/admin/invoices")
+async def create_direct_invoice(request: Request, body: InvoiceRequest):
+    """Crée et envoie une facture Stripe directement sans devis."""
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        # Créer ou récupérer le customer
+        customers = stripe.Customer.list(email=body.email, limit=1)
+        if customers.data:
+            customer = customers.data[0]
+        else:
+            customer = stripe.Customer.create(
+                email=body.email,
+                name=f"Dr. {body.prenom} {body.nom}".strip(),
+            )
+
+        prix_ht_cents = int(round(body.prix_ht * 100))
+
+        # Créer l'invoice item
+        stripe.InvoiceItem.create(
+            customer=customer.id,
+            amount=prix_ht_cents,
+            currency="eur",
+            description=body.description,
+        )
+
+        # Créer et finaliser l'invoice
+        invoice = stripe.Invoice.create(
+            customer=customer.id,
+            collection_method="send_invoice",
+            days_until_due=30,
+            auto_advance=True,
+        )
+        invoice = stripe.Invoice.finalize_invoice(invoice.id)
+        stripe.Invoice.send_invoice(invoice.id)
+
+        return {"success": True, "invoice_id": invoice.id, "status": invoice.status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/admin/quotes/{quote_id}/cancel")
+async def cancel_quote(quote_id: str, request: Request):
+    require_admin(request)
+    stripe = _get_stripe()
+    try:
+        quote = stripe.Quote.cancel(quote_id)
+        return {"success": True, "status": quote.status}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# ─────────────────────────────────────────
+# EVAL — Routes admin
+# ─────────────────────────────────────────
+import threading, uuid as _uuid
+
+_eval_jobs = {}  # job_id → {done, total, status}
+
+EVAL_DATA_DIR       = Path(os.getenv("EVAL_DATA_DIR", "/app/eval_data"))
+EVAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
+EVAL_CASES_FILE     = Path("eval_cases.json")  # baked dans l'image
+EVAL_RESULTS_FILE   = EVAL_DATA_DIR / "eval_results.json"
+EVAL_BATCHES_FILE   = EVAL_DATA_DIR / "eval_batches.json"
+
+
+def _run_eval_thread(job_id: str, cases: list):
+    """Lance les cas en arrière-plan."""
+    _eval_jobs[job_id] = {"done": 0, "total": len(cases), "status": "running"}
+    results = {}
+    if EVAL_RESULTS_FILE.exists():
+        for r in json.loads(EVAL_RESULTS_FILE.read_text()):
+            results[r["id"]] = r
+
+    for case in cases:
+        try:
+            # Utiliser les fonctions directement (pas de circular import)
+            context = get_demographic_context(case["specialite"], case["ville"])
+            user_prompt = build_diagnostic_prompt(
+                reponses=case["reponses"],
+                texte_libre=case.get("texte_libre", ""),
+                specialite=case["specialite"],
+                ville=case["ville"],
+                catalogue=""
+            )
+            if context:
+                user_prompt = context + "\n\n" + user_prompt
+
+            response = anthropic_client.messages.create(
+                model=ANTHROPIC_MODEL,
+                max_tokens=4000,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}]
+            )
+            raw = response.content[0].text.strip()
+            try:
+                bilan = json.loads(raw)
+            except Exception:
+                import re as _re
+                match = _re.search(r'\{.*\}', raw, _re.DOTALL)
+                bilan = json.loads(match.group()) if match else {"erreur": "JSON invalide"}
+
+            results[case["id"]] = {
+                "id": case["id"], "label": case["label"],
+                "specialite": case["specialite"], "ville": case["ville"],
+                "texte_libre": case.get("texte_libre", ""),
+                "bilan": bilan, "status": "ok" if "score_global" in bilan else "erreur",
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            results[case["id"]] = {
+                "id": case["id"], "label": case.get("label", ""),
+                "specialite": case.get("specialite", ""), "ville": case.get("ville", ""),
+                "texte_libre": case.get("texte_libre", ""),
+                "bilan": {}, "status": "erreur", "erreur": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+        _eval_jobs[job_id]["done"] += 1
+        EVAL_RESULTS_FILE.write_text(json.dumps(list(results.values()), ensure_ascii=False, indent=2))
+        time.sleep(1.2)
+
+    _eval_jobs[job_id]["status"] = "done"
+
+
+EVAL_FEEDBACKS_FILE = EVAL_DATA_DIR / "eval_feedbacks.json"
+
+
+@app.get("/api/admin/eval/export-word")
+async def eval_export_word(request: Request):
+    """Génère et télécharge le document Word de relecture."""
+    require_admin(request)
+    if not EVAL_RESULTS_FILE.exists():
+        raise HTTPException(status_code=404, detail="Aucun résultat d'évaluation")
+
+    import subprocess, tempfile
+    output = Path(tempfile.mktemp(suffix=".docx"))
+    script = Path("/app/generate_eval_word.py")
+    if not script.exists():
+        raise HTTPException(status_code=404, detail="Script de génération introuvable")
+
+    result = subprocess.run(
+        ["python3", str(script), str(EVAL_RESULTS_FILE), str(output)],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0 or not output.exists():
+        raise HTTPException(status_code=500, detail=f"Erreur génération : {result.stderr[:200]}")
+
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        path=str(output),
+        filename=f"bigdoc-eval-{datetime.now().strftime('%Y%m%d')}.docx",
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+
+
+@app.post("/api/admin/eval/feedback")
+async def save_eval_feedback(request: Request):
+    require_admin(request)
+    data = await request.json()
+    EVAL_FEEDBACKS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    return {"success": True, "count": len(data)}
+
+
+@app.get("/api/admin/eval/feedback")
+async def get_eval_feedback(request: Request):
+    require_admin(request)
+    if not EVAL_FEEDBACKS_FILE.exists():
+        return {}
+    return json.loads(EVAL_FEEDBACKS_FILE.read_text())
+
+
+
+async def eval_run(request: Request, mode: str = "normal"):
+    require_admin(request)
+    if not EVAL_CASES_FILE.exists():
+        raise HTTPException(status_code=404, detail="eval_cases.json introuvable")
+    cases = json.loads(EVAL_CASES_FILE.read_text())
+
+    if mode == "batch":
+        import anthropic as _anthropic
+        batch_requests = []
+        for case in cases:
+            context = get_demographic_context(case["specialite"], case["ville"])
+            user_prompt = build_diagnostic_prompt(
+                reponses=case["reponses"],
+                texte_libre=case.get("texte_libre", ""),
+                specialite=case["specialite"],
+                ville=case["ville"],
+                catalogue=""
+            )
+            if context:
+                user_prompt = context + "\n\n" + user_prompt
+            batch_requests.append({
+                "custom_id": case["id"],
+                "params": {
+                    "model": ANTHROPIC_MODEL,
+                    "max_tokens": 4000,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": user_prompt}]
+                }
+            })
+        batch = anthropic_client.beta.messages.batches.create(requests=batch_requests)
+        records = []
+        if EVAL_BATCHES_FILE.exists():
+            records = json.loads(EVAL_BATCHES_FILE.read_text())
+        records.append({
+            "batch_id": batch.id,
+            "case_count": len(cases),
+            "launched_at": datetime.now().isoformat(),
+            "status": "in_progress"
+        })
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+        return {"batch_id": batch.id, "total": len(cases)}
+
+    else:
+        job_id = str(_uuid.uuid4())[:8]
+        t = threading.Thread(target=_run_eval_thread, args=(job_id, cases), daemon=True)
+        t.start()
+        return {"job_id": job_id, "total": len(cases)}
+
+
+@app.post("/api/admin/eval/run")
+async def eval_run(request: Request, mode: str = "normal"):
+    require_admin(request)
+    if not EVAL_CASES_FILE.exists():
+        raise HTTPException(status_code=404, detail="eval_cases.json introuvable")
+    all_cases = json.loads(EVAL_CASES_FILE.read_text())
+
+    # Filtrer par IDs si fournis
+    try:
+        body = await request.json()
+        ids = body.get("ids", [])
+    except Exception:
+        ids = []
+    cases = [c for c in all_cases if c["id"] in ids] if ids else all_cases
+
+    if mode == "batch":
+        batch_requests = []
+        for case in cases:
+            context = get_demographic_context(case["specialite"], case["ville"])
+            user_prompt = build_diagnostic_prompt(
+                reponses=case["reponses"],
+                texte_libre=case.get("texte_libre", ""),
+                specialite=case["specialite"],
+                ville=case["ville"],
+                catalogue=""
+            )
+            if context:
+                user_prompt = context + "\n\n" + user_prompt
+            batch_requests.append({
+                "custom_id": case["id"],
+                "params": {
+                    "model": ANTHROPIC_MODEL,
+                    "max_tokens": 4000,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": user_prompt}]
+                }
+            })
+        batch = anthropic_client.beta.messages.batches.create(requests=batch_requests)
+        records = []
+        if EVAL_BATCHES_FILE.exists():
+            records = json.loads(EVAL_BATCHES_FILE.read_text())
+        records.append({
+            "batch_id": batch.id,
+            "case_count": len(cases),
+            "launched_at": datetime.now().isoformat(),
+            "status": "in_progress"
+        })
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+        return {"batch_id": batch.id, "total": len(cases)}
+    else:
+        job_id = str(_uuid.uuid4())[:8]
+        t = threading.Thread(target=_run_eval_thread, args=(job_id, cases), daemon=True)
+        t.start()
+        return {"job_id": job_id, "total": len(cases)}
+
+
+@app.get("/api/admin/eval/status/{job_id}")
+async def eval_status(job_id: str, request: Request):
+    require_admin(request)
+    job = _eval_jobs.get(job_id, {"done": 0, "total": 0, "status": "unknown"})
+    return job
+
+
+@app.get("/api/admin/eval/results")
+async def eval_results(request: Request):
+    require_admin(request)
+    if not EVAL_RESULTS_FILE.exists():
+        return []
+    return json.loads(EVAL_RESULTS_FILE.read_text())
+
+
+@app.get("/api/admin/eval/batches")
+async def eval_batches(request: Request):
+    require_admin(request)
+    if not EVAL_BATCHES_FILE.exists():
+        return []
+    return json.loads(EVAL_BATCHES_FILE.read_text())
+
+
+@app.get("/api/admin/eval/batch-status/{batch_id}")
+async def eval_batch_status(batch_id: str, request: Request):
+    require_admin(request)
+    batch = anthropic_client.beta.messages.batches.retrieve(batch_id)
+    counts = batch.request_counts
+    # Mettre à jour le fichier batches
+    if EVAL_BATCHES_FILE.exists():
+        records = json.loads(EVAL_BATCHES_FILE.read_text())
+        for r in records:
+            if r["batch_id"] == batch_id:
+                r["status"] = batch.processing_status
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+    return {
+        "status": batch.processing_status,
+        "succeeded": counts.succeeded,
+        "errored": counts.errored,
+        "processing": counts.processing
+    }
+
+
+@app.post("/api/admin/eval/batch-get/{batch_id}")
+async def eval_batch_get(batch_id: str, request: Request):
+    require_admin(request)
+    batch = anthropic_client.beta.messages.batches.retrieve(batch_id)
+    if batch.processing_status != "ended":
+        raise HTTPException(status_code=400, detail="Batch pas encore terminé")
+
+    cases_by_id = {}
+    if EVAL_CASES_FILE.exists():
+        for c in json.loads(EVAL_CASES_FILE.read_text()):
+            cases_by_id[c["id"]] = c
+
+    results = {}
+    if EVAL_RESULTS_FILE.exists():
+        for r in json.loads(EVAL_RESULTS_FILE.read_text()):
+            results[r["id"]] = r
+
+    import re
+    for result in anthropic_client.beta.messages.batches.results(batch_id):
+        cid = result.custom_id
+        case = cases_by_id.get(cid, {})
+        if result.result.type == "succeeded":
+            raw = result.result.message.content[0].text
+            try:
+                bilan = json.loads(raw.strip())
+            except Exception:
+                match = re.search(r'\{.*\}', raw, re.DOTALL)
+                bilan = json.loads(match.group()) if match else {"erreur": "JSON invalide"}
+            status = "ok" if "score_global" in bilan else "erreur"
+        else:
+            bilan, status = {}, "erreur"
+
+        results[cid] = {
+            "id": cid, "label": case.get("label", ""),
+            "specialite": case.get("specialite", ""), "ville": case.get("ville", ""),
+            "texte_libre": case.get("texte_libre", ""),
+            "bilan": bilan, "status": status, "mode": "batch",
+            "timestamp": datetime.now().isoformat()
+        }
+
+    EVAL_RESULTS_FILE.write_text(json.dumps(list(results.values()), ensure_ascii=False, indent=2))
+    # Mettre à jour statut batch
+    if EVAL_BATCHES_FILE.exists():
+        records = json.loads(EVAL_BATCHES_FILE.read_text())
+        for r in records:
+            if r["batch_id"] == batch_id:
+                r["status"] = "ended"
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+    return {"retrieved": len(results)}
 
 
 if __name__ == "__main__":

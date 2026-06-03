@@ -35,22 +35,48 @@ def init_db():
         );
 
         CREATE TABLE IF NOT EXISTS admin_users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            username      TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            id              INTEGER PRIMARY KEY AUTOINCREMENT,
+            username        TEXT UNIQUE NOT NULL,
+            email           TEXT UNIQUE NOT NULL,
+            password_hash   TEXT NOT NULL,
+            reset_token     TEXT,
+            reset_expires   TIMESTAMP,
+            login_attempts  INTEGER DEFAULT 0,
+            locked_until    TIMESTAMP,
+            created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_login      TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS admin_sessions (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            token       TEXT UNIQUE NOT NULL,
+            admin_id    INTEGER REFERENCES admin_users(id),
+            expires_at  TIMESTAMP NOT NULL,
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS leads (
             id              INTEGER PRIMARY KEY AUTOINCREMENT,
             email           TEXT NOT NULL,
             prenom          TEXT,
+            nom             TEXT,
             specialite      TEXT,
             ville           TEXT,
+            rpps            TEXT,
+            status          TEXT DEFAULT 'lead',
             created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             rgpd_consent    INTEGER DEFAULT 1,
             rgpd_date       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             source          TEXT DEFAULT 'diagnostic'
+        );
+
+        CREATE TABLE IF NOT EXISTS lead_events (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            lead_id     INTEGER NOT NULL REFERENCES leads(id),
+            type        TEXT NOT NULL,
+            content     TEXT,
+            meta        TEXT,
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
 
         CREATE TABLE IF NOT EXISTS diagnostics (
@@ -148,15 +174,21 @@ def save_diagnostic(session_id: str, bilan: dict, reponses: dict, texte_libre: s
     return row["id"] if row else 0
 
 
-def save_lead(session_id: str, email: str, prenom: str = "", specialite: str = "", ville: str = "") -> int:
+def save_lead(session_id: str, email: str, prenom: str = "", specialite: str = "", ville: str = "", nom: str = "") -> int:
     conn = get_connection()
 
-    # Upsert lead
+    # Ajouter colonne nom si elle n'existe pas (migration)
+    try:
+        conn.execute("ALTER TABLE leads ADD COLUMN nom TEXT")
+        conn.commit()
+    except Exception:
+        pass
+
     conn.execute("""
-        INSERT INTO leads (email, prenom, specialite, ville)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO leads (email, prenom, nom, specialite, ville)
+        VALUES (?, ?, ?, ?, ?)
         ON CONFLICT DO NOTHING
-    """, (email.lower().strip(), prenom, specialite, ville))
+    """, (email.lower().strip(), prenom, nom, specialite, ville))
 
     lead = conn.execute("SELECT id FROM leads WHERE email = ?", (email.lower().strip(),)).fetchone()
     lead_id = lead["id"] if lead else 0
@@ -232,24 +264,192 @@ def delete_lead_data(email: str) -> bool:
     return True
 
 
-def verify_admin(username: str, password: str) -> bool:
-    """Vérifie les identifiants admin contre le hash en base."""
-    import hashlib
+def _hash_password(password: str, salt: str = None) -> tuple:
+    """Hash un mot de passe avec sel aléatoire."""
+    import hashlib, os
+    if salt is None:
+        salt = os.urandom(32).hex()
+    h = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 200_000).hex()
+    return salt, h
+
+def is_admin_setup_done() -> bool:
+    """Retourne True si au moins un admin est configuré."""
+    conn = get_connection()
+    row = conn.execute("SELECT COUNT(*) as n FROM admin_users").fetchone()
+    conn.close()
+    return row["n"] > 0 if row else False
+
+def setup_admin(email: str, username: str, password: str) -> bool:
+    """Configure le premier compte admin. Retourne False si déjà fait."""
+    if is_admin_setup_done():
+        return False
+    salt, h = _hash_password(password)
+    conn = get_connection()
+    conn.execute(
+        "INSERT INTO admin_users (username, email, password_hash) VALUES (?,?,?)",
+        (username, email, f"{salt}${h}")
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+def init_admin():
+    """Migration DB uniquement — ne crée plus de compte par défaut."""
+    conn = get_connection()
+    for col, defval in [
+        ("email", "TEXT"),
+        ("reset_token", "TEXT"),
+        ("reset_expires", "TIMESTAMP"),
+        ("login_attempts", "INTEGER DEFAULT 0"),
+        ("locked_until", "TIMESTAMP"),
+        ("last_login", "TIMESTAMP")
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE admin_users ADD COLUMN {col} {defval}")
+        except Exception:
+            pass
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS admin_sessions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            token TEXT UNIQUE NOT NULL,
+            admin_id INTEGER REFERENCES admin_users(id),
+            expires_at TIMESTAMP NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def verify_admin(username: str, password: str) -> dict | None:
+    """Vérifie identifiants. Retourne l'admin ou None. Gère blocage."""
+    from datetime import datetime, timedelta
+    import hashlib, os
+
+    # Priorité .env
+    env_user = os.getenv("ADMIN_USERNAME", "admin")
+    env_pass = os.getenv("ADMIN_PASSWORD", "")
+    if env_pass and username == env_user and password == env_pass:
+        return {"id": 0, "username": username, "email": ""}
+
     conn = get_connection()
     row = conn.execute(
-        "SELECT password_hash FROM admin_users WHERE username = ?",
-        (username,)
+        "SELECT * FROM admin_users WHERE username=? OR email=?", (username, username)
     ).fetchone()
-    conn.close()
+
     if not row:
-        return False
+        conn.close()
+        return None
+
+    admin = dict(row)
+
+    # Vérifier blocage
+    if admin.get("locked_until"):
+        locked = datetime.fromisoformat(admin["locked_until"])
+        if datetime.now() < locked:
+            conn.close()
+            remaining = int((locked - datetime.now()).total_seconds() / 60)
+            raise ValueError(f"Compte bloqué — réessayez dans {remaining} min ou réinitialisez votre mot de passe")
+
+    # Vérifier mot de passe
     try:
-        stored = row["password_hash"]
-        salt, hashed = stored.split('$')
-        check = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 100_000)
-        return check.hex() == hashed
+        salt, hashed = admin["password_hash"].split("$")
+        check = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 200_000).hex()
+        ok = check == hashed
     except Exception:
+        ok = False
+
+    if ok:
+        conn.execute("UPDATE admin_users SET login_attempts=0, locked_until=NULL, last_login=? WHERE id=?",
+                     (datetime.now().isoformat(), admin["id"]))
+        conn.commit()
+        conn.close()
+        return admin
+    else:
+        attempts = (admin.get("login_attempts") or 0) + 1
+        locked_until = None
+        if attempts >= 5:
+            locked_until = (datetime.now() + timedelta(minutes=15)).isoformat()
+        conn.execute("UPDATE admin_users SET login_attempts=?, locked_until=? WHERE id=?",
+                     (attempts, locked_until, admin["id"]))
+        conn.commit()
+        conn.close()
+        if locked_until:
+            raise ValueError("Trop de tentatives — compte bloqué 15 min. Réinitialisez votre mot de passe.")
+        return None
+
+def create_admin_session(admin_id: int) -> str:
+    """Crée un token de session valable 24h."""
+    import secrets
+    from datetime import datetime, timedelta
+    token = secrets.token_urlsafe(48)
+    expires = (datetime.now() + timedelta(hours=24)).isoformat()
+    conn = get_connection()
+    conn.execute("DELETE FROM admin_sessions WHERE expires_at < ?", (datetime.now().isoformat(),))
+    conn.execute("INSERT INTO admin_sessions (token, admin_id, expires_at) VALUES (?,?,?)",
+                 (token, admin_id, expires))
+    conn.commit()
+    conn.close()
+    return token
+
+def verify_admin_session(token: str) -> dict | None:
+    """Vérifie un token de session. Retourne l'admin ou None."""
+    from datetime import datetime
+    if not token:
+        return None
+    conn = get_connection()
+    row = conn.execute("""
+        SELECT u.* FROM admin_sessions s
+        JOIN admin_users u ON u.id = s.admin_id
+        WHERE s.token=? AND s.expires_at > ?
+    """, (token, datetime.now().isoformat())).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+def delete_admin_session(token: str):
+    """Supprime une session (logout)."""
+    conn = get_connection()
+    conn.execute("DELETE FROM admin_sessions WHERE token=?", (token,))
+    conn.commit()
+    conn.close()
+
+def create_reset_token(email: str) -> str | None:
+    """Génère un token de reset pour l'email donné."""
+    import secrets
+    from datetime import datetime, timedelta
+    conn = get_connection()
+    row = conn.execute("SELECT id FROM admin_users WHERE email=?", (email,)).fetchone()
+    if not row:
+        conn.close()
+        return None
+    token = secrets.token_urlsafe(48)
+    expires = (datetime.now() + timedelta(hours=1)).isoformat()
+    conn.execute("UPDATE admin_users SET reset_token=?, reset_expires=?, login_attempts=0, locked_until=NULL WHERE email=?",
+                 (token, expires, email))
+    conn.commit()
+    conn.close()
+    return token
+
+def reset_admin_password(token: str, new_password: str) -> bool:
+    """Réinitialise le mot de passe via token. Retourne True si succès."""
+    from datetime import datetime
+    conn = get_connection()
+    row = conn.execute(
+        "SELECT id FROM admin_users WHERE reset_token=? AND reset_expires > ?",
+        (token, datetime.now().isoformat())
+    ).fetchone()
+    if not row:
+        conn.close()
         return False
+    salt, h = _hash_password(new_password)
+    conn.execute("""
+        UPDATE admin_users
+        SET password_hash=?, reset_token=NULL, reset_expires=NULL,
+            login_attempts=0, locked_until=NULL
+        WHERE id=?
+    """, (f"{salt}${h}", row["id"]))
+    conn.commit()
+    conn.close()
+    return True
 
 
 def get_lead_by_session(session_id: str) -> dict | None:
@@ -482,3 +682,107 @@ def get_stats() -> dict:
         "heures_perdues_moyennes": round(avg_hours or 0, 1),
         "euros_evitables_moyens": round(avg_euros or 0, -2),
     }
+
+# ─────────────────────────────────────────
+# CRM — FICHE LEAD
+# ─────────────────────────────────────────
+
+LEAD_STATUTS = ['lead', 'rdv', 'devis_envoye', 'devis_accepte', 'en_cours', 'livre', 'cloture', 'perdu']
+
+def _migrate_lead_crm(conn):
+    """Migration — ajoute colonnes CRM si manquantes."""
+    for col, defval in [("rpps", "TEXT"), ("status", "TEXT DEFAULT 'lead'")]:
+        try:
+            conn.execute(f"ALTER TABLE leads ADD COLUMN {col} {defval}")
+        except Exception:
+            pass
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS lead_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            lead_id INTEGER NOT NULL REFERENCES leads(id),
+            type TEXT NOT NULL,
+            content TEXT,
+            meta TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+
+def get_lead_fiche(lead_id: int) -> dict | None:
+    """Retourne la fiche complète d'un lead — infos + diagnostics + events."""
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+
+    lead = conn.execute("SELECT * FROM leads WHERE id=?", (lead_id,)).fetchone()
+    if not lead:
+        conn.close()
+        return None
+    lead = dict(lead)
+
+    # Diagnostics
+    diags = conn.execute("""
+        SELECT session_id, score_global, niveau, recommandation_palier,
+               heures_perdues_semaine, euros_evitables_an, created_at, phase
+        FROM diagnostics WHERE lead_id=? ORDER BY created_at DESC
+    """, (lead_id,)).fetchall()
+    lead['diagnostics'] = [dict(d) for d in diags]
+
+    # Events (notes + changements statut)
+    events = conn.execute("""
+        SELECT * FROM lead_events WHERE lead_id=? ORDER BY created_at DESC
+    """, (lead_id,)).fetchall()
+    lead['events'] = [dict(e) for e in events]
+
+    conn.close()
+    return lead
+
+def update_lead_status(lead_id: int, status: str, note: str = "") -> bool:
+    """Met à jour le statut d'un lead et log l'événement."""
+    if status not in LEAD_STATUTS:
+        return False
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    conn.execute("UPDATE leads SET status=? WHERE id=?", (status, lead_id))
+    conn.execute("""
+        INSERT INTO lead_events (lead_id, type, content)
+        VALUES (?, 'status', ?)
+    """, (lead_id, f"Statut → {status}" + (f" — {note}" if note else "")))
+    conn.commit()
+    conn.close()
+    return True
+
+def add_lead_note(lead_id: int, content: str) -> int:
+    """Ajoute une note libre sur un lead."""
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    cur = conn.execute("""
+        INSERT INTO lead_events (lead_id, type, content)
+        VALUES (?, 'note', ?)
+    """, (lead_id, content))
+    event_id = cur.lastrowid
+    conn.commit()
+    conn.close()
+    return event_id
+
+def delete_lead_event(event_id: int) -> bool:
+    """Supprime une note (pas les events système)."""
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    conn.execute("DELETE FROM lead_events WHERE id=? AND type='note'", (event_id,))
+    conn.commit()
+    conn.close()
+    return True
+
+def update_lead_info(lead_id: int, data: dict) -> bool:
+    """Met à jour les infos d'un lead (rpps, prenom, nom, etc.)."""
+    allowed = ['prenom', 'nom', 'specialite', 'ville', 'rpps']
+    updates = {k: v for k, v in data.items() if k in allowed}
+    if not updates:
+        return False
+    conn = get_connection()
+    _migrate_lead_crm(conn)
+    sets = ', '.join(f"{k}=?" for k in updates)
+    conn.execute(f"UPDATE leads SET {sets} WHERE id=?", (*updates.values(), lead_id))
+    conn.commit()
+    conn.close()
+    return True

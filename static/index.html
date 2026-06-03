@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bigdoc — Diagnostic Confort de votre cabinet</title>
   <meta name="description" content="Évaluez la santé de votre cabinet médical en 3 minutes. Score personnalisé, heures perdues, euros récupérables. Gratuit." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+  <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Nunito+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
@@ -601,7 +602,7 @@
     <div style="display:flex;align-items:center;justify-content:center;gap:3rem;max-width:900px;margin:0 auto 2.5rem;flex-wrap:wrap">
 
       <!-- DR BIGDOC GRAND -->
-      <div style="flex-shrink:0;text-align:center">
+      <div style="flex-shrink:0;text-align:center;width:160px">
         <svg width="160" height="200" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 12px 32px rgba(79,70,229,.35))">
           <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
           <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
@@ -635,25 +636,25 @@
           <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
           <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
         </svg>
-        <div style="margin-top:.5rem;font-size:.65rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase">Dr Bigdoc · RMS</div>
+        <div style="margin-top:.6rem;font-size:.72rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase">Dr Bigdoc · RMS</div>
       </div>
 
       <!-- TEXTE HERO -->
       <div style="text-align:left;flex:1;min-width:260px">
-        <div style="font-size:.72rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.75rem;background:#EEF2FF;display:inline-block;padding:.3rem .75rem;border-radius:999px">Bonjour ! Je vais analyser votre cabinet.</div>
+        <div style="font-size:.88rem;font-weight:700;color:#1A1060;margin-bottom:.75rem;background:white;display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem;border-radius:999px;box-shadow:0 2px 10px rgba(79,70,229,.15);border:1.5px solid rgba(99,102,241,.2)">
+          <span style="font-size:1rem">👋</span> Bonjour ! Je vais analyser votre cabinet.
+        </div>
         <h1 style="text-align:left;font-size:2.4rem;margin-bottom:1rem;line-height:1.15">Vous soignez les gens,<br><em>on gère le reste.</em></h1>
         <p class="tagline" style="text-align:left;margin-bottom:1.5rem">
           Bigdoc analyse votre cabinet comme vous analysez vos patients.<br>
           Score personnalisé, heures perdues, euros récupérables.
         </p>
-        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap">
-          <button onclick="showChoix()" style="display:inline-flex;align-items:center;gap:.6rem;background:#4F46E5;color:white;border:none;border-radius:999px;padding:.9rem 1.6rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap">
-            <span style="background:white;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0">🩺</span>
-            Je veux mon diagnostic
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <button onclick="showChoix()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
+            🩺 Je veux mon diagnostic
           </button>
-          <button onclick="startInstallation()" style="display:inline-flex;align-items:center;gap:.6rem;background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:.9rem 1.6rem;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;white-space:nowrap">
-            <span style="background:#EEF2FF;border-radius:50%;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0">🏥</span>
-            M'installer
+          <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
+            🏥 Je veux m'installer
           </button>
         </div>
       </div>
@@ -1164,9 +1165,15 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <label>Email professionnel *</label>
           <input type="email" id="lead-email" placeholder="dr.dupont@cabinet.fr" />
         </div>
-        <div class="input-group">
-          <label>Prénom</label>
-          <input type="text" id="lead-prenom" placeholder="Marie" />
+        <div style="display:flex;gap:.75rem">
+          <div class="input-group" style="flex:1">
+            <label>Prénom *</label>
+            <input type="text" id="lead-prenom" placeholder="Marie" />
+          </div>
+          <div class="input-group" style="flex:1">
+            <label>Nom *</label>
+            <input type="text" id="lead-nom" placeholder="Dupont" />
+          </div>
         </div>
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1;position:relative">
@@ -1337,7 +1344,7 @@ function generateUUID() {
 // ── BOUTON TEST (localhost uniquement) ──
 function injectTestButton() {
   const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
-  const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026';
+  const isDev = new URLSearchParams(window.location.search).get('dev') === 'RMS2026' || window.location.hostname === 'dev.bigdoc.fr';
   if (!isLocal && !isDev) return;
 
   // Bouton remplir test
@@ -1470,6 +1477,8 @@ function fillTestData() {
     if (email) {
       email.value  = 'test@bigdoc.fr';
       prenom && (prenom.value = 'Marie');
+      const nom = document.getElementById('lead-nom');
+      nom && (nom.value = 'Dupont');
       spe    && (spe.value   = 'Gynécologie médicale');
       ville  && (ville.value = 'Lyon (69001)');
     } else if (attempts > 0) {
@@ -1492,13 +1501,34 @@ async function init() {
     }
   } catch(e) {}
 
-  // Questionnaire
-  try {
-    const r = await fetch('/api/questionnaire');
-    const data = await r.json();
-    state.questions = data.questions;
-  } catch(e) {
-    console.error('Erreur chargement questionnaire', e);
+  // Retour Stripe
+  const params = new URLSearchParams(window.location.search);
+  const paiement = params.get('paiement');
+  const sessionId = params.get('session');
+
+  if (paiement === 'ok' && sessionId) {
+    state.sessionId = sessionId;
+    showScreen('loading');
+    try {
+      const resp = await fetch(`/api/bilan/${sessionId}`);
+      const data = await resp.json();
+      if (data.bilan) {
+        state.bilan = data.bilan;
+        state.shareToken = data.share_token || '';
+        showScreen('result');
+        renderResult();
+        const card = document.getElementById('result-card');
+        const banner = document.createElement('div');
+        banner.style.cssText = 'background:#F0FDF4;border-bottom:1px solid #BBF7D0;padding:.85rem 2rem;display:flex;align-items:center;gap:.75rem;font-size:.88rem;color:#065F46;font-weight:700;border-radius:16px 16px 0 0';
+        banner.innerHTML = '✅ Paiement confirmé — bienvenue chez RMS ! Vous allez recevoir un email de confirmation.';
+        card.prepend(banner);
+      }
+    } catch(e) { showScreen('hero'); }
+    return;
+  }
+
+  if (paiement === 'cancel') {
+    showScreen('hero');
   }
 }
 
@@ -1937,6 +1967,7 @@ async function submitLead() {
         session_id: state.sessionId,
         email,
         prenom: document.getElementById('lead-prenom').value,
+        nom: document.getElementById('lead-nom')?.value || '',
         specialite: document.getElementById('lead-specialite').value,
         ville: document.getElementById('lead-ville').value,
       })
@@ -2127,7 +2158,7 @@ function renderResult() {
       <div style="height:5px;background:rgba(0,0,0,.06);border-radius:999px;margin-bottom:.35rem">
         <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
       </div>
-      <p style="font-size:.7rem;color:#9CA3AF;line-height:1.4;margin:0">${(dim.commentaire||'').substring(0,90)}${(dim.commentaire||'').length>90?'…':''}</p>
+      <p style="font-size:.72rem;color:#6B7280;line-height:1.5;margin:0">${dim.commentaire||''}</p>
     </div>`;
   }).join('');
 
@@ -2138,29 +2169,30 @@ function renderResult() {
     </div>`).join('');
 
   card.innerHTML = `
-    <!-- HEADER COMPACT -->
-    <div style="background:#1A1060;padding:1.75rem 2.5rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;justify-content:center;width:90px;height:90px;border-radius:50%;border:4px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
+    <!-- HEADER -->
+    <div style="background:#1A1060;padding:1.75rem 2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;justify-content:center;width:80px;height:80px;border-radius:50%;border:3px solid ${scoreColor};background:rgba(255,255,255,.06);flex-shrink:0">
         <div style="text-align:center">
-          <div style="font-family:'Nunito',sans-serif;font-size:2.2rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
-          <div style="font-size:.52rem;color:rgba(200,200,255,.45);letter-spacing:2px;font-weight:700">/100</div>
+          <div style="font-family:'Nunito',sans-serif;font-size:2rem;font-weight:900;color:${scoreColor};line-height:1;letter-spacing:-2px">${score}</div>
+          <div style="font-size:.5rem;color:rgba(200,200,255,.45);letter-spacing:2px;font-weight:700">/100</div>
         </div>
       </div>
       <div style="flex:1;min-width:180px">
-        <div style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:white;margin-bottom:.4rem">${b.niveau}</div>
-        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <div style="font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:900;color:white;margin-bottom:.25rem">${b.titre_personnalise || b.niveau}</div>
+        ${b.titre_personnalise ? `<div style="font-size:.7rem;color:rgba(165,180,252,.7);margin-bottom:.4rem">${b.niveau}</div>` : ''}
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
           <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
-            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
-            <span style="font-size:.65rem;color:rgba(252,165,165,.65);margin-left:.25rem">/sem</span>
+            <span style="font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;color:#FCA5A5">${b.heures_perdues_semaine}h</span>
+            <span style="font-size:.62rem;color:rgba(252,165,165,.65);margin-left:.25rem">/sem</span>
           </div>
           <div style="background:rgba(255,255,255,.08);border-radius:7px;padding:.3rem .75rem">
-            <span style="font-family:'Nunito',sans-serif;font-size:1.1rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
-            <span style="font-size:.65rem;color:rgba(252,211,77,.65);margin-left:.25rem">/an</span>
+            <span style="font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;color:#FCD34D">${(b.euros_evitables_an||0).toLocaleString('fr')}€</span>
+            <span style="font-size:.62rem;color:rgba(252,211,77,.65);margin-left:.25rem">/an</span>
           </div>
         </div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;max-width:340px;border:1px solid rgba(255,255,255,.1);flex:1">
-        <svg width="72" height="90" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
+      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;border:1px solid rgba(255,255,255,.1);flex:1;min-width:220px;max-width:360px">
+        <svg width="60" height="75" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
           <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
           <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
           <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
@@ -2191,17 +2223,23 @@ function renderResult() {
           <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
           <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
         </svg>
-        <p style="font-size:.75rem;color:rgba(255,255,255,.85);line-height:1.55;margin:0;font-weight:500">${(b.message_bilan||'').substring(0,160)}…</p>
+        <p style="font-size:.76rem;color:rgba(255,255,255,.9);line-height:1.6;margin:0;font-weight:500">${b.message_bilan||''}</p>
       </div>
     </div>
 
-    ${b.alerte_urgente?`<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.65rem 2rem;display:flex;gap:.5rem;align-items:center">
+    ${b.ce_que_vous_nignorez_probablement_pas ? `
+    <div style="background:#FFFBEB;border-left:3px solid #F59E0B;padding:.85rem 1.5rem;display:flex;gap:.65rem;align-items:flex-start">
+      <span style="font-size:1rem;flex-shrink:0;margin-top:.1rem">💡</span>
+      <p style="font-size:.82rem;color:#78350F;line-height:1.55;margin:0;font-weight:600;font-style:italic">${b.ce_que_vous_nignorez_probablement_pas}</p>
+    </div>` : ''}
+
+    ${b.alerte_urgente ? `<div style="background:#FEF2F2;border-bottom:1px solid #FECACA;padding:.65rem 1.5rem;display:flex;gap:.5rem;align-items:center">
       <span style="flex-shrink:0">⚠️</span>
-      <p style="font-size:.76rem;color:#991B1B;line-height:1.4;margin:0;font-weight:600">${b.alerte_urgente.substring(0,200)}…</p>
-    </div>`:''}
+      <p style="font-size:.76rem;color:#991B1B;line-height:1.4;margin:0;font-weight:600">${b.alerte_urgente}</p>
+    </div>` : ''}
 
     <!-- BODY -->
-    <div style="padding:1.5rem 2rem">
+    <div style="padding:1.25rem 1.5rem">
 
       <!-- RADAR + DIMENSIONS -->
       <div style="display:grid;grid-template-columns:260px 1fr;gap:1.5rem;margin-bottom:1.5rem;align-items:start">
@@ -2242,9 +2280,11 @@ function renderResult() {
       <!-- CTA compact -->
       <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F3FF;border-radius:12px;padding:1rem 1.5rem;border:1px solid #EDE9FE;flex-wrap:wrap;gap:.75rem">
         <div>
-          <button onclick="goToStripe()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer">
-            Démarrer avec RMS →
-          </button>
+          <div style="font-size:.78rem;color:#374151;font-weight:500;margin-bottom:.35rem">Prêt à traiter votre cabinet ?</div>
+          <a href="" onclick="Calendly.initPopupWidget({url:'https://calendly.com/bigdoc-realmedservices/30min'});return false;"
+             style="display:inline-block;background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;text-decoration:none">
+            📅 Prendre rendez-vous avec RMS
+          </a>
         </div>
         <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.45rem 1rem;border-radius:999px;font-size:.75rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
           📋 Partager
@@ -2260,7 +2300,7 @@ function renderResult() {
     </div>
   `;
 }
-function goToStripe() {
+async function goToStripe() {
   if (!state.bilan) return;
   const palier = state.bilan.recommandation_principale?.palier || '';
   const map = {
@@ -2271,7 +2311,22 @@ function goToStripe() {
   };
   const found = Object.entries(map).find(([k]) => palier.includes(k));
   const produit = found ? found[1] : 'plan_action';
-  window.location.href = `/api/create-checkout?produit=${produit}&session_id=${state.sessionId}`;
+
+  try {
+    const resp = await fetch('/api/create-checkout', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({produit, session_id: state.sessionId})
+    });
+    const data = await resp.json();
+    if (data.checkout_url) {
+      window.location.href = data.checkout_url;
+    } else {
+      alert('Erreur : ' + (data.detail || 'Impossible de créer la session de paiement'));
+    }
+  } catch(e) {
+    alert('Erreur : ' + e.message);
+  }
 }
 
 async function copyShareLink() {

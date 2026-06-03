@@ -22,7 +22,6 @@
     ],
     "note": "Mettre à jour via scripts/update_demographics.py — RPPS mensuel + Ameli trimestriel"
   },
-
   "benchmarks_nationaux": {
     "charges_admin": {
       "heures_par_semaine_moyenne": 11.4,
@@ -83,7 +82,7 @@
     },
     "burnout": {
       "source": "Enquête FMF / CNOM 2023",
-      "taux_risque_eleve": 0.50,
+      "taux_risque_eleve": 0.5,
       "taux_reduction_activite": 0.46,
       "taux_pensee_arret": 0.32,
       "facteurs_principaux": [
@@ -109,19 +108,42 @@
       "taux_primo_installants_zone_sous_dotee": 0.18
     }
   },
-
   "motifs_consultation": {
     "source": "CPAM / Ameli Open Data 2023 + HAS",
     "medecine_generale": {
       "top_motifs": [
-        {"motif": "Suivi maladies chroniques (HTA, diabète, cholestérol)", "part": 0.28},
-        {"motif": "Infections respiratoires et ORL", "part": 0.18},
-        {"motif": "Certificats médicaux et administratif", "part": 0.09},
-        {"motif": "Santé mentale et souffrance psychologique", "part": 0.12},
-        {"motif": "Dermatologie courante", "part": 0.07},
-        {"motif": "Traumatologie bénigne", "part": 0.06},
-        {"motif": "Gynécologie de base (en l'absence de gynéco)", "part": 0.05},
-        {"motif": "Autres", "part": 0.15}
+        {
+          "motif": "Suivi maladies chroniques (HTA, diabète, cholestérol)",
+          "part": 0.28
+        },
+        {
+          "motif": "Infections respiratoires et ORL",
+          "part": 0.18
+        },
+        {
+          "motif": "Certificats médicaux et administratif",
+          "part": 0.09
+        },
+        {
+          "motif": "Santé mentale et souffrance psychologique",
+          "part": 0.12
+        },
+        {
+          "motif": "Dermatologie courante",
+          "part": 0.07
+        },
+        {
+          "motif": "Traumatologie bénigne",
+          "part": 0.06
+        },
+        {
+          "motif": "Gynécologie de base (en l'absence de gynéco)",
+          "part": 0.05
+        },
+        {
+          "motif": "Autres",
+          "part": 0.15
+        }
       ],
       "certificats_par_an_moyen": 320,
       "ordonnances_par_an_moyen": 2800,
@@ -129,64 +151,158 @@
     },
     "gynecologie_medicale": {
       "top_motifs": [
-        {"motif": "Contraception et suivi gynécologique", "part": 0.35},
-        {"motif": "Ménopause et périménopause", "part": 0.20},
-        {"motif": "Frottis et dépistage col", "part": 0.15},
-        {"motif": "Douleurs pelviennes chroniques (dont endométriose)", "part": 0.12},
-        {"motif": "Infections gynécologiques", "part": 0.10},
-        {"motif": "Autres", "part": 0.08}
+        {
+          "motif": "Contraception et suivi gynécologique",
+          "part": 0.35
+        },
+        {
+          "motif": "Ménopause et périménopause",
+          "part": 0.2
+        },
+        {
+          "motif": "Frottis et dépistage col",
+          "part": 0.15
+        },
+        {
+          "motif": "Douleurs pelviennes chroniques (dont endométriose)",
+          "part": 0.12
+        },
+        {
+          "motif": "Infections gynécologiques",
+          "part": 0.1
+        },
+        {
+          "motif": "Autres",
+          "part": 0.08
+        }
       ],
       "delai_diagnostic_endometriose_ans": 7,
-      "prevalence_endometriose_femmes_age_reproducteur": 0.10
+      "prevalence_endometriose_femmes_age_reproducteur": 0.1
     },
     "psychiatrie": {
       "top_motifs": [
-        {"motif": "Dépression et troubles dépressifs", "part": 0.30},
-        {"motif": "Troubles anxieux", "part": 0.22},
-        {"motif": "TDAH adulte", "part": 0.12},
-        {"motif": "Trouble bipolaire", "part": 0.08},
-        {"motif": "Schizophrénie et psychoses", "part": 0.07},
-        {"motif": "Addictions", "part": 0.06},
-        {"motif": "Autres", "part": 0.15}
+        {
+          "motif": "Dépression et troubles dépressifs",
+          "part": 0.3
+        },
+        {
+          "motif": "Troubles anxieux",
+          "part": 0.22
+        },
+        {
+          "motif": "TDAH adulte",
+          "part": 0.12
+        },
+        {
+          "motif": "Trouble bipolaire",
+          "part": 0.08
+        },
+        {
+          "motif": "Schizophrénie et psychoses",
+          "part": 0.07
+        },
+        {
+          "motif": "Addictions",
+          "part": 0.06
+        },
+        {
+          "motif": "Autres",
+          "part": 0.15
+        }
       ],
       "delai_acces_psychiatre_liberal_semaines": 8.5,
       "taux_patients_sans_psychiatre_referent": 0.62
     },
     "pediatrie": {
       "top_motifs": [
-        {"motif": "Infections ORL et respiratoires", "part": 0.32},
-        {"motif": "Vaccinations et suivi développement", "part": 0.18},
-        {"motif": "Troubles du comportement et apprentissage (TDA/H, TSA)", "part": 0.14},
-        {"motif": "Dermatologie pédiatrique", "part": 0.10},
-        {"motif": "Allergies", "part": 0.08},
-        {"motif": "Autres", "part": 0.18}
+        {
+          "motif": "Infections ORL et respiratoires",
+          "part": 0.32
+        },
+        {
+          "motif": "Vaccinations et suivi développement",
+          "part": 0.18
+        },
+        {
+          "motif": "Troubles du comportement et apprentissage (TDA/H, TSA)",
+          "part": 0.14
+        },
+        {
+          "motif": "Dermatologie pédiatrique",
+          "part": 0.1
+        },
+        {
+          "motif": "Allergies",
+          "part": 0.08
+        },
+        {
+          "motif": "Autres",
+          "part": 0.18
+        }
       ],
       "delai_diagnostic_tdah_mois": 18,
       "prevalence_tdah_enfants": 0.055
     },
     "cardiologie": {
       "top_motifs": [
-        {"motif": "HTA et surveillance cardiovasculaire", "part": 0.30},
-        {"motif": "Troubles du rythme (FA, ESV)", "part": 0.18},
-        {"motif": "Insuffisance cardiaque", "part": 0.15},
-        {"motif": "Bilan cardiovasculaire préventif", "part": 0.14},
-        {"motif": "Cardiopathies ischémiques", "part": 0.12},
-        {"motif": "Autres", "part": 0.11}
+        {
+          "motif": "HTA et surveillance cardiovasculaire",
+          "part": 0.3
+        },
+        {
+          "motif": "Troubles du rythme (FA, ESV)",
+          "part": 0.18
+        },
+        {
+          "motif": "Insuffisance cardiaque",
+          "part": 0.15
+        },
+        {
+          "motif": "Bilan cardiovasculaire préventif",
+          "part": 0.14
+        },
+        {
+          "motif": "Cardiopathies ischémiques",
+          "part": 0.12
+        },
+        {
+          "motif": "Autres",
+          "part": 0.11
+        }
       ]
     }
   },
-
   "donnees_urps": {
     "source": "URPS Médecins — enquêtes régionales 2022-2023 (IDF, AuRA, Occitanie, Bretagne)",
     "conditions_exercice": {
       "satisfaction_globale_pct": 0.52,
       "source": "URPS IDF 2023 — 3 420 médecins interrogés",
       "facteurs_insatisfaction": [
-        {"facteur": "Charge administrative excessive", "pct": 0.71, "source": "URPS IDF 2023"},
-        {"facteur": "Revenus insuffisants / tarifs bloqués", "pct": 0.58, "source": "URPS IDF 2023"},
-        {"facteur": "Difficulté à trouver un successeur", "pct": 0.44, "source": "URPS AuRA 2023"},
-        {"facteur": "Manque de personnel de secrétariat", "pct": 0.42, "source": "URPS Occitanie 2022"},
-        {"facteur": "Complexité du système d'information de santé", "pct": 0.38, "source": "URPS IDF 2023"}
+        {
+          "facteur": "Charge administrative excessive",
+          "pct": 0.71,
+          "source": "URPS IDF 2023"
+        },
+        {
+          "facteur": "Revenus insuffisants / tarifs bloqués",
+          "pct": 0.58,
+          "source": "URPS IDF 2023"
+        },
+        {
+          "facteur": "Difficulté à trouver un successeur",
+          "pct": 0.44,
+          "source": "URPS AuRA 2023"
+        },
+        {
+          "facteur": "Manque de personnel de secrétariat",
+          "pct": 0.42,
+          "source": "URPS Occitanie 2022"
+        },
+        {
+          "facteur": "Complexité du système d'information de santé",
+          "pct": 0.38,
+          "source": "URPS IDF 2023"
+        }
       ],
       "temps_admin_par_semaine": {
         "moins_2h": 0.12,
@@ -222,7 +338,6 @@
       "source": "URPS IDF 2023"
     }
   },
-
   "donnees_cpts": {
     "source": "FNCS — Fédération Nationale des CPTS + DGOS Bilan Ma Santé 2022 — données 2023",
     "etat_deploiement": {
@@ -273,7 +388,6 @@
       "Téléconsultation mutualisée"
     ]
   },
-
   "donnees_ameli_cpam": {
     "source": "Ameli Open Data + CPAM — Tableau de bord national 2023",
     "teleconsultation": {
@@ -288,11 +402,26 @@
         "remarque": "Même tarif consultation présentielle — remboursable uniquement via plateforme HDS agréée"
       },
       "par_specialite_2023": {
-        "Médecine générale": {"part": 0.09, "actes_millions": 1.64},
-        "Psychiatrie": {"part": 0.35, "actes_millions": 0.78},
-        "Gynécologie médicale": {"part": 0.12, "actes_millions": 0.18},
-        "Dermatologie": {"part": 0.18, "actes_millions": 0.42},
-        "Neurologie": {"part": 0.15, "actes_millions": 0.24}
+        "Médecine générale": {
+          "part": 0.09,
+          "actes_millions": 1.64
+        },
+        "Psychiatrie": {
+          "part": 0.35,
+          "actes_millions": 0.78
+        },
+        "Gynécologie médicale": {
+          "part": 0.12,
+          "actes_millions": 0.18
+        },
+        "Dermatologie": {
+          "part": 0.18,
+          "actes_millions": 0.42
+        },
+        "Neurologie": {
+          "part": 0.15,
+          "actes_millions": 0.24
+        }
       },
       "conformite": {
         "taux_utilisation_plateforme_non_agreee": 0.18,
@@ -304,12 +433,30 @@
       "taux_rejet_moyen_cabinet_liberal": 0.034,
       "cout_moyen_rejet_non_traite_euros": 185,
       "causes_principales": [
-        {"cause": "Défaut de prescription électronique (ordonnance papier)", "part": 0.28},
-        {"cause": "Codage CCAM incorrect", "part": 0.22},
-        {"cause": "Absence d'accord préalable (ALD, appareillage)", "part": 0.18},
-        {"cause": "Coordonnées patient erronées", "part": 0.14},
-        {"cause": "Dépassement plafond ou régime mal identifié", "part": 0.12},
-        {"cause": "Autres", "part": 0.06}
+        {
+          "cause": "Défaut de prescription électronique (ordonnance papier)",
+          "part": 0.28
+        },
+        {
+          "cause": "Codage CCAM incorrect",
+          "part": 0.22
+        },
+        {
+          "cause": "Absence d'accord préalable (ALD, appareillage)",
+          "part": 0.18
+        },
+        {
+          "cause": "Coordonnées patient erronées",
+          "part": 0.14
+        },
+        {
+          "cause": "Dépassement plafond ou régime mal identifié",
+          "part": 0.12
+        },
+        {
+          "cause": "Autres",
+          "part": 0.06
+        }
       ],
       "source": "CPAM — Rapport activité contrôle médical 2022"
     },
@@ -327,10 +474,14 @@
       "date": "2023-10",
       "croissance_vs_2022": 0.12,
       "source": "Ameli — Tableau de bord accès aux soins Q3 2023",
-      "regions_plus_touchees": ["Île-de-France", "Hauts-de-France", "Centre-Val de Loire", "Bourgogne-Franche-Comté"]
+      "regions_plus_touchees": [
+        "Île-de-France",
+        "Hauts-de-France",
+        "Centre-Val de Loire",
+        "Bourgogne-Franche-Comté"
+      ]
     }
   },
-
   "donnees_drees_etat": {
     "source": "DREES — Direction de la Recherche, des Études, de l'Évaluation et des Statistiques 2023",
     "effectifs_medecins": {
@@ -363,9 +514,20 @@
       "variation_specialites": {
         "Ophtalmologie": 98,
         "Psychiatrie": 85,
+        "Gynécologie-obstétrique": 62,
+        "Gynécologie médicale": 62,
         "Gynécologie": 62,
         "Dermatologie": 55,
-        "Cardiologie": 38
+        "Cardiologie": 38,
+        "Neurologie": 52,
+        "Rhumatologie": 44,
+        "Gastro-entérologie": 41,
+        "Pédiatrie": 35,
+        "Endocrinologie": 68,
+        "Pneumologie": 43,
+        "Urologie": 46,
+        "ORL": 39,
+        "Médecine générale": 6
       },
       "source": "Ameli — Observatoire des délais d'accès aux soins 2023"
     },
@@ -394,13 +556,12 @@
       "note": "Aide Ségur numérique jusqu'à 1 500€ pour équipement et formation logiciel certifié"
     }
   },
-
   "donnees_snds": {
     "source": "SNDS — Système National des Données de Santé — DREES / ATIH 2022",
     "pathologies_prevalentes": {
       "HTA_adultes_pct": 0.29,
       "diabete_adultes_pct": 0.071,
-      "depression_adultes_pct": 0.10,
+      "depression_adultes_pct": 0.1,
       "insuffisance_cardiaque_pct": 0.025,
       "BPCO_adultes_pct": 0.073,
       "obesite_adultes_pct": 0.178,
@@ -414,7 +575,6 @@
       "source": "SNDS — DREES 2022"
     }
   },
-
   "tendances_2024_2025": {
     "source": "DREES / CNOM / IRDES 2023-2024",
     "points_cles": [
@@ -435,7 +595,6 @@
       "Ménopause : 13M de femmes concernées, suivi insuffisant"
     ]
   },
-
   "donnees_carmf": {
     "source": "CARMF Rapport annuel 2023",
     "effectifs_liberal": {
@@ -456,7 +615,6 @@
       "Spécialistes_moyenne": 4100
     }
   },
-
   "donnees_cnom": {
     "source": "Atlas de la démographie médicale CNOM 2023",
     "effectifs_totaux_liberaux": 226000,
@@ -465,14 +623,14 @@
     "pyramide_ages": {
       "moins_40_ans": 0.22,
       "40_50_ans": 0.28,
-      "50_60_ans": 0.30,
-      "plus_60_ans": 0.20
+      "50_60_ans": 0.3,
+      "plus_60_ans": 0.2
     },
     "secteurs_conventionnement": {
       "secteur_1": 0.62,
       "secteur_2": 0.26,
       "secteur_3": 0.02,
-      "non_conventionnes": 0.10
+      "non_conventionnes": 0.1
     },
     "mode_exercice": {
       "cabinet_seul": 0.38,
@@ -482,7 +640,6 @@
       "autres": 0.04
     }
   },
-
   "densites_nationales": {
     "Médecine générale": 145,
     "Gynécologie-obstétrique": 18,
@@ -505,86 +662,534 @@
     "Chirurgie générale": 7,
     "Médecine interne": 5
   },
-
   "departements": {
-    "01": {"nom":"Ain","region":"Auvergne-Rhône-Alpes","type":"intermédiaire","densites":{"Médecine générale":118,"Gynécologie-obstétrique":14,"Cardiologie":9,"Pédiatrie":11,"Psychiatrie":17}},
-    "02": {"nom":"Aisne","region":"Hauts-de-France","type":"sous_dote","densites":{"Médecine générale":98,"Gynécologie-obstétrique":10,"Cardiologie":7,"Pédiatrie":9,"Psychiatrie":14}},
-    "06": {"nom":"Alpes-Maritimes","region":"PACA","type":"sur_dote","densites":{"Médecine générale":168,"Gynécologie-obstétrique":23,"Cardiologie":16,"Pédiatrie":18,"Psychiatrie":28}},
-    "13": {"nom":"Bouches-du-Rhône","region":"PACA","type":"sur_dote","densites":{"Médecine générale":160,"Gynécologie-obstétrique":21,"Cardiologie":15,"Pédiatrie":17,"Psychiatrie":27}},
-    "17": {"nom":"Charente-Maritime","region":"Nouvelle-Aquitaine","type":"intermédiaire","densites":{"Médecine générale":130,"Gynécologie-obstétrique":15,"Cardiologie":10,"Pédiatrie":12,"Psychiatrie":19}},
-    "22": {"nom":"Côtes-d'Armor","region":"Bretagne","type":"sous_dote","densites":{"Médecine générale":112,"Gynécologie-obstétrique":12,"Cardiologie":8,"Pédiatrie":10,"Psychiatrie":16}},
-    "29": {"nom":"Finistère","region":"Bretagne","type":"intermédiaire","densites":{"Médecine générale":130,"Gynécologie-obstétrique":15,"Cardiologie":10,"Pédiatrie":13,"Psychiatrie":19}},
-    "31": {"nom":"Haute-Garonne","region":"Occitanie","type":"sur_dote","densites":{"Médecine générale":162,"Gynécologie-obstétrique":22,"Cardiologie":15,"Pédiatrie":18,"Psychiatrie":27}},
-    "33": {"nom":"Gironde","region":"Nouvelle-Aquitaine","type":"sur_dote","densites":{"Médecine générale":158,"Gynécologie-obstétrique":20,"Cardiologie":14,"Pédiatrie":16,"Psychiatrie":26}},
-    "34": {"nom":"Hérault","region":"Occitanie","type":"sur_dote","densites":{"Médecine générale":165,"Gynécologie-obstétrique":22,"Cardiologie":15,"Pédiatrie":17,"Psychiatrie":28}},
-    "35": {"nom":"Ille-et-Vilaine","region":"Bretagne","type":"intermédiaire","densites":{"Médecine générale":135,"Gynécologie-obstétrique":16,"Cardiologie":11,"Pédiatrie":14,"Psychiatrie":21}},
-    "38": {"nom":"Isère","region":"Auvergne-Rhône-Alpes","type":"intermédiaire","densites":{"Médecine générale":138,"Gynécologie-obstétrique":17,"Cardiologie":12,"Pédiatrie":14,"Psychiatrie":21}},
-    "44": {"nom":"Loire-Atlantique","region":"Pays de la Loire","type":"intermédiaire","densites":{"Médecine générale":140,"Gynécologie-obstétrique":17,"Cardiologie":12,"Pédiatrie":14,"Psychiatrie":22}},
-    "47": {"nom":"Lot-et-Garonne","region":"Nouvelle-Aquitaine","type":"sous_dote","densites":{"Médecine générale":102,"Gynécologie-obstétrique":10,"Cardiologie":7,"Pédiatrie":8,"Psychiatrie":14}},
-    "59": {"nom":"Nord","region":"Hauts-de-France","type":"intermédiaire","densites":{"Médecine générale":130,"Gynécologie-obstétrique":15,"Cardiologie":10,"Pédiatrie":13,"Psychiatrie":19}},
-    "62": {"nom":"Pas-de-Calais","region":"Hauts-de-France","type":"sous_dote","densites":{"Médecine générale":108,"Gynécologie-obstétrique":11,"Cardiologie":8,"Pédiatrie":10,"Psychiatrie":15}},
-    "63": {"nom":"Puy-de-Dôme","region":"Auvergne-Rhône-Alpes","type":"intermédiaire","densites":{"Médecine générale":145,"Gynécologie-obstétrique":17,"Cardiologie":12,"Pédiatrie":14,"Psychiatrie":22}},
-    "67": {"nom":"Bas-Rhin","region":"Grand Est","type":"sur_dote","densites":{"Médecine générale":155,"Gynécologie-obstétrique":20,"Cardiologie":14,"Pédiatrie":17,"Psychiatrie":25}},
-    "69": {"nom":"Rhône","region":"Auvergne-Rhône-Alpes","type":"sur_dote","densites":{"Médecine générale":175,"Gynécologie-obstétrique":24,"Gynécologie médicale":8,"Cardiologie":17,"Pédiatrie":19,"Psychiatrie":30}},
-    "75": {"nom":"Paris","region":"Île-de-France","type":"sur_dote","densites":{"Médecine générale":210,"Gynécologie-obstétrique":35,"Gynécologie médicale":15,"Cardiologie":25,"Pédiatrie":28,"Psychiatrie":45,"Dermatologie":22,"Ophtalmologie":28}},
-    "76": {"nom":"Seine-Maritime","region":"Normandie","type":"intermédiaire","densites":{"Médecine générale":128,"Gynécologie-obstétrique":15,"Cardiologie":10,"Pédiatrie":13,"Psychiatrie":19}},
-    "77": {"nom":"Seine-et-Marne","region":"Île-de-France","type":"sous_dote","densites":{"Médecine générale":105,"Gynécologie-obstétrique":12,"Cardiologie":8,"Pédiatrie":11,"Psychiatrie":15}},
-    "78": {"nom":"Yvelines","region":"Île-de-France","type":"intermédiaire","densites":{"Médecine générale":138,"Gynécologie-obstétrique":17,"Cardiologie":12,"Pédiatrie":15,"Psychiatrie":22}},
-    "80": {"nom":"Somme","region":"Hauts-de-France","type":"sous_dote","densites":{"Médecine générale":110,"Gynécologie-obstétrique":11,"Cardiologie":8,"Pédiatrie":10,"Psychiatrie":15}},
-    "83": {"nom":"Var","region":"PACA","type":"sur_dote","densites":{"Médecine générale":162,"Gynécologie-obstétrique":21,"Cardiologie":15,"Pédiatrie":17,"Psychiatrie":26}},
-    "91": {"nom":"Essonne","region":"Île-de-France","type":"intermédiaire","densites":{"Médecine générale":130,"Gynécologie-obstétrique":16,"Cardiologie":11,"Pédiatrie":14,"Psychiatrie":20}},
-    "92": {"nom":"Hauts-de-Seine","region":"Île-de-France","type":"sur_dote","densites":{"Médecine générale":195,"Gynécologie-obstétrique":30,"Gynécologie médicale":12,"Cardiologie":22,"Pédiatrie":25,"Psychiatrie":38}},
-    "93": {"nom":"Seine-Saint-Denis","region":"Île-de-France","type":"sous_dote","densites":{"Médecine générale":98,"Gynécologie-obstétrique":10,"Cardiologie":7,"Pédiatrie":10,"Psychiatrie":14}},
-    "94": {"nom":"Val-de-Marne","region":"Île-de-France","type":"intermédiaire","densites":{"Médecine générale":148,"Gynécologie-obstétrique":19,"Cardiologie":14,"Pédiatrie":16,"Psychiatrie":24}},
-    "95": {"nom":"Val-d'Oise","region":"Île-de-France","type":"sous_dote","densites":{"Médecine générale":112,"Gynécologie-obstétrique":13,"Cardiologie":9,"Pédiatrie":12,"Psychiatrie":16}}
+    "01": {
+      "nom": "Ain",
+      "region": "Auvergne-Rhône-Alpes",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 118,
+        "Gynécologie-obstétrique": 14,
+        "Cardiologie": 9,
+        "Pédiatrie": 11,
+        "Psychiatrie": 17
+      }
+    },
+    "02": {
+      "nom": "Aisne",
+      "region": "Hauts-de-France",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 98,
+        "Gynécologie-obstétrique": 10,
+        "Cardiologie": 7,
+        "Pédiatrie": 9,
+        "Psychiatrie": 14
+      }
+    },
+    "06": {
+      "nom": "Alpes-Maritimes",
+      "region": "PACA",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 168,
+        "Gynécologie-obstétrique": 23,
+        "Cardiologie": 16,
+        "Pédiatrie": 18,
+        "Psychiatrie": 28
+      }
+    },
+    "13": {
+      "nom": "Bouches-du-Rhône",
+      "region": "PACA",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 160,
+        "Gynécologie-obstétrique": 21,
+        "Cardiologie": 15,
+        "Pédiatrie": 17,
+        "Psychiatrie": 27
+      }
+    },
+    "17": {
+      "nom": "Charente-Maritime",
+      "region": "Nouvelle-Aquitaine",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 130,
+        "Gynécologie-obstétrique": 15,
+        "Cardiologie": 10,
+        "Pédiatrie": 12,
+        "Psychiatrie": 19
+      }
+    },
+    "22": {
+      "nom": "Côtes-d'Armor",
+      "region": "Bretagne",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 112,
+        "Gynécologie-obstétrique": 12,
+        "Cardiologie": 8,
+        "Pédiatrie": 10,
+        "Psychiatrie": 16
+      }
+    },
+    "29": {
+      "nom": "Finistère",
+      "region": "Bretagne",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 130,
+        "Gynécologie-obstétrique": 15,
+        "Cardiologie": 10,
+        "Pédiatrie": 13,
+        "Psychiatrie": 19
+      }
+    },
+    "31": {
+      "nom": "Haute-Garonne",
+      "region": "Occitanie",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 162,
+        "Gynécologie-obstétrique": 22,
+        "Cardiologie": 15,
+        "Pédiatrie": 18,
+        "Psychiatrie": 27
+      }
+    },
+    "33": {
+      "nom": "Gironde",
+      "region": "Nouvelle-Aquitaine",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 158,
+        "Gynécologie-obstétrique": 20,
+        "Cardiologie": 14,
+        "Pédiatrie": 16,
+        "Psychiatrie": 26
+      }
+    },
+    "34": {
+      "nom": "Hérault",
+      "region": "Occitanie",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 165,
+        "Gynécologie-obstétrique": 22,
+        "Cardiologie": 15,
+        "Pédiatrie": 17,
+        "Psychiatrie": 28
+      }
+    },
+    "35": {
+      "nom": "Ille-et-Vilaine",
+      "region": "Bretagne",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 135,
+        "Gynécologie-obstétrique": 16,
+        "Cardiologie": 11,
+        "Pédiatrie": 14,
+        "Psychiatrie": 21
+      }
+    },
+    "38": {
+      "nom": "Isère",
+      "region": "Auvergne-Rhône-Alpes",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 138,
+        "Gynécologie-obstétrique": 17,
+        "Cardiologie": 12,
+        "Pédiatrie": 14,
+        "Psychiatrie": 21
+      }
+    },
+    "44": {
+      "nom": "Loire-Atlantique",
+      "region": "Pays de la Loire",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 140,
+        "Gynécologie-obstétrique": 17,
+        "Cardiologie": 12,
+        "Pédiatrie": 14,
+        "Psychiatrie": 22
+      }
+    },
+    "47": {
+      "nom": "Lot-et-Garonne",
+      "region": "Nouvelle-Aquitaine",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 102,
+        "Gynécologie-obstétrique": 10,
+        "Cardiologie": 7,
+        "Pédiatrie": 8,
+        "Psychiatrie": 14
+      }
+    },
+    "59": {
+      "nom": "Nord",
+      "region": "Hauts-de-France",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 130,
+        "Gynécologie-obstétrique": 15,
+        "Cardiologie": 10,
+        "Pédiatrie": 13,
+        "Psychiatrie": 19
+      }
+    },
+    "62": {
+      "nom": "Pas-de-Calais",
+      "region": "Hauts-de-France",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 108,
+        "Gynécologie-obstétrique": 11,
+        "Cardiologie": 8,
+        "Pédiatrie": 10,
+        "Psychiatrie": 15
+      }
+    },
+    "63": {
+      "nom": "Puy-de-Dôme",
+      "region": "Auvergne-Rhône-Alpes",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 145,
+        "Gynécologie-obstétrique": 17,
+        "Cardiologie": 12,
+        "Pédiatrie": 14,
+        "Psychiatrie": 22
+      }
+    },
+    "67": {
+      "nom": "Bas-Rhin",
+      "region": "Grand Est",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 155,
+        "Gynécologie-obstétrique": 20,
+        "Cardiologie": 14,
+        "Pédiatrie": 17,
+        "Psychiatrie": 25
+      }
+    },
+    "69": {
+      "nom": "Rhône",
+      "region": "Auvergne-Rhône-Alpes",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 175,
+        "Gynécologie-obstétrique": 24,
+        "Gynécologie médicale": 8,
+        "Cardiologie": 17,
+        "Pédiatrie": 19,
+        "Psychiatrie": 30
+      }
+    },
+    "75": {
+      "nom": "Paris",
+      "region": "Île-de-France",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 210,
+        "Gynécologie-obstétrique": 35,
+        "Gynécologie médicale": 15,
+        "Cardiologie": 25,
+        "Pédiatrie": 28,
+        "Psychiatrie": 45,
+        "Dermatologie": 22,
+        "Ophtalmologie": 28
+      }
+    },
+    "76": {
+      "nom": "Seine-Maritime",
+      "region": "Normandie",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 128,
+        "Gynécologie-obstétrique": 15,
+        "Cardiologie": 10,
+        "Pédiatrie": 13,
+        "Psychiatrie": 19
+      }
+    },
+    "77": {
+      "nom": "Seine-et-Marne",
+      "region": "Île-de-France",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 105,
+        "Gynécologie-obstétrique": 12,
+        "Cardiologie": 8,
+        "Pédiatrie": 11,
+        "Psychiatrie": 15
+      }
+    },
+    "78": {
+      "nom": "Yvelines",
+      "region": "Île-de-France",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 138,
+        "Gynécologie-obstétrique": 17,
+        "Cardiologie": 12,
+        "Pédiatrie": 15,
+        "Psychiatrie": 22
+      }
+    },
+    "80": {
+      "nom": "Somme",
+      "region": "Hauts-de-France",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 110,
+        "Gynécologie-obstétrique": 11,
+        "Cardiologie": 8,
+        "Pédiatrie": 10,
+        "Psychiatrie": 15
+      }
+    },
+    "83": {
+      "nom": "Var",
+      "region": "PACA",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 162,
+        "Gynécologie-obstétrique": 21,
+        "Cardiologie": 15,
+        "Pédiatrie": 17,
+        "Psychiatrie": 26
+      }
+    },
+    "91": {
+      "nom": "Essonne",
+      "region": "Île-de-France",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 130,
+        "Gynécologie-obstétrique": 16,
+        "Cardiologie": 11,
+        "Pédiatrie": 14,
+        "Psychiatrie": 20
+      }
+    },
+    "92": {
+      "nom": "Hauts-de-Seine",
+      "region": "Île-de-France",
+      "type": "densite_elevee",
+      "densites": {
+        "Médecine générale": 195,
+        "Gynécologie-obstétrique": 30,
+        "Gynécologie médicale": 12,
+        "Cardiologie": 22,
+        "Pédiatrie": 25,
+        "Psychiatrie": 38
+      }
+    },
+    "93": {
+      "nom": "Seine-Saint-Denis",
+      "region": "Île-de-France",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 98,
+        "Gynécologie-obstétrique": 10,
+        "Cardiologie": 7,
+        "Pédiatrie": 10,
+        "Psychiatrie": 14
+      }
+    },
+    "94": {
+      "nom": "Val-de-Marne",
+      "region": "Île-de-France",
+      "type": "intermédiaire",
+      "densites": {
+        "Médecine générale": 148,
+        "Gynécologie-obstétrique": 19,
+        "Cardiologie": 14,
+        "Pédiatrie": 16,
+        "Psychiatrie": 24
+      }
+    },
+    "95": {
+      "nom": "Val-d'Oise",
+      "region": "Île-de-France",
+      "type": "sous_dote",
+      "densites": {
+        "Médecine générale": 112,
+        "Gynécologie-obstétrique": 13,
+        "Cardiologie": 9,
+        "Pédiatrie": 12,
+        "Psychiatrie": 16
+      }
+    }
   },
-
   "niches_sous_dotees": {
     "Médecine générale": [
-      {"niche":"Médecin traitant zone sous-dotée","contexte":"désert médical","opportunite":"Patientèle garantie dès l'ouverture, aides ARS CAIM jusqu'à 50 000€, DAC et CPTS disponibles"},
-      {"niche":"Médecine du sport","contexte":"national","opportunite":"Forte demande non couverte — certificats, suivi sportifs, médecine de l'effort. Actes bien cotés CCAM"},
-      {"niche":"Nutrition et micronutrition","contexte":"national","opportunite":"Consultations longues, clientèle fidèle, peu de concurrence. Non remboursé = secteur 2 naturel"},
-      {"niche":"Médecine préventive et longévité","contexte":"national","opportunite":"Marché émergent premium. Bilans complets, patients solvables, hors nomenclature possible"},
-      {"niche":"Hypnose médicale","contexte":"national","opportunite":"Forte demande en douleur chronique, addictions, phobies. Très peu de praticiens formés en libéral"}
+      {
+        "niche": "Médecin traitant zone sous-dotée",
+        "contexte": "désert médical",
+        "opportunite": "Patientèle garantie dès l'ouverture, aides ARS CAIM jusqu'à 50 000€, DAC et CPTS disponibles"
+      },
+      {
+        "niche": "Médecine du sport",
+        "contexte": "national",
+        "opportunite": "Forte demande non couverte — certificats, suivi sportifs, médecine de l'effort. Actes bien cotés CCAM"
+      },
+      {
+        "niche": "Nutrition et micronutrition",
+        "contexte": "national",
+        "opportunite": "Consultations longues, clientèle fidèle, peu de concurrence. Non remboursé = secteur 2 naturel"
+      },
+      {
+        "niche": "Médecine préventive et longévité",
+        "contexte": "national",
+        "opportunite": "Marché émergent premium. Bilans complets, patients solvables, hors nomenclature possible"
+      },
+      {
+        "niche": "Hypnose médicale",
+        "contexte": "national",
+        "opportunite": "Forte demande en douleur chronique, addictions, phobies. Très peu de praticiens formés en libéral"
+      }
     ],
     "Gynécologie-obstétrique": [
-      {"niche":"Endométriose","contexte":"national","opportunite":"3M de femmes touchées, délai diagnostic moyen 7 ans. Consultation spécialisée très rare — liste d'attente garantie"},
-      {"niche":"Périnéologie et rééducation périnéale médicale","contexte":"national","opportunite":"Troubles fonctionnels post-partum et ménopause. Très peu de spécialistes en libéral"},
-      {"niche":"Ménopause complexe et THM","contexte":"national","opportunite":"13M de femmes concernées en France. Suivi structuré rare, demande forte post-Covid"},
-      {"niche":"Grossesse après 40 ans","contexte":"national","opportunite":"Tendance démographique forte. Suivi renforcé valorisé, patientèle premium"}
+      {
+        "niche": "Endométriose",
+        "contexte": "national",
+        "opportunite": "3M de femmes touchées, délai diagnostic moyen 7 ans. Consultation spécialisée très rare — liste d'attente garantie"
+      },
+      {
+        "niche": "Périnéologie et rééducation périnéale médicale",
+        "contexte": "national",
+        "opportunite": "Troubles fonctionnels post-partum et ménopause. Très peu de spécialistes en libéral"
+      },
+      {
+        "niche": "Ménopause complexe et THM",
+        "contexte": "national",
+        "opportunite": "13M de femmes concernées en France. Suivi structuré rare, demande forte post-Covid"
+      },
+      {
+        "niche": "Grossesse après 40 ans",
+        "contexte": "national",
+        "opportunite": "Tendance démographique forte. Suivi renforcé valorisé, patientèle premium"
+      }
     ],
     "Gynécologie médicale": [
-      {"niche":"Endométriose","contexte":"national","opportunite":"Délai moyen diagnostic : 7 ans. 1 femme sur 10 en âge de procréer. Consultation spécialisée quasi inexistante en ville"},
-      {"niche":"Contraception longue durée (DIU, implant)","contexte":"national","opportunite":"Pose et suivi DIU/implant peu développés en ville. Actes CCAM bien cotés"},
-      {"niche":"Ménopause et hormonothérapie personnalisée","contexte":"national","opportunite":"Demande forte, compétence spécifique rare. Patientèle longue durée"},
-      {"niche":"Santé sexuelle et dysfonctions","contexte":"national","opportunite":"Tabou médical persistant, quasi aucune offre libérale structurée"}
+      {
+        "niche": "Endométriose",
+        "contexte": "national",
+        "opportunite": "Délai moyen diagnostic : 7 ans. 1 femme sur 10 en âge de procréer. Consultation spécialisée quasi inexistante en ville"
+      },
+      {
+        "niche": "Contraception longue durée (DIU, implant)",
+        "contexte": "national",
+        "opportunite": "Pose et suivi DIU/implant peu développés en ville. Actes CCAM bien cotés"
+      },
+      {
+        "niche": "Ménopause et hormonothérapie personnalisée",
+        "contexte": "national",
+        "opportunite": "Demande forte, compétence spécifique rare. Patientèle longue durée"
+      },
+      {
+        "niche": "Santé sexuelle et dysfonctions",
+        "contexte": "national",
+        "opportunite": "Tabou médical persistant, quasi aucune offre libérale structurée"
+      }
     ],
     "Psychiatrie": [
-      {"niche":"TDAH adulte","contexte":"national","opportunite":"1,5M de cas non diagnostiqués en France. Délais CMP : 18-24 mois. Demande explosive des 25-45 ans"},
-      {"niche":"Trouble bipolaire ambulatoire","contexte":"national","opportunite":"Suivi chronique spécialisé. Peu de psychiatres libéraux formés au TB. Patientèle fidèle"},
-      {"niche":"Psychiatrie périnatale","contexte":"national","opportunite":"Dépression post-partum (15% des accouchées), psychose puerpérale — offre libérale quasi inexistante"},
-      {"niche":"Burnout et souffrance au travail","contexte":"national","opportunite":"Demande sociétale explosive. 50% des salariés en risque. Approche libérale souple et rapide"},
-      {"niche":"Troubles alimentaires adultes","contexte":"national","opportunite":"Très peu de structures libérales dédiées. Listes d'attente hospitalières de 6-12 mois"}
+      {
+        "niche": "TDAH adulte",
+        "contexte": "national",
+        "opportunite": "1,5M de cas non diagnostiqués en France. Délais CMP : 18-24 mois. Demande explosive des 25-45 ans"
+      },
+      {
+        "niche": "Trouble bipolaire ambulatoire",
+        "contexte": "national",
+        "opportunite": "Suivi chronique spécialisé. Peu de psychiatres libéraux formés au TB. Patientèle fidèle"
+      },
+      {
+        "niche": "Psychiatrie périnatale",
+        "contexte": "national",
+        "opportunite": "Dépression post-partum (15% des accouchées), psychose puerpérale — offre libérale quasi inexistante"
+      },
+      {
+        "niche": "Burnout et souffrance au travail",
+        "contexte": "national",
+        "opportunite": "Demande sociétale explosive. 50% des salariés en risque. Approche libérale souple et rapide"
+      },
+      {
+        "niche": "Troubles alimentaires adultes",
+        "contexte": "national",
+        "opportunite": "Très peu de structures libérales dédiées. Listes d'attente hospitalières de 6-12 mois"
+      }
     ],
     "Pédiatrie": [
-      {"niche":"TDA/H et troubles des apprentissages","contexte":"national","opportunite":"Délais CPAP/CAMSP : 12-24 mois. 5,5% des enfants concernés. Demande des familles très forte"},
-      {"niche":"Troubles du spectre autistique (diagnostic précoce)","contexte":"national","opportunite":"Plan autisme 4 — demande en explosion, peu de pédiatres formés au diagnostic TSA en libéral"},
-      {"niche":"Pédiatrie du sport et médecine scolaire","contexte":"national","opportunite":"Certificats sportifs, suivi jeunes sportifs de haut niveau — peu de pédiatres spécialisés"},
-      {"niche":"Pédiatrie de l'adolescent","contexte":"national","opportunite":"Santé mentale ados, troubles alimentaires, comportements à risque — quasi aucune offre libérale dédiée"}
+      {
+        "niche": "TDA/H et troubles des apprentissages",
+        "contexte": "national",
+        "opportunite": "Délais CPAP/CAMSP : 12-24 mois. 5,5% des enfants concernés. Demande des familles très forte"
+      },
+      {
+        "niche": "Troubles du spectre autistique (diagnostic précoce)",
+        "contexte": "national",
+        "opportunite": "Plan autisme 4 — demande en explosion, peu de pédiatres formés au diagnostic TSA en libéral"
+      },
+      {
+        "niche": "Pédiatrie du sport et médecine scolaire",
+        "contexte": "national",
+        "opportunite": "Certificats sportifs, suivi jeunes sportifs de haut niveau — peu de pédiatres spécialisés"
+      },
+      {
+        "niche": "Pédiatrie de l'adolescent",
+        "contexte": "national",
+        "opportunite": "Santé mentale ados, troubles alimentaires, comportements à risque — quasi aucune offre libérale dédiée"
+      }
     ],
     "Cardiologie": [
-      {"niche":"Insuffisance cardiaque ambulatoire","contexte":"national","opportunite":"Suivi post-hospitalisation — coordination ville-hôpital très peu développée. Actes CCAM valorisés"},
-      {"niche":"Cardiologie du sport","contexte":"national","opportunite":"Bilan cardiovasculaire sportif, ECG d'effort — très peu de cardiologues spécialisés sport en libéral"},
-      {"niche":"Fibrillation atriale — coordination","contexte":"national","opportunite":"Suivi anticoagulation, télésurveillance FA. Enjeu majeur de santé publique sous-traité en ville"},
-      {"niche":"Cardiologie féminine","contexte":"national","opportunite":"Risque cardiovasculaire chez la femme systématiquement sous-diagnostiqué. Niche émergente reconnue HAS"}
+      {
+        "niche": "Insuffisance cardiaque ambulatoire",
+        "contexte": "national",
+        "opportunite": "Suivi post-hospitalisation — coordination ville-hôpital très peu développée. Actes CCAM valorisés"
+      },
+      {
+        "niche": "Cardiologie du sport",
+        "contexte": "national",
+        "opportunite": "Bilan cardiovasculaire sportif, ECG d'effort — très peu de cardiologues spécialisés sport en libéral"
+      },
+      {
+        "niche": "Fibrillation atriale — coordination",
+        "contexte": "national",
+        "opportunite": "Suivi anticoagulation, télésurveillance FA. Enjeu majeur de santé publique sous-traité en ville"
+      },
+      {
+        "niche": "Cardiologie féminine",
+        "contexte": "national",
+        "opportunite": "Risque cardiovasculaire chez la femme systématiquement sous-diagnostiqué. Niche émergente reconnue HAS"
+      }
     ],
     "Orthopédie": [
-      {"niche":"Chirurgie ambulatoire","contexte":"national","opportunite":"Développement rapide ATIH — moins de contraintes hospitalières, facturation optimisée"},
-      {"niche":"Chirurgie de la main et du poignet","contexte":"national","opportunite":"Très peu de chirurgiens spécialisés main en libéral. Forte demande post-Covid (tendinopathies)"},
-      {"niche":"Infiltrations écho-guidées","contexte":"national","opportunite":"Technique en forte croissance. Peu de praticiens formés. Actes CCAM bien valorisés"}
+      {
+        "niche": "Chirurgie ambulatoire",
+        "contexte": "national",
+        "opportunite": "Développement rapide ATIH — moins de contraintes hospitalières, facturation optimisée"
+      },
+      {
+        "niche": "Chirurgie de la main et du poignet",
+        "contexte": "national",
+        "opportunite": "Très peu de chirurgiens spécialisés main en libéral. Forte demande post-Covid (tendinopathies)"
+      },
+      {
+        "niche": "Infiltrations écho-guidées",
+        "contexte": "national",
+        "opportunite": "Technique en forte croissance. Peu de praticiens formés. Actes CCAM bien valorisés"
+      }
     ]
   },
-
   "seuils_desert_medical": {
     "Médecine générale": 100,
     "Gynécologie": 12,
@@ -592,7 +1197,6 @@
     "Pédiatrie": 9,
     "Psychiatrie": 15
   },
-
   "aides_zones_sous_dotees": [
     "CAIM (Contrat d'Aide à l'Installation des Médecins) — jusqu'à 50 000€ sur 5 ans — ARS",
     "COTAM (Contrat de Transition) — aide pendant la période de transition",
