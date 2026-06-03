@@ -445,5 +445,12 @@ QUESTIONNAIRE = [
             {"value": "retraite", "label": "Préparer une transition sereine vers la retraite"},
             {"value": "idees",        "label": "J'ai des idées mais rien de structuré"}
         ]
+    },
+    {
+        "id": "preoccupation",
+        "question": "Qu'est-ce qui vous empêche de dormir concernant votre cabinet en ce moment ?",
+        "type": "text",
+        "placeholder": "Décrivez librement — c'est la donnée la plus importante de ce diagnostic",
+        "obligatoire": False
     }
 ]
