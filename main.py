@@ -1610,6 +1610,34 @@ def _run_eval_thread(job_id: str, cases: list):
 EVAL_FEEDBACKS_FILE = Path("eval_feedbacks.json")
 
 
+@app.get("/api/admin/eval/export-word")
+async def eval_export_word(request: Request):
+    """Génère et télécharge le document Word de relecture."""
+    require_admin(request)
+    if not EVAL_RESULTS_FILE.exists():
+        raise HTTPException(status_code=404, detail="Aucun résultat d'évaluation")
+
+    import subprocess, tempfile
+    output = Path(tempfile.mktemp(suffix=".docx"))
+    script = Path("/app/generate_eval_word.py")
+    if not script.exists():
+        raise HTTPException(status_code=404, detail="Script de génération introuvable")
+
+    result = subprocess.run(
+        ["python3", str(script), str(EVAL_RESULTS_FILE), str(output)],
+        capture_output=True, text=True
+    )
+    if result.returncode != 0 or not output.exists():
+        raise HTTPException(status_code=500, detail=f"Erreur génération : {result.stderr[:200]}")
+
+    from fastapi.responses import FileResponse
+    return FileResponse(
+        path=str(output),
+        filename=f"bigdoc-eval-{datetime.now().strftime('%Y%m%d')}.docx",
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
+
+
 @app.post("/api/admin/eval/feedback")
 async def save_eval_feedback(request: Request):
     require_admin(request)
