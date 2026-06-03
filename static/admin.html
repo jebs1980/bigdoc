@@ -260,6 +260,7 @@
           <button class="btn btn-outline" onclick="runEval('normal')">▶ Lancer 50 cas</button>
           <button class="btn btn-outline" onclick="runEval('batch')">🚀 Batch API</button>
           <button class="btn btn-primary" onclick="loadEvalResults()">↻ Actualiser</button>
+          <button class="btn btn-outline" id="eval-save-feedbacks-btn" onclick="saveEvalFeedbacksToServer()">💾 Sauvegarder feedbacks</button>
         </div>
       </div>
       <div id="eval-run-status" style="display:none;padding:.85rem 1.25rem;border-top:1px solid var(--border)">
@@ -1491,15 +1492,43 @@ async function loadEvalResults() {
     const r = await fetch('/api/admin/eval/results', {credentials: 'include'});
     if (!r.ok) { console.error('Eval results not available'); return; }
     evalResults = await r.json();
-    // Charger feedbacks locaux
+    // Charger feedbacks depuis le serveur (priorité) puis localStorage
     try {
+      const fr = await fetch('/api/admin/eval/feedback', {credentials: 'include'});
+      if (fr.ok) {
+        const serverFeedbacks = await fr.json();
+        if (Object.keys(serverFeedbacks).length > 0) {
+          evalFeedbacks = serverFeedbacks;
+        } else {
+          // Fallback localStorage
+          const stored = localStorage.getItem('eval_feedbacks');
+          if (stored) evalFeedbacks = JSON.parse(stored);
+        }
+      }
+    } catch(e) {
       const stored = localStorage.getItem('eval_feedbacks');
       if (stored) evalFeedbacks = JSON.parse(stored);
-    } catch(e) {}
+    }
     renderEvalResults(evalResults);
     renderEvalRapport();
     loadEvalBatches();
   } catch(e) { console.error('Eval load error:', e); }
+}
+
+async function saveEvalFeedbacksToServer() {
+  const btn = document.getElementById('eval-save-feedbacks-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Sauvegarde…'; }
+  try {
+    const r = await fetch('/api/admin/eval/feedback', {
+      credentials: 'include', method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(evalFeedbacks)
+    });
+    const d = await r.json();
+    if (btn) { btn.textContent = `✅ ${d.count} feedbacks sauvegardés`; setTimeout(() => { btn.textContent = '💾 Sauvegarder'; btn.disabled = false; }, 2500); }
+  } catch(e) {
+    if (btn) { btn.textContent = '❌ Erreur'; btn.disabled = false; }
+  }
 }
 
 async function loadEvalBatches() {
@@ -1684,6 +1713,8 @@ function saveEvalFeedback() {
     note: document.getElementById('em-note').value.trim()
   };
   try { localStorage.setItem('eval_feedbacks', JSON.stringify(evalFeedbacks)); } catch(e) {}
+  // Auto-save serveur
+  saveEvalFeedbacksToServer();
   closeEvalModal();
   renderEvalResults(evalResults);
   renderEvalRapport();
