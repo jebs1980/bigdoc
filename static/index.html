@@ -1501,6 +1501,13 @@ async function init() {
     }
   } catch(e) {}
 
+  // Charger le questionnaire — toujours en premier
+  try {
+    const r = await fetch('/api/questionnaire');
+    const data = await r.json();
+    state.questions = data.questions;
+  } catch(e) { console.error('Questionnaire non chargé', e); }
+
   // Retour Stripe
   const params = new URLSearchParams(window.location.search);
   const paiement = params.get('paiement');
