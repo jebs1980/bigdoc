@@ -1559,7 +1559,7 @@ def _run_eval_thread(job_id: str, cases: list):
 
     for case in cases:
         try:
-            from main import build_diagnostic_prompt, get_demographic_context
+            # Utiliser les fonctions directement (pas de circular import)
             context = get_demographic_context(case["specialite"], case["ville"])
             user_prompt = build_diagnostic_prompt(
                 reponses=case["reponses"],
@@ -1581,8 +1581,8 @@ def _run_eval_thread(job_id: str, cases: list):
             try:
                 bilan = json.loads(raw)
             except Exception:
-                import re
-                match = re.search(r'\{.*\}', raw, re.DOTALL)
+                import re as _re
+                match = _re.search(r'\{.*\}', raw, _re.DOTALL)
                 bilan = json.loads(match.group()) if match else {"erreur": "JSON invalide"}
 
             results[case["id"]] = {
@@ -1602,12 +1602,31 @@ def _run_eval_thread(job_id: str, cases: list):
             }
         _eval_jobs[job_id]["done"] += 1
         EVAL_RESULTS_FILE.write_text(json.dumps(list(results.values()), ensure_ascii=False, indent=2))
-        time.sleep(1.5)
+        time.sleep(1.2)
 
     _eval_jobs[job_id]["status"] = "done"
 
 
-@app.post("/api/admin/eval/run")
+EVAL_FEEDBACKS_FILE = Path("eval_feedbacks.json")
+
+
+@app.post("/api/admin/eval/feedback")
+async def save_eval_feedback(request: Request):
+    require_admin(request)
+    data = await request.json()
+    EVAL_FEEDBACKS_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    return {"success": True, "count": len(data)}
+
+
+@app.get("/api/admin/eval/feedback")
+async def get_eval_feedback(request: Request):
+    require_admin(request)
+    if not EVAL_FEEDBACKS_FILE.exists():
+        return {}
+    return json.loads(EVAL_FEEDBACKS_FILE.read_text())
+
+
+
 async def eval_run(request: Request, mode: str = "normal"):
     require_admin(request)
     if not EVAL_CASES_FILE.exists():
