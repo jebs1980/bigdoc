@@ -1439,17 +1439,21 @@ let currentEvalFeedback = null;
 let evalFeedbacks = {}; // stocké localement
 
 async function runEval(mode) {
-  const idsInput = document.getElementById('eval-case-ids').value.trim();
-  const ids = idsInput ? idsInput.split(/[\s,]+/).filter(Boolean) : [];
-
-  const btns = document.querySelectorAll('#tab-eval .btn-outline');
-  btns.forEach(b => b.disabled = true);
-
   const statusDiv = document.getElementById('eval-run-status');
   const statusText = document.getElementById('eval-status-text');
   const progressBar = document.getElementById('eval-progress-bar');
   statusDiv.style.display = 'block';
-  statusText.textContent = ids.length ? `Lancement de ${ids.length} cas…` : 'Lancement de tous les cas…';
+  statusText.textContent = 'Démarrage…';
+
+  let idsInput = '', ids = [];
+  try {
+    const el = document.getElementById('eval-case-ids');
+    idsInput = el ? el.value.trim() : '';
+    ids = idsInput ? idsInput.split(/[\s,]+/).filter(Boolean) : [];
+  } catch(e) { console.error('IDs error:', e); }
+
+  const btns = Array.from(document.querySelectorAll('#tab-eval .btn'));
+  btns.forEach(b => b.disabled = true);
 
   try {
     const body = ids.length ? {ids} : {};
