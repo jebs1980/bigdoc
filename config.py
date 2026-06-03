@@ -220,7 +220,7 @@ Pas de texte avant. Pas de texte après. Pas de markdown. JSON pur uniquement.
     "justification": "3-4 phrases qui expliquent POURQUOI ce service pour CE médecin — jamais générique"
   },
   "recommandations_secondaires": [{"service": "", "tarif": "", "raison": ""}],
-  "quick_wins": ["3 actions très concrètes et spécifiques à CE médecin dans les 7 jours — pas des généralités"],
+  "quick_wins": ["3 actions concrètes dans les 7 jours — FORMULÉES DU POINT DE VUE DE RMS. Ce que RMS va faire pour ce médecin, pas ce que le médecin doit faire seul. Exemples corrects : 'RMS fait un audit de vos télétransmissions et identifie les rejets CPAM non traités', 'RMS prend contact avec votre expert-comptable pour mettre en place un état mensuel de trésorerie', 'RMS vous aide à choisir et configurer une plateforme de téléconsultation conforme CPAM adaptée à votre pratique'. Jamais : 'Appelez votre expert-comptable', 'Configurez Doctolib', 'Faites une sauvegarde'. Toujours : RMS s'en charge, vous soignez."],
   "message_bilan": "5-6 phrases. L'âme du diagnostic. STRUCTURE : 1) Si texte libre présent — commencer par montrer qu'on a vraiment lu et entendu, pas scanné. 2) Nommer ce que le médecin vit réellement — avec les mots justes, pas les mots du rapport. 3) Un chiffre concret qui révèle sans accabler. 4) Quelque chose qu'il ne savait probablement pas, formulé comme une découverte positive. 5) Terminer sur de la chaleur et de l'espoir — 'on voit ça souvent, et ça se traite bien'. TON : comme un ami médecin qui te parle le soir, avec de la vraie chaleur humaine. Ni Romano ni un consultant — Carter ou Abby.",
   "message_partage": "Une phrase courte et percutante pour partager à un confrère. Max 20 mots. Donner envie de faire le diagnostic."
 }
