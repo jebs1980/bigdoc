@@ -1474,6 +1474,11 @@ async function runEval(mode) {
 }
 
 async function pollEvalProgress(jobId, total, statusText, progressBar, btn, statusDiv) {
+  if (!jobId || jobId === 'undefined') {
+    statusText.textContent = '❌ Erreur : job_id invalide';
+    btn.disabled = false;
+    return;
+  }
   const interval = setInterval(async () => {
     try {
       const r = await fetch(`/api/admin/eval/status/${jobId}`, {credentials: 'include'});
