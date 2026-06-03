@@ -1,4 +1,7 @@
 import json
+import time
+from pathlib import Path
+from datetime import datetime
 import secrets
 import httpx
 import os
@@ -1531,6 +1534,221 @@ async def cancel_quote(quote_id: str, request: Request):
         return {"success": True, "status": quote.status}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+# ─────────────────────────────────────────
+# EVAL — Routes admin
+# ─────────────────────────────────────────
+import threading, uuid as _uuid
+
+_eval_jobs = {}  # job_id → {done, total, status}
+
+EVAL_CASES_FILE   = Path("eval_cases.json")
+EVAL_RESULTS_FILE = Path("eval_results.json")
+EVAL_BATCHES_FILE = Path("eval_batches.json")
+
+
+def _run_eval_thread(job_id: str, cases: list):
+    """Lance les cas en arrière-plan."""
+    _eval_jobs[job_id] = {"done": 0, "total": len(cases), "status": "running"}
+    results = {}
+    if EVAL_RESULTS_FILE.exists():
+        for r in json.loads(EVAL_RESULTS_FILE.read_text()):
+            results[r["id"]] = r
+
+    for case in cases:
+        try:
+            from main import build_diagnostic_prompt, get_demographic_context
+            context = get_demographic_context(case["specialite"], case["ville"])
+            user_prompt = build_diagnostic_prompt(
+                reponses=case["reponses"],
+                texte_libre=case.get("texte_libre", ""),
+                specialite=case["specialite"],
+                ville=case["ville"],
+                catalogue=""
+            )
+            if context:
+                user_prompt = context + "\n\n" + user_prompt
+
+            response = anthropic_client.messages.create(
+                model=ANTHROPIC_MODEL,
+                max_tokens=4000,
+                system=SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}]
+            )
+            raw = response.content[0].text.strip()
+            try:
+                bilan = json.loads(raw)
+            except Exception:
+                import re
+                match = re.search(r'\{.*\}', raw, re.DOTALL)
+                bilan = json.loads(match.group()) if match else {"erreur": "JSON invalide"}
+
+            results[case["id"]] = {
+                "id": case["id"], "label": case["label"],
+                "specialite": case["specialite"], "ville": case["ville"],
+                "texte_libre": case.get("texte_libre", ""),
+                "bilan": bilan, "status": "ok" if "score_global" in bilan else "erreur",
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            results[case["id"]] = {
+                "id": case["id"], "label": case.get("label", ""),
+                "specialite": case.get("specialite", ""), "ville": case.get("ville", ""),
+                "texte_libre": case.get("texte_libre", ""),
+                "bilan": {}, "status": "erreur", "erreur": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+        _eval_jobs[job_id]["done"] += 1
+        EVAL_RESULTS_FILE.write_text(json.dumps(list(results.values()), ensure_ascii=False, indent=2))
+        time.sleep(1.5)
+
+    _eval_jobs[job_id]["status"] = "done"
+
+
+@app.post("/api/admin/eval/run")
+async def eval_run(request: Request, mode: str = "normal"):
+    require_admin(request)
+    if not EVAL_CASES_FILE.exists():
+        raise HTTPException(status_code=404, detail="eval_cases.json introuvable")
+    cases = json.loads(EVAL_CASES_FILE.read_text())
+
+    if mode == "batch":
+        import anthropic as _anthropic
+        batch_requests = []
+        for case in cases:
+            context = get_demographic_context(case["specialite"], case["ville"])
+            user_prompt = build_diagnostic_prompt(
+                reponses=case["reponses"],
+                texte_libre=case.get("texte_libre", ""),
+                specialite=case["specialite"],
+                ville=case["ville"],
+                catalogue=""
+            )
+            if context:
+                user_prompt = context + "\n\n" + user_prompt
+            batch_requests.append({
+                "custom_id": case["id"],
+                "params": {
+                    "model": ANTHROPIC_MODEL,
+                    "max_tokens": 4000,
+                    "system": SYSTEM_PROMPT,
+                    "messages": [{"role": "user", "content": user_prompt}]
+                }
+            })
+        batch = anthropic_client.beta.messages.batches.create(requests=batch_requests)
+        records = []
+        if EVAL_BATCHES_FILE.exists():
+            records = json.loads(EVAL_BATCHES_FILE.read_text())
+        records.append({
+            "batch_id": batch.id,
+            "case_count": len(cases),
+            "launched_at": datetime.now().isoformat(),
+            "status": "in_progress"
+        })
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+        return {"batch_id": batch.id, "total": len(cases)}
+
+    else:
+        job_id = str(_uuid.uuid4())[:8]
+        t = threading.Thread(target=_run_eval_thread, args=(job_id, cases), daemon=True)
+        t.start()
+        return {"job_id": job_id, "total": len(cases)}
+
+
+@app.get("/api/admin/eval/status/{job_id}")
+async def eval_status(job_id: str, request: Request):
+    require_admin(request)
+    job = _eval_jobs.get(job_id, {"done": 0, "total": 0, "status": "unknown"})
+    return job
+
+
+@app.get("/api/admin/eval/results")
+async def eval_results(request: Request):
+    require_admin(request)
+    if not EVAL_RESULTS_FILE.exists():
+        return []
+    return json.loads(EVAL_RESULTS_FILE.read_text())
+
+
+@app.get("/api/admin/eval/batches")
+async def eval_batches(request: Request):
+    require_admin(request)
+    if not EVAL_BATCHES_FILE.exists():
+        return []
+    return json.loads(EVAL_BATCHES_FILE.read_text())
+
+
+@app.get("/api/admin/eval/batch-status/{batch_id}")
+async def eval_batch_status(batch_id: str, request: Request):
+    require_admin(request)
+    batch = anthropic_client.beta.messages.batches.retrieve(batch_id)
+    counts = batch.request_counts
+    # Mettre à jour le fichier batches
+    if EVAL_BATCHES_FILE.exists():
+        records = json.loads(EVAL_BATCHES_FILE.read_text())
+        for r in records:
+            if r["batch_id"] == batch_id:
+                r["status"] = batch.processing_status
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+    return {
+        "status": batch.processing_status,
+        "succeeded": counts.succeeded,
+        "errored": counts.errored,
+        "processing": counts.processing
+    }
+
+
+@app.post("/api/admin/eval/batch-get/{batch_id}")
+async def eval_batch_get(batch_id: str, request: Request):
+    require_admin(request)
+    batch = anthropic_client.beta.messages.batches.retrieve(batch_id)
+    if batch.processing_status != "ended":
+        raise HTTPException(status_code=400, detail="Batch pas encore terminé")
+
+    cases_by_id = {}
+    if EVAL_CASES_FILE.exists():
+        for c in json.loads(EVAL_CASES_FILE.read_text()):
+            cases_by_id[c["id"]] = c
+
+    results = {}
+    if EVAL_RESULTS_FILE.exists():
+        for r in json.loads(EVAL_RESULTS_FILE.read_text()):
+            results[r["id"]] = r
+
+    import re
+    for result in anthropic_client.beta.messages.batches.results(batch_id):
+        cid = result.custom_id
+        case = cases_by_id.get(cid, {})
+        if result.result.type == "succeeded":
+            raw = result.result.message.content[0].text
+            try:
+                bilan = json.loads(raw.strip())
+            except Exception:
+                match = re.search(r'\{.*\}', raw, re.DOTALL)
+                bilan = json.loads(match.group()) if match else {"erreur": "JSON invalide"}
+            status = "ok" if "score_global" in bilan else "erreur"
+        else:
+            bilan, status = {}, "erreur"
+
+        results[cid] = {
+            "id": cid, "label": case.get("label", ""),
+            "specialite": case.get("specialite", ""), "ville": case.get("ville", ""),
+            "texte_libre": case.get("texte_libre", ""),
+            "bilan": bilan, "status": status, "mode": "batch",
+            "timestamp": datetime.now().isoformat()
+        }
+
+    EVAL_RESULTS_FILE.write_text(json.dumps(list(results.values()), ensure_ascii=False, indent=2))
+    # Mettre à jour statut batch
+    if EVAL_BATCHES_FILE.exists():
+        records = json.loads(EVAL_BATCHES_FILE.read_text())
+        for r in records:
+            if r["batch_id"] == batch_id:
+                r["status"] = "ended"
+        EVAL_BATCHES_FILE.write_text(json.dumps(records, ensure_ascii=False, indent=2))
+    return {"retrieved": len(results)}
 
 
 if __name__ == "__main__":
