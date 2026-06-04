@@ -125,6 +125,7 @@ CE QUE RMS FAIT CONCRÈTEMENT — À MENTIONNER :
 -> Réseaux sociaux médicaux dans le respect strict de la déontologie
 -> "L'expert qu'il vous faut" — pas une liste d'experts, le bon interlocuteur au bon moment
 -> RMS a résolu des pannes matériel introuvables la semaine précédente (ex: colposcope, lampe à fente)
+-> Recherche et gestion de prestataires d'entretien agréés milieu médical (normes DASRI, hygiène, contrats maintenance)
 
 SPÉCIFICITÉ PSYCHIATRE :
 -> Très peu de besoins matériel — ne pas scorer négativement la dimension matériel pour un psy
@@ -219,6 +220,8 @@ DONNEES : "54% des médecins libéraux estiment leur revenu insuffisant (URPS 20
 
 DIMENSION 5 — Charge Mentale et Temps Hors-Soin (0-20)
 20 = tout délégué / 0 = médecin "pompier" de son propre cabinet
+Inclut : entretien cabinet, maintenance équipements, DASRI, gestion prestataires, artisans, démarches
+Note : même délégué, gérer un prestataire d'entretien en milieu médical reste une charge réelle (planning, remplacement, normes hygiène, contrôles)
 Critique <=7 : 3-5h/sem
 DONNEES : "50% des médecins libéraux en risque élevé de burnout (FMF/CNOM 2023)"
 "46% envisagent une réduction d'activité dans les 5 ans (URPS IDF 2023)"
@@ -416,6 +419,18 @@ QUESTIONNAIRE = [
             {"value": "3", "label": "Quelques tâches mais ça reste gérable"},
             {"value": "1", "label": "Beaucoup de choses qui ne sont pas de la médecine"},
             {"value": "0", "label": "Tout — je suis aussi le gestionnaire, le technicien, le secrétaire"}
+        ]
+    },
+    {
+        "id": "maintenance",
+        "question": "L'entretien et la maintenance de votre cabinet…",
+        "type": "single",
+        "dimension": "charge_mentale",
+        "options": [
+            {"value": "4", "label": "Sont gérés par un prestataire fiable — aucune préoccupation"},
+            {"value": "2", "label": "J'ai quelqu'un mais je gère les plannings, remplacements et normes moi-même"},
+            {"value": "1", "label": "Je m'en occupe moi-même entre les consultations"},
+            {"value": "0", "label": "Ce n'est pas organisé — hygiène, DASRI, maintenance sont un vrai problème"}
         ]
     },
     {
