@@ -567,6 +567,21 @@
       .bigdoc-bubble { margin: 0 1rem .75rem; }
     }
 
+    /* ── RESULT RESPONSIVE ── */
+    .result-grid-radar    { display:grid; grid-template-columns:260px 1fr; gap:1.5rem; margin-bottom:1.5rem; align-items:start; }
+    .result-grid-dims     { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.5rem; }
+    .result-grid-reco     { display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.5rem; }
+    .result-body          { padding:1.25rem 1.5rem; }
+    .result-header-msg    { display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;border:1px solid rgba(255,255,255,.1);flex:1;min-width:220px;max-width:360px; }
+
+    @media (max-width: 640px) {
+      .result-grid-radar  { grid-template-columns:1fr; }
+      .result-grid-dims   { grid-template-columns:1fr; }
+      .result-grid-reco   { grid-template-columns:1fr; }
+      .result-body        { padding:.85rem 1rem; }
+      .result-header-msg  { max-width:100%; min-width:0; }
+    }
+
     /* ── ANIMATIONS ── */
     .fade-in { animation: fadeIn .3s ease; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
@@ -2241,7 +2256,7 @@ function renderResult() {
           </div>
         </div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:.65rem;background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem;border:1px solid rgba(255,255,255,.1);flex:1;min-width:220px;max-width:360px">
+      <div class="result-header-msg">
         <svg width="60" height="75" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
           <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
           <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
@@ -2289,17 +2304,17 @@ function renderResult() {
     </div>` : ''}
 
     <!-- BODY -->
-    <div style="padding:1.25rem 1.5rem">
+    <div class="result-body">
 
       <!-- RADAR + DIMENSIONS -->
-      <div style="display:grid;grid-template-columns:260px 1fr;gap:1.5rem;margin-bottom:1.5rem;align-items:start">
+      <div class="result-grid-radar">
         <div style="flex-shrink:0">
           <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">RADAR</div>
           ${renderRadarResult(b.dimensions||{})}
         </div>
         <div style="min-width:0;overflow:hidden">
           <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">7 DIMENSIONS</div>
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem">
+          <div class="result-grid-dims">
             ${dimsHtml}
           </div>
         </div>
@@ -2308,13 +2323,13 @@ function renderResult() {
       <!-- CHIFFRES CLÉS -->
       <div style="margin-bottom:1.5rem">
         <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">EN CHIFFRES</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.5rem">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.5rem">
           ${contextStatsResult(b.dimensions||{})}
         </div>
       </div>
 
       <!-- ORDONNANCE + ACTIONS -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem">
+      <div class="result-grid-reco">
         <div style="background:#F5F3FF;border-radius:12px;padding:1.1rem 1.25rem;border:1px solid #EDE9FE">
           <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">ORDONNANCE</div>
           <div style="font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:800;color:#1A1060;margin-bottom:.2rem">${b.recommandation_principale?.service||''}</div>
