@@ -1164,6 +1164,8 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         <div class="input-group">
           <label>Email professionnel *</label>
           <input type="email" id="lead-email" placeholder="dr.dupont@cabinet.fr" />
+          <!-- Honeypot anti-bot — ne pas modifier -->
+          <input type="text" id="lead-honeypot" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
         </div>
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1">
@@ -1988,8 +1990,10 @@ function getScoreLabel(score) {
 
 async function submitLead() {
   const email = document.getElementById('lead-email').value.trim();
-  if (!email || !email.includes('@')) {
+  const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+  if (!email || !emailRegex.test(email)) {
     document.getElementById('lead-email').style.borderColor = 'var(--red)';
+    document.getElementById('lead-email').focus();
     return;
   }
 
@@ -2011,6 +2015,7 @@ async function submitLead() {
         nom: document.getElementById('lead-nom')?.value || '',
         specialite: document.getElementById('lead-specialite').value,
         ville: document.getElementById('lead-ville').value,
+        honeypot: document.getElementById('lead-honeypot')?.value || '',
       })
     });
   } catch(e) {}
