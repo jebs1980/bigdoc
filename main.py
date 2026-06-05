@@ -477,6 +477,7 @@ def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = 
         "teleconsult":   "Situation téléconsultation",
         "compta":        "Comptabilité et trésorerie",
         "charge":        "Charge mentale hors soins",
+        "maintenance":   "Entretien et maintenance du cabinet",
         "financement":   "Projets de financement",
         "developpement": "Projets de développement",
     }
