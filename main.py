@@ -3,6 +3,7 @@ import time
 from pathlib import Path
 from datetime import datetime
 from ameli_api import get_ameli_context
+from security import validate_email_security, check_honeypot, check_email_rate_limit
 import secrets
 import httpx
 import os
@@ -423,6 +424,7 @@ class LeadRequest(BaseModel):
     specialite: str = ""
     ville: str = ""
     rgpd_consent: bool = True
+    honeypot: str = ""  # Anti-bot — doit rester vide
 
 
 class DeleteRequest(BaseModel):
@@ -622,6 +624,20 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
 @limiter.limit("10/hour")
 async def capture_lead(request: Request, body: LeadRequest):
     """Capture le contact après affichage du score partiel."""
+    # Honeypot — bot détecté
+    if not check_honeypot(body.honeypot):
+        logger.warning(f"Honeypot déclenché — IP: {request.client.host}")
+        return {"success": True}  # Silencieux — le bot croit avoir réussi
+
+    # Validation email sécurité
+    ok, msg = validate_email_security(body.email)
+    if not ok:
+        raise HTTPException(status_code=400, detail=msg)
+
+    # Rate limiting par email
+    if not check_email_rate_limit(body.email):
+        raise HTTPException(status_code=429, detail="Trop de tentatives avec cette adresse. Réessayez dans 24h.")
+
     lead_id = save_lead(
         body.session_id, body.email, body.prenom, body.specialite, body.ville, body.nom
     )
