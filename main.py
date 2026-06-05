@@ -484,9 +484,12 @@ def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = 
     # Map option values to readable labels
     option_map = {}
     for q in QUESTIONNAIRE:
-        option_map[q["id"]] = {opt["value"]: opt["label"] for opt in q["options"]}
+        if q.get("options"):
+            option_map[q["id"]] = {opt["value"]: opt["label"] for opt in q["options"]}
 
     for qid, val in reponses.items():
+        if qid == "preoccupation":
+            continue  # Géré via texte_libre
         label = labels.get(qid, qid)
         # Gérer les multi_select (liste de valeurs)
         if isinstance(val, list):
