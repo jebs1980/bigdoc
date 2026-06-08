@@ -2680,9 +2680,11 @@ async function rppsSelect(idx) {
   document.querySelectorAll('.rpps-result-card').forEach(c => c.classList.remove('selected'));
   document.querySelector(`.rpps-result-card[data-idx="${idx}"]`)?.classList.add('selected');
 
-  // Pré-remplir prénom/nom immédiatement
+  // Pré-remplir prénom/nom + spécialité immédiatement (depuis résultat de base)
   if (p.prenom) { const el = document.getElementById('lead-prenom'); if(el) el.value = p.prenom; }
   if (p.nom)    { const el = document.getElementById('lead-nom');    if(el) el.value = p.nom; }
+  const speBase = p.specialite_ans || p.specialite || '';
+  if (speBase) { const el = document.getElementById('lead-specialite'); if(el) el.value = speBase; }
 
   // Afficher disclaimer
   const disc = document.getElementById('rpps-disclaimer');
