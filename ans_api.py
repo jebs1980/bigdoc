@@ -38,10 +38,20 @@ def _ameli_lookup(rpps: str) -> dict:
         row = cur.fetchone()
         conn.close()
         if row:
+            cp = (row["code_postal"] or "").strip()
+            dept = cp[:2] if len(cp) >= 2 else ""
+            if dept == "97": dept = cp[:3]
+            ville = row["ville"] or ""
+            # Construire label ville avec département
+            ville_label = ville
+            if ville and dept:
+                ville_label = f"{ville} ({dept})"
             return {
                 "adresse":     row["adresse"],
-                "ville":       row["ville"],
-                "code_postal": row["code_postal"],
+                "ville":       ville,
+                "ville_label": ville_label,
+                "code_postal": cp,
+                "departement": dept,
                 "secteur_ameli": row["secteur"],
                 "specialite_ameli": row["specialite"],
             }
@@ -192,6 +202,12 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
                                 result["adresse"] = " ".join(filter(None, parts)).strip()
                                 if addr.get("city"):
                                     result["ville"] = addr["city"]
+                                cp = addr.get("postalCode", "").strip()
+                                if cp:
+                                    result["code_postal"] = cp
+                                    dept = cp[:2] if len(cp) >= 2 else ""
+                                    if dept == "97": dept = cp[:3]
+                                    result["departement"] = dept
                 except Exception:
                     pass  # Timeout ou erreur — on garde le résultat de base
                 return result
@@ -285,6 +301,14 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
                 addr.get("city", "")
             ]
             result["adresse"] = " ".join(filter(None, parts)).strip()
+            cp = addr.get("postalCode", "").strip()
+            if cp:
+                result["code_postal"] = cp
+                # Déduire le département depuis le CP
+                dept = cp[:2] if len(cp) >= 2 else ""
+                if dept == "97":  # DOM
+                    dept = cp[:3]
+                result["departement"] = dept
 
     # Fallback spécialité — extraire depuis qualifications si specialite_ans absent
     if not result.get("specialite_ans") and result.get("qualifications"):
