@@ -74,12 +74,12 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
         params = {
             "family": nom.strip(),
             "_format": "json",
-            "_count": "10"
+            "_count": "50"
         }
         if prenom:
             params["given"] = prenom.strip()
 
-        async with httpx.AsyncClient(timeout=10.0) as client:
+        async with httpx.AsyncClient(timeout=15.0) as client:
             r = await client.get(
                 f"{ANS_BASE}/Practitioner",
                 params=params,
@@ -88,9 +88,10 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
             if r.status_code != 200:
                 logger.warning(f"ANS search {nom}: HTTP {r.status_code} — {r.text[:200]}")
                 return []
-            entries = r.json().get("entry", [])
+            data = r.json()
+            entries = data.get("entry", [])
             results = []
-            for entry in entries[:10]:
+            for entry in entries:
                 p = entry.get("resource", {})
                 parsed = _parse_practitioner(p, {})
                 if parsed:
