@@ -434,7 +434,12 @@
         <div class="input-group"><label>Spécialité</label><input type="text" id="panel-specialite" onchange="updateLeadInfo()"></div>
         <div class="input-group"><label>Ville</label><input type="text" id="panel-ville" onchange="updateLeadInfo()"></div>
       </div>
-      <div class="input-group"><label>N° RPPS</label><input type="text" id="panel-rpps" placeholder="10 chiffres" onchange="updateLeadInfo()"></div>
+      <div class="input-group"><label>N° RPPS</label>
+        <div style="display:flex;gap:.35rem">
+          <input type="text" id="panel-rpps" placeholder="10 chiffres" onchange="updateLeadInfo()" style="flex:1">
+          <button class="btn-sm" onclick="enrichFromANS()" title="Enrichir depuis l'Annuaire Santé">🔍 ANS</button>
+        </div>
+      </div>
     </div>
 
     <!-- Diagnostics -->
@@ -1131,6 +1136,43 @@ async function deleteNote(leadId, eventId) {
   const r = await fetch(`/api/admin/leads/${leadId}`, {credentials:'include'});
   currentLead = await r.json();
   renderLeadPanel(currentLead);
+}
+
+async function enrichFromANS() {
+  if (!currentLead) return;
+  const rpps   = document.getElementById('panel-rpps').value.trim();
+  const prenom = document.getElementById('panel-prenom').value.trim();
+  const nom    = document.getElementById('panel-nom').value.trim();
+
+  if (!rpps && !nom) { alert('Renseignez un RPPS ou un nom pour rechercher dans l\'Annuaire Santé'); return; }
+
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⏳';
+
+  try {
+    const r = await fetch(`/api/admin/leads/${currentLead.id}/enrich-ans`, {
+      credentials: 'include', method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({rpps, prenom, nom})
+    });
+    if (r.status === 404) { alert('Praticien non trouvé dans l\'Annuaire Santé'); btn.disabled=false; btn.textContent='🔍 ANS'; return; }
+    const d = await r.json();
+    if (d.success) {
+      const fr = await fetch(`/api/admin/leads/${currentLead.id}`, {credentials:'include'});
+      currentLead = await fr.json();
+      renderLeadPanel(currentLead);
+      const ans = d.data;
+      const infos = [
+        ans.specialite_ans && `Spécialité : ${ans.specialite_ans}`,
+        ans.secteur_conventionnel && `Secteur : ${ans.secteur_conventionnel}`,
+        ans.mode_exercice && `Mode : ${ans.mode_exercice}`,
+        ans.adresse && `Adresse : ${ans.adresse}`,
+      ].filter(Boolean);
+      if (infos.length) alert('✅ Enrichi depuis l\'ANS :\n\n' + infos.join('\n'));
+      loadLeads();
+    }
+  } catch(e) { alert('Erreur ANS : ' + e.message); }
+  btn.disabled = false; btn.textContent = '🔍 ANS';
 }
 
 function openQuoteFromPanel() {
