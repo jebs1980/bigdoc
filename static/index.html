@@ -1224,6 +1224,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <input type="email" id="lead-email" placeholder="dr.dupont@cabinet.fr" />
           <!-- Honeypot anti-bot — ne pas modifier -->
           <input type="text" id="lead-honeypot" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
+          <input type="hidden" id="lead-rpps" />
         </div>
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1">
@@ -2237,6 +2238,7 @@ async function submitLead() {
         turnstile_token: '',
         specialite: document.getElementById('lead-specialite').value,
         ville: document.getElementById('lead-ville').value,
+        rpps: document.getElementById('lead-rpps')?.value || '',
       })
     });
     const data = await r.json();
@@ -2686,6 +2688,9 @@ async function rppsSelect(idx) {
   if (p.nom)    { const el = document.getElementById('lead-nom');    if(el) el.value = p.nom; }
   const speBase = p.specialite_ans || p.specialite || '';
   if (speBase) { const el = document.getElementById('lead-specialite'); if(el) el.value = speBase; }
+  const villeBase = p.ville || '';
+  if (villeBase) { const el = document.getElementById('lead-ville'); if(el) el.value = villeBase; }
+  if (p.rpps) { const el = document.getElementById('lead-rpps'); if(el) el.value = p.rpps; }
 
   // Afficher disclaimer
   const disc = document.getElementById('rpps-disclaimer');
@@ -2706,11 +2711,9 @@ async function rppsSelect(idx) {
         const spe = enriched.specialite_ans || enriched.specialite || '';
         if (spe) { const el = document.getElementById('lead-specialite'); if(el) el.value = spe; }
 
-        const adresse = enriched.adresse || '';
-        // Extraire la ville — dernier segment en majuscules
-        const parts = adresse.split(' ');
-        const ville = parts.filter(w => w === w.toUpperCase() && w.length > 2).pop() || '';
-        if (ville) { const el = document.getElementById('lead-ville'); if(el) el.value = ville; }
+        const villeEnriched = enriched.ville || '';
+        if (villeEnriched) { const el = document.getElementById('lead-ville'); if(el) el.value = villeEnriched; }
+        if (enriched.rpps) { const el = document.getElementById('lead-rpps'); if(el) el.value = enriched.rpps; }
 
         // Mettre à jour le banner avec données enrichies
         rppsShowAmeliBanner(enriched);
