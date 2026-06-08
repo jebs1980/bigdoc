@@ -2722,33 +2722,22 @@ function rppsShowAmeliBanner(p) {
   const banner = document.getElementById('rpps-selected-banner');
   if (!banner) return;
 
-  // Extraire quelques stats Ameli du contexte si disponible
-  const ctx = p.ameli_context || '';
-  // Chercher délai et honoraires dans le contexte texte
-  const delaiMatch = ctx.match(/délai[^\d]*(\d+)[^\d]*(?:jour|semaine|mois)/i);
-  const honMatch   = ctx.match(/honoraires[^\d]*([\d\s]+)€/i);
-
-  const statDelai = delaiMatch
-    ? `<div class="rpps-ameli-stat"><span class="val">${delaiMatch[1]} j</span><span class="lbl">Délai moyen RDV<br>dans votre dép.</span></div>`
-    : '';
-  const statHon = honMatch
-    ? `<div class="rpps-ameli-stat"><span class="val">${honMatch[1].replace(/\s/g,'')}€</span><span class="lbl">Honoraires médiane<br>votre spécialité</span></div>`
-    : '';
+  // Récupérer prénom/nom depuis l'objet de base (_rppsSelected) si l'enrichi n'a pas ces champs
+  const prenom = p.prenom || (_rppsSelected && _rppsSelected.prenom) || '';
+  const nom    = p.nom    || (_rppsSelected && _rppsSelected.nom)    || '';
+  const spe    = p.specialite_ans || p.specialite || (_rppsSelected && _rppsSelected.specialite_ans) || '';
+  const adresse = p.adresse || (_rppsSelected && _rppsSelected.adresse) || '';
+  const secteur = p.secteur_conventionnel || (_rppsSelected && _rppsSelected.secteur_conventionnel) || '';
+  const ctx = p.ameli_context || (_rppsSelected && _rppsSelected.ameli_context) || '';
 
   banner.style.display = 'block';
   banner.innerHTML = `
     <div class="rpps-ameli-banner">
       <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.5rem">DR BIGDOC CONNAÎT VOTRE TERRAIN</div>
       <div style="font-size:.88rem;font-weight:700;margin-bottom:.65rem">
-        ${p.prenom} ${p.nom}${p.specialite_ans ? ' · ' + p.specialite_ans : ''}${p.adresse ? ' · ' + p.adresse : ''}
-        ${p.secteur_conventionnel ? ` · <span style="opacity:.85">${p.secteur_conventionnel}</span>` : ''}
+        ${prenom} ${nom}${spe ? ' · ' + spe : ''}${adresse ? ' · ' + adresse : ''}${secteur ? ' · ' + secteur : ''}
       </div>
-      ${(statDelai || statHon) ? `
-        <div style="display:flex;gap:1.5rem;justify-content:flex-start;flex-wrap:wrap">
-          ${statDelai}
-          ${statHon}
-        </div>
-      ` : '<div style="font-size:.78rem;opacity:.8">Données démographiques chargées pour votre département.</div>'}
+      <div style="font-size:.78rem;opacity:.8">Données démographiques chargées pour votre département.</div>
     </div>
   `;
 }
