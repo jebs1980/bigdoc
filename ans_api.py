@@ -21,6 +21,45 @@ def _headers():
     }
 
 
+def _ameli_lookup(rpps: str) -> dict:
+    """Lookup adresse/ville depuis la table ameli_annuaire (import CSV)."""
+    if not rpps:
+        return {}
+    db_path = os.environ.get("DATABASE_PATH", "/data/bigdoc.db")
+    try:
+        import sqlite3
+        conn = sqlite3.connect(db_path)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute(
+            "SELECT adresse, ville, code_postal, secteur, specialite FROM ameli_annuaire WHERE rpps=? LIMIT 1",
+            (rpps.strip(),)
+        )
+        row = cur.fetchone()
+        conn.close()
+        if row:
+            return {
+                "adresse":     row["adresse"],
+                "ville":       row["ville"],
+                "code_postal": row["code_postal"],
+                "secteur_ameli": row["secteur"],
+                "specialite_ameli": row["specialite"],
+            }
+    except Exception as e:
+        logger.debug(f"Ameli lookup {rpps}: {e}")
+    return {}
+
+
+def get_ameli_annuaire_date() -> str:
+    """Retourne la date de dernière mise à jour du CSV Ameli."""""
+    try:
+        with open("/data/ameli_annuaire_meta.txt") as f:
+            return f.read().strip()
+    except Exception:
+        return ""
+
+
+
 async def search_by_rpps(rpps: str) -> dict | None:
     """Recherche un praticien par numéro RPPS."""
     if not ANS_API_KEY or not rpps:
@@ -60,7 +99,13 @@ async def search_by_rpps(rpps: str) -> dict | None:
                     if role_entries:
                         role_data = role_entries[0]["resource"]
 
-            return _parse_practitioner(practitioner, role_data)
+            result = _parse_practitioner(practitioner, role_data)
+            # Enrichir avec adresse Ameli si manquante
+            if result and not result.get("ville"):
+                ameli = _ameli_lookup(rpps)
+                if ameli:
+                    result.update({k: v for k, v in ameli.items() if v and not result.get(k)})
+            return result
     except Exception as e:
         logger.warning(f"ANS API error: {e}")
         return None
@@ -155,6 +200,12 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
                 tasks = [enrich_one(enrich_client, r) for r in base_results]
                 results = await asyncio.gather(*tasks)
 
+            # Enrichir chaque résultat avec adresse Ameli si manquante
+            for res in results:
+                if res and not res.get("ville") and res.get("rpps"):
+                    ameli = _ameli_lookup(res["rpps"])
+                    if ameli:
+                        res.update({k: v for k, v in ameli.items() if v and not res.get(k)})
             return list(results)
     except Exception as e:
         logger.warning(f"ANS name search error: {e}")
