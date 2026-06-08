@@ -519,6 +519,12 @@
 .sherpa-cta .btn-sherpa { display:inline-block;background:#0D9488;color:white;border:none;border-radius:999px;padding:.8rem 2rem;font-size:.95rem;font-weight:800;cursor:pointer;text-decoration:none;transition:background .18s; }
 .sherpa-cta .btn-sherpa:hover { background:#0A7A70; }
 
+/* ── DR BIGDOC COLONNE ── */
+@media (max-width: 640px) {
+  #bigdoc-col { display: none !important; }
+  #screen-questionnaire > div { flex-direction: column !important; }
+}
+
 /* ── HERO CTA ── */
     .hero-cta {
       display: inline-block;
@@ -1105,25 +1111,33 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 
 <!-- ── QUESTIONNAIRE ── -->
 <div id="screen-questionnaire" class="screen">
-  <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
+  <div style="max-width:900px;margin:2rem auto 0;padding:0 1rem;display:flex;gap:2rem;align-items:flex-start">
 
-    <!-- Progress -->
-    <div class="card" id="question-card">
-      <div class="progress-bar-track">
-        <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    <!-- DR BIGDOC — colonne gauche fixe -->
+    <div id="bigdoc-col" style="flex-shrink:0;width:160px;text-align:center;position:sticky;top:2rem">
+      <div id="bigdoc-col-svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(79,70,229,.25))">
       </div>
-      <div class="progress-info">
-        <span class="progress-step" id="progress-label">Question 1 / 8</span>
-        <span class="progress-score-preview" id="score-preview"></span>
-      </div>
+      <div style="font-size:.62rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase;margin-top:.4rem">Dr Bigdoc</div>
+      <div id="bigdoc-speech" style="margin-top:.6rem;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:12px;padding:.6rem .75rem;font-size:.75rem;color:#134E4A;line-height:1.5;font-weight:500;text-align:left"></div>
+    </div>
 
-      <div class="bigdoc-bubble" id="bigdoc-bubble-q" style="display:none;margin-top:.75rem"></div>
+    <!-- QUESTIONS — colonne droite -->
+    <div style="flex:1;min-width:0">
+      <div class="card" id="question-card">
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="progress-info">
+          <span class="progress-step" id="progress-label">Question 1 / 8</span>
+          <span class="progress-score-preview" id="score-preview"></span>
+        </div>
 
-      <div class="question-area" id="question-area"></div>
+        <div class="question-area" id="question-area"></div>
 
-      <div class="question-nav">
-        <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Retour</button>
-        <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Suivant →</button>
+        <div class="question-nav">
+          <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Retour</button>
+          <button class="btn-next" id="btn-next" onclick="nextQuestion()" disabled>Suivant →</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1712,6 +1726,9 @@ function showScreen(id) {
 function startDiagnostic() {
   state.currentStep = 0;
   state.reponses = {};
+  // Injecter le vrai SVG Dr Bigdoc dans la colonne
+  const colSvg = document.getElementById('bigdoc-col-svg');
+  if (colSvg) colSvg.innerHTML = bigdocMiniSVG(160);
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
   const specialiteVal = specialiteEl ? specialiteEl.value : '';
@@ -2028,6 +2045,9 @@ function renderQuestion() {
 
   document.getElementById('progress-fill').style.width = pct + '%';
   document.getElementById('progress-label').textContent = `Question ${state.currentStep + 1} / ${total}`;
+  // Mettre à jour le speech Dr Bigdoc dans la colonne gauche
+  const speech = document.getElementById('bigdoc-speech');
+  if (speech) speech.textContent = getBigdocIntro(q.id);
 
   const el = document.getElementById('score-preview');
   if (el) el.textContent = '';
@@ -2047,13 +2067,6 @@ function renderQuestion() {
   // Question de type texte libre
   if (q.type === 'text') {
     area.innerHTML = `
-      <div class="bigdoc-bubble">
-        <div class="avatar">${bigdocMiniSVG(56)}</div>
-        <div class="bubble-wrap">
-          <div class="bubble-name">Dr Bigdoc</div>
-          <div class="bubble">${getBigdocIntro(q.id)}</div>
-        </div>
-      </div>
       <div class="question-number">Question ${state.currentStep + 1}</div>
       <div class="question-text" style="font-size:1.05rem;margin-bottom:1.25rem">${q.question}</div>
       <textarea id="text-answer"
@@ -2076,13 +2089,6 @@ function renderQuestion() {
   }
 
   area.innerHTML = `
-    <div class="bigdoc-bubble">
-      <div class="avatar">${bigdocMiniSVG(56)}</div>
-      <div class="bubble-wrap">
-        <div class="bubble-name">Dr Bigdoc</div>
-        <div class="bubble">${getBigdocIntro(q.id)}</div>
-      </div>
-    </div>
     <div class="question-number">Question ${state.currentStep + 1}</div>
     <div class="question-text">${q.question}${q.type === 'multi_select' ? ' <span style="font-size:.65rem;font-weight:700;color:#6366F1;background:#EEF2FF;padding:.15rem .5rem;border-radius:999px;vertical-align:middle;letter-spacing:.5px">Plusieurs réponses possibles</span>' : ''}</div>
     <div class="options" id="options-list"></div>
