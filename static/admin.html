@@ -437,8 +437,18 @@
       <div class="input-group"><label>N° RPPS</label>
         <div style="display:flex;gap:.35rem">
           <input type="text" id="panel-rpps" placeholder="10 chiffres" onchange="updateLeadInfo()" style="flex:1">
-          <button class="btn-sm" onclick="enrichFromANS()" title="Enrichir depuis l'Annuaire Santé">🔍 ANS</button>
         </div>
+      </div>
+
+      <!-- Recherche ANS -->
+      <div style="background:var(--lavender);border-radius:10px;padding:.75rem;margin-top:.5rem">
+        <div class="panel-section-title" style="margin-bottom:.5rem">🔍 Rechercher dans l'Annuaire Santé</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-bottom:.5rem">
+          <input type="text" id="ans-search-prenom" placeholder="Prénom" style="padding:.45rem .65rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito Sans',sans-serif">
+          <input type="text" id="ans-search-nom" placeholder="Nom *" style="padding:.45rem .65rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito Sans',sans-serif">
+        </div>
+        <input type="text" id="ans-search-rpps" placeholder="Ou RPPS (prioritaire)" style="width:100%;padding:.45rem .65rem;border:1.5px solid var(--border);border-radius:8px;font-size:.8rem;font-family:'Nunito Sans',sans-serif;box-sizing:border-box;margin-bottom:.5rem">
+        <button class="btn btn-primary" style="width:100%;font-size:.8rem" onclick="enrichFromANS()">🔍 Enrichir depuis l'ANS</button>
       </div>
     </div>
 
@@ -1144,9 +1154,9 @@ async function deleteNote(leadId, eventId) {
 
 async function enrichFromANS() {
   if (!currentLead) return;
-  const rpps   = document.getElementById('panel-rpps').value.trim();
-  const prenom = document.getElementById('panel-prenom').value.trim();
-  const nom    = document.getElementById('panel-nom').value.trim();
+  const rpps   = (document.getElementById('ans-search-rpps')?.value || '').trim();
+  const prenom = (document.getElementById('ans-search-prenom')?.value || '').trim();
+  const nom    = (document.getElementById('ans-search-nom')?.value || '').trim();
 
   if (!rpps && !nom) { alert('Renseignez un RPPS ou un nom pour rechercher dans l\'Annuaire Santé'); return; }
 
