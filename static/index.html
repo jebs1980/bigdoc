@@ -1287,8 +1287,8 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
             "></div>
           </div>
           <div class="input-group" style="flex:1;position:relative">
-            <label>Ville</label>
-            <input type="text" id="lead-ville" placeholder="Lyon"
+            <label>Ville *</label>
+            <input type="text" id="lead-ville" placeholder="Lyon (obligatoire)" required
                    autocomplete="off"
                    oninput="searchVille(this.value)"
                    onblur="setTimeout(()=>closeDropdown('drop-ville'),200)"/>
@@ -2291,12 +2291,36 @@ async function submitLead() {
     document.getElementById('lead-email').focus();
     return;
   }
+  const ville = document.getElementById('lead-ville')?.value?.trim();
+  if (!ville) {
+    document.getElementById('lead-ville').style.borderColor = 'var(--red)';
+    document.getElementById('lead-ville').focus();
+    alert('La ville est obligatoire pour un diagnostic précis.');
+    return;
+  }
 
   const btn = document.getElementById('btn-submit');
   btn.disabled = true;
   btn.textContent = 'Analyse en cours…';
   showScreen('loading');
   startLoadingAnimation();
+  // Injecter Dr Bigdoc dans le loading
+  const _ldSvg = document.getElementById('loading-bigdoc-svg');
+  if (_ldSvg && !_ldSvg.innerHTML) _ldSvg.innerHTML = bigdocMiniSVG(72);
+  const _ldSpeeches = [
+    "Je lis vos réponses attentivement…",
+    "Je calcule votre score sur 7 dimensions…",
+    "J'évalue vos heures et euros récupérables…",
+    "J'identifie vos points critiques…",
+    "Je rédige votre ordonnance personnalisée…",
+  ];
+  let _ldIdx = 0;
+  const _ldEl = document.getElementById('loading-bigdoc-speech');
+  if (window._speechInterval) clearInterval(window._speechInterval);
+  window._speechInterval = setInterval(() => {
+    _ldIdx = (_ldIdx + 1) % _ldSpeeches.length;
+    if (_ldEl) _ldEl.textContent = _ldSpeeches[_ldIdx];
+  }, 3500);
 
   // Sauvegarder le lead
   try {
@@ -2479,6 +2503,17 @@ function renderRadarResult(dims) {
 
 function renderResult() {
   const b = state.bilan;
+  // Injecter Dr Bigdoc dans le bilan
+  const bilanSvg = document.getElementById('bilan-bigdoc-svg');
+  if (bilanSvg) bilanSvg.innerHTML = bigdocMiniSVG(56);
+  // Message Dr Bigdoc personnalisé selon le score
+  const bilanMsg = document.getElementById('bilan-bigdoc-msg');
+  if (bilanMsg && b) {
+    const score = b.score_global || 0;
+    if (score >= 70) bilanMsg.textContent = "Votre cabinet est en bonne santé — quelques leviers à activer.";
+    else if (score >= 50) bilanMsg.textContent = "J'ai identifié des angles morts importants. On peut les traiter.";
+    else bilanMsg.textContent = "Votre situation mérite attention. Mais chaque problème a une solution.";
+  }
   const card = document.getElementById('result-card');
   const score = b.score_global;
   const scoreColor = score<=25?'#EF4444':score<=50?'#F59E0B':score<=75?'#F4A261':'#10B981';
@@ -2538,7 +2573,7 @@ function renderResult() {
         </div>
       </div>
       <div class="result-header-msg">
-        <svg width="60" height="75" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
+        <svg width="90" height="112" viewBox="0 0 160 200" fill="none" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite">
           <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
           <path d="M60 128 L80 155 L100 128" fill="none" stroke="#E5E7EB" stroke-width="2"/>
           <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
@@ -3054,6 +3089,9 @@ function showError(msg) {
 let loadingInterval = null;
 
 function startLoadingAnimation() {
+  // Injecter Dr Bigdoc dans le loading si pas encore fait
+  const _svg = document.getElementById('loading-bigdoc-svg');
+  if (_svg && !_svg.innerHTML.trim()) _svg.innerHTML = bigdocMiniSVG(72);
   const circle = document.getElementById('progress-circle');
   const pct = document.getElementById('loading-pct');
   const title = document.getElementById('loading-title');
