@@ -1320,7 +1320,16 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 <div id="screen-loading" class="screen">
   <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
     <div class="card">
-      <div style="padding:3rem 2.5rem;text-align:center">
+      <div style="padding:2rem 2.5rem;text-align:center">
+
+        <!-- Dr Bigdoc — analyse en cours -->
+        <div style="display:flex;align-items:center;gap:1rem;background:#F0FDF8;border-radius:14px;padding:.85rem 1.1rem;margin-bottom:1.5rem;text-align:left">
+          <div id="loading-bigdoc-svg" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite"></div>
+          <div>
+            <div style="font-size:.6rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase;margin-bottom:.2rem">Dr Bigdoc</div>
+            <div id="loading-bigdoc-speech" style="font-size:.82rem;color:#134E4A;font-weight:500;line-height:1.5">Je lis vos réponses attentivement…</div>
+          </div>
+        </div>
 
         <!-- Cercle animé -->
         <div style="position:relative;width:90px;height:90px;margin:0 auto 2rem">
@@ -1711,12 +1720,31 @@ async function init() {
   if (paiement === 'ok' && sessionId) {
     state.sessionId = sessionId;
     showScreen('loading');
+  // Injecter Dr Bigdoc dans le loading screen
+  const ldSvg = document.getElementById('loading-bigdoc-svg');
+  if (ldSvg) ldSvg.innerHTML = bigdocMiniSVG(72);
+  // Messages Dr Bigdoc pendant l'analyse
+  const loadingSpeeches = [
+    "Je lis vos réponses attentivement…",
+    "Je calcule votre score sur 7 dimensions…",
+    "J'évalue vos heures perdues et euros récupérables…",
+    "J'identifie vos points critiques…",
+    "Je rédige votre ordonnance personnalisée…",
+  ];
+  let speechIdx = 0;
+  const speechEl = document.getElementById('loading-bigdoc-speech');
+  const speechInterval = setInterval(() => {
+    speechIdx = (speechIdx + 1) % loadingSpeeches.length;
+    if (speechEl) speechEl.textContent = loadingSpeeches[speechIdx];
+  }, 3500);
+  window._speechInterval = speechInterval;
     try {
       const resp = await fetch(`/api/bilan/${sessionId}`);
       const data = await resp.json();
       if (data.bilan) {
         state.bilan = data.bilan;
         state.shareToken = data.share_token || '';
+        if (window._speechInterval) { clearInterval(window._speechInterval); window._speechInterval = null; }
         showScreen('result');
         renderResult();
         const card = document.getElementById('result-card');
