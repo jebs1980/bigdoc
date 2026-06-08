@@ -749,7 +749,38 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
         if raw.endswith("```"):
             raw = raw[:-3]
 
-        bilan = json.loads(raw.strip())
+        # Nettoyer les sauts de ligne littéraux dans les strings JSON
+        # (Claude génère parfois des \n non échappés dans les valeurs)
+        import re as _re
+        def fix_json_newlines(s):
+            # Remplace les vrais \n à l'intérieur des strings JSON par \\n
+            result = []
+            in_string = False
+            i = 0
+            while i < len(s):
+                c = s[i]
+                if c == '"' and (i == 0 or s[i-1] != '\\'):
+                    in_string = not in_string
+                    result.append(c)
+                elif c == '\n' and in_string:
+                    result.append('\\n')
+                elif c == '\r' and in_string:
+                    result.append('\\r')
+                else:
+                    result.append(c)
+                i += 1
+            return ''.join(result)
+
+        cleaned = fix_json_newlines(raw.strip())
+        try:
+            bilan = json.loads(cleaned)
+        except json.JSONDecodeError:
+            # Fallback — regex pour extraire le JSON
+            match = _re.search(r'\{.*\}', cleaned, _re.DOTALL)
+            if match:
+                bilan = json.loads(fix_json_newlines(match.group()))
+            else:
+                raise
 
     except json.JSONDecodeError as e:
         logger.error(f"❌ JSON invalide reçu de Claude : {str(e)}")
