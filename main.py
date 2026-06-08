@@ -448,55 +448,189 @@ async def verify_turnstile(token: str, ip: str) -> bool:
         return r.json().get("success", False)
 
 
+# Mapping branche → label lisible + 3 dimensions variables
+BRANCHE_CONFIG = {
+    "medecine_generale": {
+        "label": "Médecine générale",
+        "dims_variables": ["patientele_mt", "acces_soins", "coordination_territoriale"],
+        "dims_desc": {
+            "patientele_mt": "Patientèle médecin traitant et file active (0-20)",
+            "acces_soins":   "Délais d'accès et refus de patients (0-20)",
+            "coordination_territoriale": "Intégration CPTS / MSP / exercice coordonné (0-20)",
+        }
+    },
+    "gynecologie": {
+        "label": "Gynécologie médicale / obstétrique",
+        "dims_variables": ["plateau_technique", "actes_techniques", "acces_soins"],
+        "dims_desc": {
+            "plateau_technique":  "Plateau technique et matériel spécialisé (colposcope, écho, hystéroscope) (0-20)",
+            "actes_techniques":   "Maîtrise et facturation des actes techniques CCAM (0-20)",
+            "acces_soins":        "Délais d'accès gynéco et gestion de la liste d'attente (0-20)",
+        }
+    },
+    "psychiatrie": {
+        "label": "Psychiatrie libérale",
+        "dims_variables": ["acces_soins", "charge_administrative_psy", "infrastructure_teleconsult"],
+        "dims_desc": {
+            "acces_soins":                "Liste d'attente et accessibilité (0-20) — ne pas pénaliser l'absence de matériel",
+            "charge_administrative_psy":  "Charge de rédaction, notes cliniques, courriers (0-20)",
+            "infrastructure_teleconsult": "Téléconsultation conforme et infrastructure de travail à distance (0-20)",
+        }
+    },
+    "dermatologie": {
+        "label": "Dermatologie",
+        "dims_variables": ["plateau_technique", "actes_techniques", "acces_soins"],
+        "dims_desc": {
+            "plateau_technique":  "Matériel dermatologique (dermoscope, cryo, laser…) (0-20)",
+            "actes_techniques":   "Actes techniques et cotations CCAM dermatologie (0-20)",
+            "acces_soins":        "Délais de premier rendez-vous et refus patients (0-20)",
+        }
+    },
+    "chirurgie": {
+        "label": "Chirurgie libérale",
+        "dims_variables": ["acces_bloc", "facturation_ccam", "organisation_bloc"],
+        "dims_desc": {
+            "acces_bloc":         "Accès et stabilité des créneaux opératoires (0-20)",
+            "facturation_ccam":   "Maîtrise des cotations CCAM chirurgie et ententes préalables (0-20)",
+            "organisation_bloc":  "Organisation autour du bloc (assistants, IADE, secrétariat) (0-20)",
+        }
+    },
+    "specialiste_technique": {
+        "label": "Spécialiste médical",
+        "dims_variables": ["plateau_technique", "actes_techniques", "acces_soins"],
+        "dims_desc": {
+            "plateau_technique":  "Matériel technique spécialisé (0-20)",
+            "actes_techniques":   "Part et maîtrise des actes techniques dans l'activité (0-20)",
+            "acces_soins":        "Délais d'accès et gestion de la file d'attente (0-20)",
+        }
+    },
+}
+
+# Labels lisibles pour toutes les questions (tronc + branches)
+QUESTION_LABELS = {
+    # Tronc commun
+    "phase":             "Phase du cabinet",
+    "secteur_tarifaire": "Secteur de conventionnement",
+    "admin":             "Charge administrative",
+    "logiciel":          "Infrastructure informatique et logiciel",
+    "compta":            "Comptabilité et trésorerie",
+    "projet_12mois":     "Priorité des 12 prochains mois",
+    # MG
+    "mg_patientele":     "Patientèle médecin traitant",
+    "mg_delai":          "Délai moyen RDV non urgent",
+    "mg_structure":      "Mode d'exercice et structure collective",
+    # Gynéco
+    "gyn_activite":      "Type d'activité gynécologique",
+    "gyn_actes":         "Actes techniques au cabinet",
+    "gyn_delai":         "Délai premier RDV gynéco",
+    # Psy
+    "psy_liste":         "Liste d'attente premier RDV",
+    "psy_duree":         "Durée moyenne des consultations",
+    "psy_teleconsult":   "Téléconsultation en psychiatrie",
+    # Dermato
+    "derm_actes":        "Actes techniques en dermatologie",
+    "derm_delai":        "Délai premier RDV dermato",
+    "derm_materiel":     "État du matériel dermatologique",
+    # Chirurgie
+    "chir_bloc":         "Accès au bloc opératoire",
+    "chir_activite":     "Part chirurgicale dans l'activité",
+    "chir_structure":    "Organisation autour du bloc",
+    # Spécialiste fallback
+    "spe_actes":         "Part des actes techniques",
+    "spe_materiel":      "État du matériel technique",
+    "spe_delai":         "Délai premier RDV",
+    # Transversales
+    "tx_installation_horizon": "Horizon d'installation",
+    "tx_pacte_associe":        "Formalisation du pacte d'associés",
+    "tx_refus_patients":       "Gestion des refus liés aux délais",
+    "tx_tension_financiere":   "Durée de la tension financière",
+}
+
+
+def detect_branche(specialite: str) -> str:
+    """Mappe la spécialité texte vers une clé de branche."""
+    import unicodedata
+    def norm(s):
+        s = s.lower().strip()
+        s = unicodedata.normalize('NFD', s)
+        s = ''.join(c for c in s if unicodedata.category(c) != 'Mn')
+        return s.replace('-', ' ')
+
+    n = norm(specialite)
+    for branche, variants in SPECIALITE_BRANCHES.items():
+        for v in variants:
+            nv = norm(v)
+            if nv in n or n in nv:
+                return branche
+    return "specialiste_technique"
+
+
+def build_option_map() -> dict:
+    """Construit un map {question_id: {value: label}} pour toutes les questions."""
+    omap = {}
+    all_questions = list(QUESTIONNAIRE)
+    for branch_qs in QUESTIONNAIRE_BRANCHES.values():
+        all_questions.extend(branch_qs)
+    for tx in QUESTIONS_TRANSVERSALES:
+        all_questions.append(tx)
+    for q in all_questions:
+        if q.get("options"):
+            omap[q["id"]] = {opt["value"]: opt["label"] for opt in q["options"]}
+    return omap
+
+
 def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = "", ville: str = "", catalogue: str = "") -> str:
-    """Construit le prompt utilisateur à partir des réponses."""
+    """Construit le prompt utilisateur à partir des réponses — avec bifurcation spécialité."""
+
+    branche = detect_branche(specialite)
+    bcfg = BRANCHE_CONFIG.get(branche, BRANCHE_CONFIG["specialiste_technique"])
+    branche_label = bcfg["label"]
+    dims_variables = bcfg["dims_variables"]
+    dims_desc = bcfg["dims_desc"]
+
     lines = ["Voici les réponses du médecin au questionnaire de diagnostic :\n"]
 
-    # Contexte médecin
-    if specialite or ville:
-        ctx = []
-        if specialite: ctx.append(f"Spécialité : {specialite}")
-        if ville:      ctx.append(f"Ville/zone : {ville}")
-        lines.append("PROFIL DU MÉDECIN :")
-        lines.extend([f"• {c}" for c in ctx])
-        lines.append("")
+    # ── Profil médecin
+    lines.append("PROFIL DU MÉDECIN :")
+    if specialite: lines.append(f"• Spécialité déclarée : {specialite}")
+    lines.append(f"• Branche diagnostique : {branche_label} (clé : {branche})")
+    if ville: lines.append(f"• Ville/zone : {ville}")
+    lines.append("")
 
-    # Contexte démographique
+    # ── Dimensions à scorer pour cette branche
+    dims_fixes = ["administration", "comptabilite", "charge_mentale", "financement"]
+    lines.append("DIMENSIONS À SCORER POUR CETTE BRANCHE :")
+    lines.append("  4 dimensions fixes (toutes spécialités) :")
+    for d in dims_fixes:
+        lines.append(f"    - {d}")
+    lines.append("  3 dimensions variables (spécifiques à cette branche) :")
+    for d in dims_variables:
+        lines.append(f"    - {d} : {dims_desc.get(d, '')}")
+    lines.append("  → Les dimensions 'achats_materiel', 'informatique', 'developpement' du JSON de sortie")
+    lines.append("    sont REMPLACÉES par les 3 dimensions variables ci-dessus pour cette spécialité.")
+    lines.append("  → Utilise les clés JSON exactes des dimensions variables comme noms de champs dans 'dimensions'.")
+    lines.append("")
+
+    # ── Contexte démographique Ameli
     demo_context = get_demographic_context(specialite, ville)
     if demo_context:
         lines.append(demo_context)
         lines.append("")
 
-    # Catalogue dynamique
+    # ── Catalogue
     if catalogue:
         lines.append("CATALOGUE SERVICES BIGDOC ACTUEL (utiliser ces prix exacts) :")
         lines.append(catalogue)
         lines.append("")
 
-    labels = {
-        "phase":         "Phase du cabinet",
-        "admin":         "Charge administrative",
-        "materiel":      "État du matériel et stocks",
-        "informatique":  "Infrastructure informatique",
-        "teleconsult":   "Situation téléconsultation",
-        "compta":        "Comptabilité et trésorerie",
-        "charge":        "Charge mentale hors soins",
-        "maintenance":   "Entretien et maintenance du cabinet",
-        "financement":   "Projets de financement",
-        "developpement": "Projets de développement",
-    }
-
-    # Map option values to readable labels
-    option_map = {}
-    for q in QUESTIONNAIRE:
-        if q.get("options"):
-            option_map[q["id"]] = {opt["value"]: opt["label"] for opt in q["options"]}
+    # ── Réponses au questionnaire
+    lines.append("RÉPONSES AU QUESTIONNAIRE :")
+    option_map = build_option_map()
 
     for qid, val in reponses.items():
         if qid == "preoccupation":
-            continue  # Géré via texte_libre
-        label = labels.get(qid, qid)
-        # Gérer les multi_select (liste de valeurs)
+            continue
+        label = QUESTION_LABELS.get(qid, qid)
         if isinstance(val, list):
             opts = option_map.get(qid, {})
             readable = ", ".join([opts.get(v, v) for v in val]) if val else "Aucune sélection"
@@ -508,6 +642,8 @@ def build_diagnostic_prompt(reponses: dict, texte_libre: str, specialite: str = 
         lines.append(f"\nDescription libre du médecin :\n\"{texte_libre.strip()}\"")
 
     lines.append("\nProduis le bilan complet en JSON strict selon tes instructions.")
+    lines.append(f"RAPPEL : pour ce médecin ({branche_label}), les 3 dimensions variables sont : {', '.join(dims_variables)}.")
+    lines.append("Utilise ces clés exactes dans l'objet 'dimensions' à la place de 'achats_materiel', 'informatique', 'developpement'.")
     return "\n".join(lines)
 
 
