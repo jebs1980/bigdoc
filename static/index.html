@@ -491,7 +491,33 @@
     .btn-next:hover { background: var(--indigo); }
     .btn-next:disabled { opacity: .3; cursor: not-allowed; }
 
-    /* ── HERO CTA ── */
+    /* ── RPPS SEARCH ── */
+.rpps-search-box { background:#F0FDF8;border:1.5px solid #0D9488;border-radius:14px;padding:1.1rem 1.25rem;margin-bottom:1.25rem; }
+.rpps-search-box label { font-size:.78rem;font-weight:800;color:#0D9488;letter-spacing:.5px;display:block;margin-bottom:.5rem; }
+.rpps-result-card { background:white;border:1px solid #E8EBF0;border-radius:10px;padding:.85rem 1rem;cursor:pointer;transition:all .18s;display:flex;align-items:center;gap:.75rem;margin-bottom:.4rem; }
+.rpps-result-card:hover { border-color:#0D9488;background:#F0FDF8; }
+.rpps-result-card.selected { border-color:#0D9488;background:#F0FDF8;box-shadow:0 0 0 2px rgba(13,148,136,.15); }
+.rpps-avatar { width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#0D9488,#0A8A7A);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0; }
+.rpps-ameli-banner { background:linear-gradient(135deg,#0D9488,#065F46);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem;color:white; }
+.rpps-ameli-stat { text-align:center; }
+.rpps-ameli-stat .val { font-size:1.4rem;font-weight:800;display:block; }
+.rpps-ameli-stat .lbl { font-size:.65rem;opacity:.8;display:block;margin-top:.1rem; }
+.rpps-disclaimer { background:#FFF7ED;border:1px solid #FED7AA;border-radius:10px;padding:.75rem 1rem;margin-bottom:1rem;display:flex;gap:.5rem;align-items:flex-start; }
+
+/* ── DR BIGDOC VOIX ── */
+.bigdoc-bubble { display:flex;align-items:flex-start;gap:.65rem;margin-bottom:1rem; }
+.bigdoc-bubble .avatar { width:36px;height:36px;flex-shrink:0;border-radius:50%;overflow:hidden;border:2px solid #0D9488; }
+.bigdoc-bubble .bubble { background:#F0FDF8;border:1px solid #CCFBF1;border-radius:0 12px 12px 12px;padding:.6rem .9rem;font-size:.82rem;color:#134E4A;line-height:1.55;font-weight:500; }
+
+/* ── SHERPA BIGDOC ── */
+.sherpa-cta { background:linear-gradient(135deg,#0D1F3C,#0A3347);border-radius:16px;padding:1.5rem;margin-top:1.5rem;text-align:center;color:white; }
+.sherpa-cta .sherpa-avatar { width:64px;height:64px;margin:0 auto .75rem;border-radius:50%;border:3px solid #0D9488;overflow:hidden;background:#0D1F3C; }
+.sherpa-cta h3 { font-size:1.1rem;font-weight:800;margin:0 0 .35rem; }
+.sherpa-cta p { font-size:.82rem;opacity:.85;margin:0 0 1rem;line-height:1.5; }
+.sherpa-cta .btn-sherpa { display:inline-block;background:#0D9488;color:white;border:none;border-radius:999px;padding:.8rem 2rem;font-size:.95rem;font-weight:800;cursor:pointer;text-decoration:none;transition:background .18s; }
+.sherpa-cta .btn-sherpa:hover { background:#0A7A70; }
+
+/* ── HERO CTA ── */
     .hero-cta {
       display: inline-block;
       background: var(--indigo);
@@ -1175,6 +1201,23 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 
         <!-- Note incohérence détectée -->
         <div id="incoherence-note" style="display:none;background:#F5F3FF;border:1.5px solid rgba(99,102,241,.2);border-radius:12px;padding:.85rem 1rem;margin-bottom:1.25rem"></div>
+
+        <!-- ── RPPS SEARCH ── -->
+        <div class="rpps-search-box" id="rpps-search-zone">
+          <label>🔍 Retrouvez votre fiche en quelques secondes</label>
+          <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
+            <input type="text" id="rpps-prenom" placeholder="Prénom" style="flex:1;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="rppsSearchDebounce()" />
+            <input type="text" id="rpps-nom" placeholder="Nom" style="flex:1;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="rppsSearchDebounce()" />
+            <input type="text" id="rpps-direct" placeholder="N° RPPS" style="width:120px;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="rppsSearchDebounce()" />
+          </div>
+          <div id="rpps-results" style="max-height:220px;overflow-y:auto"></div>
+          <div id="rpps-selected-banner" style="display:none"></div>
+          <!-- Disclaimer RGPD -->
+          <div class="rpps-disclaimer" id="rpps-disclaimer" style="display:none">
+            <span style="font-size:.9rem;flex-shrink:0">ℹ️</span>
+            <span style="font-size:.75rem;color:#92400E;line-height:1.5">Ces informations proviennent du registre public RPPS (ANS). En continuant, vous confirmez réaliser ce diagnostic pour votre propre cabinet.</span>
+          </div>
+        </div>
 
         <div class="input-group">
           <label>Email professionnel *</label>
@@ -1884,6 +1927,53 @@ function bigdocMiniSVG(size = 36) {
   </svg>`;
 }
 
+// Messages Dr Bigdoc par question (ton Carter/Abby)
+const BIGDOC_INTROS = {
+  phase:             "Pour bien vous aider, j'ai besoin de savoir où vous en êtes.",
+  secteur_tarifaire: "Votre secteur tarifaire, c'est le socle de tout — ça conditionne ce qu'on peut faire ensemble.",
+  admin:             "L'administratif, c'est souvent là que ça coince le plus. Soyez honnête.",
+  logiciel:          "L'informatique en cabinet, c'est un levier sous-estimé. Cochez tout ce qui vous correspond.",
+  compta:            "La trésorerie, c'est le nerf de la guerre. Où en êtes-vous vraiment ?",
+  projet_12mois:     "Et maintenant, ce qui compte pour vous — votre priorité des 12 prochains mois.",
+  mg_patientele:     "Votre patientèle MT — c'est le cœur de votre activité en médecine générale.",
+  mg_delai:          "Les délais, c'est le signe vital de votre agenda. Un délai long, c'est un signal fort.",
+  mg_structure:      "Exercer seul ou en structure — ça change tout à la charge et aux opportunités.",
+  gyn_activite:      "Votre activité gynéco est unique — médicale, obstétricale ou mixte, les enjeux sont très différents.",
+  gyn_actes:         "Vos actes techniques, c'est ce qui différencie votre cabinet. Cochez ce que vous pratiquez.",
+  gyn_delai:         "Un délai de 4 mois en gynéco, c'est un signal d'alarme. Où en êtes-vous ?",
+  psy_liste:         "En psychiatrie, la liste d'attente est un indicateur clé — pas une fatalité.",
+  psy_duree:         "La durée de vos consultations dit tout sur votre modèle et votre charge.",
+  psy_teleconsult:   "La téléconsultation en psy, c'est pas pour tout le monde — mais ça mérite d'y réfléchir.",
+  derm_actes:        "Vos actes techniques définissent votre profil — cochez ce que vous pratiquez réellement.",
+  derm_delai:        "Un an d'attente pour une consultation dermato, c'est la norme en France. Et vous ?",
+  derm_materiel:     "Le matériel dermato, c'est un investissement — et une source de problèmes quand ça tombe en panne.",
+  chir_bloc:         "L'accès au bloc, c'est existentiel pour un chirurgien. Parlez-moi de votre situation.",
+  chir_activite:     "La part chirurgicale dans votre activité — c'est ce qui détermine vos besoins et vos risques.",
+  chir_structure:    "Autour du bloc, comment êtes-vous organisé ? Cochez tout ce qui s'applique.",
+  spe_actes:         "Votre part d'actes techniques — c'est ce qui définit vos besoins en matériel et en financement.",
+  spe_materiel:      "Le matériel spécialisé, c'est souvent là que ça coince — et que ça coûte.",
+  spe_delai:         "Vos délais d'accès — c'est le pouls de votre activité.",
+  tx_installation_horizon: "Vous vous installez — c'est courageux. Dans quel horizon travaillez-vous ?",
+  tx_pacte_associe:  "Un associé sans pacte formalisé, c'est un risque qu'on peut éviter. Où en êtes-vous ?",
+  tx_refus_patients: "Refuser des patients, ça pèse. Comment vous gérez ça ?",
+  tx_tension_financiere: "La tension financière, c'est pas une honte — c'est un signal qu'on traite ensemble.",
+  preoccupation:     "Dernière question — et la plus importante. Ce qui vous empêche de dormir.",
+};
+
+function getBigdocIntro(qid) {
+  return BIGDOC_INTROS[qid] || "Répondez selon votre situation réelle — c'est ce qui rend votre bilan utile.";
+}
+
+// SVG Dr Bigdoc inline mini (à remplacer par l'image réelle quand dispo)
+const BIGDOC_AVATAR_SVG = `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="20" cy="20" r="20" fill="#0D9488"/>
+  <circle cx="20" cy="15" r="7" fill="#F7F9FB"/>
+  <ellipse cx="20" cy="32" rx="10" ry="7" fill="#F7F9FB" opacity=".85"/>
+  <circle cx="17" cy="14" r="1.5" fill="#0D1F3C"/>
+  <circle cx="23" cy="14" r="1.5" fill="#0D1F3C"/>
+  <path d="M17 18 Q20 21 23 18" stroke="#0D1F3C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>`;
+
 function renderQuestion() {
   // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
   const steps = state.allSteps.length > 0 ? state.allSteps : state.questions;
@@ -1914,6 +2004,10 @@ function renderQuestion() {
   // Question de type texte libre
   if (q.type === 'text') {
     area.innerHTML = `
+      <div class="bigdoc-bubble">
+        <div class="avatar">${BIGDOC_AVATAR_SVG}</div>
+        <div class="bubble">${getBigdocIntro(q.id)}</div>
+      </div>
       <div class="question-number">Question ${state.currentStep + 1}</div>
       <div class="question-text" style="font-size:1.05rem;margin-bottom:1.25rem">${q.question}</div>
       <textarea id="text-answer"
@@ -1936,6 +2030,10 @@ function renderQuestion() {
   }
 
   area.innerHTML = `
+    <div class="bigdoc-bubble">
+      <div class="avatar">${BIGDOC_AVATAR_SVG}</div>
+      <div class="bubble">${getBigdocIntro(q.id)}</div>
+    </div>
     <div class="question-number">Question ${state.currentStep + 1}</div>
     <div class="question-text">${q.question}${q.type === 'multi_select' ? ' <span style="font-size:.65rem;font-weight:700;color:#6366F1;background:#EEF2FF;padding:.15rem .5rem;border-radius:999px;vertical-align:middle;letter-spacing:.5px">Plusieurs réponses possibles</span>' : ''}</div>
     <div class="options" id="options-list"></div>
@@ -2430,18 +2528,37 @@ function renderResult() {
         </div>
       </div>
 
-      <!-- CTA compact -->
-      <div style="display:flex;align-items:center;justify-content:space-between;background:#F5F3FF;border-radius:12px;padding:1rem 1.5rem;border:1px solid #EDE9FE;flex-wrap:wrap;gap:.75rem">
-        <div>
-          <div style="font-size:.78rem;color:#374151;font-weight:500;margin-bottom:.35rem">Prêt à traiter votre cabinet ?</div>
-          <a href="" onclick="openCalendly();return false;"
-             style="display:inline-block;background:#4F46E5;color:white;border:none;border-radius:999px;padding:.7rem 1.75rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;text-decoration:none">
-            📅 Prendre rendez-vous avec RMS
-          </a>
+      <!-- SHERPA BIGDOC CTA -->
+      <div class="sherpa-cta">
+        <div class="sherpa-avatar">
+          <!-- Sherpa SVG — montagne + bâton de marche -->
+          <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="32" fill="#0D1F3C"/>
+            <!-- Montagne -->
+            <polygon points="32,10 50,46 14,46" fill="#0D9488" opacity=".85"/>
+            <polygon points="32,10 42,30 22,30" fill="white" opacity=".15"/>
+            <!-- Silhouette marcheur -->
+            <circle cx="44" cy="30" r="4" fill="#F7F9FB"/>
+            <line x1="44" y1="34" x2="42" y2="44" stroke="#F7F9FB" stroke-width="2" stroke-linecap="round"/>
+            <line x1="42" y1="44" x2="39" y2="50" stroke="#F7F9FB" stroke-width="2" stroke-linecap="round"/>
+            <line x1="42" y1="44" x2="45" y2="50" stroke="#F7F9FB" stroke-width="2" stroke-linecap="round"/>
+            <line x1="44" y1="36" x2="40" y2="40" stroke="#F7F9FB" stroke-width="2" stroke-linecap="round"/>
+            <line x1="44" y1="36" x2="47" y2="41" stroke="#F7F9FB" stroke-width="2" stroke-linecap="round"/>
+            <!-- Bâton -->
+            <line x1="47" y1="38" x2="50" y2="52" stroke="#0D9488" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
         </div>
-        <button onclick="copyShareLink()" style="background:none;border:1.5px solid #C7D2FE;padding:.45rem 1rem;border-radius:999px;font-size:.75rem;cursor:pointer;color:#6366F1;font-family:'Nunito',sans-serif;font-weight:700">
-          📋 Partager
-        </button>
+        <div style="display:inline-block;background:#0D9488;color:white;font-size:.65rem;font-weight:800;padding:.2rem .6rem;border-radius:999px;margin-bottom:.5rem;letter-spacing:.5px">VOTRE SHERPA BIGDOC</div>
+        <h3>J'ai lu votre dossier. On se parle ?</h3>
+        <p id="sherpa-message">On construit votre feuille de route ensemble — et on l'applique. Pas de jargon, pas de tâches pour vous.</p>
+        <a href="" onclick="openCalendly();return false;" class="btn-sherpa">
+          📅 Prendre rendez-vous — 30 min
+        </a>
+        <div style="margin-top:.75rem">
+          <button onclick="copyShareLink()" style="background:none;border:1.5px solid rgba(255,255,255,.25);padding:.35rem .9rem;border-radius:999px;font-size:.72rem;cursor:pointer;color:rgba(255,255,255,.75);font-family:'Nunito',sans-serif;font-weight:700">
+            📋 Partager mon bilan
+          </button>
+        </div>
       </div>
 
       <!-- SOURCES mini -->
@@ -2495,6 +2612,123 @@ async function copyShareLink() {
 
 // ─────────────────────────────────────────
 // ─── CALENDLY ───
+// ─────────────────────────────────────────
+// RPPS SEARCH — Flow identification médecin
+// ─────────────────────────────────────────
+let _rppsSearchTimer = null;
+let _rppsSelected = null; // profil médecin sélectionné
+
+function rppsSearchDebounce() {
+  clearTimeout(_rppsSearchTimer);
+  _rppsSearchTimer = setTimeout(rppsSearch, 600);
+}
+
+async function rppsSearch() {
+  const prenom  = document.getElementById('rpps-prenom')?.value?.trim() || '';
+  const nom     = document.getElementById('rpps-nom')?.value?.trim() || '';
+  const direct  = document.getElementById('rpps-direct')?.value?.trim() || '';
+  const results = document.getElementById('rpps-results');
+  if (!results) return;
+
+  // Besoin d'au moins nom OU RPPS direct
+  if (!nom && !direct) { results.innerHTML = ''; return; }
+
+  results.innerHTML = '<div style="font-size:.78rem;color:#6B7280;padding:.4rem 0">Recherche en cours…</div>';
+
+  try {
+    const params = new URLSearchParams();
+    if (direct) params.set('rpps', direct);
+    if (prenom) params.set('prenom', prenom);
+    if (nom)    params.set('nom', nom);
+
+    const r = await fetch('/api/rpps-search?' + params.toString());
+    const data = await r.json();
+
+    if (data.too_many) {
+      results.innerHTML = '<div style="font-size:.78rem;color:#92400E;padding:.4rem 0">Trop de résultats — ajoutez le prénom pour affiner.</div>';
+      return;
+    }
+    if (!data.results?.length) {
+      results.innerHTML = '<div style="font-size:.78rem;color:#6B7280;padding:.4rem 0">Aucun résultat — vérifiez l'orthographe ou saisissez votre RPPS.</div>';
+      return;
+    }
+
+    results.innerHTML = data.results.map((p, i) => `
+      <div class="rpps-result-card" onclick="rppsSelect(${i})" data-idx="${i}">
+        <div class="rpps-avatar">👨‍⚕️</div>
+        <div style="min-width:0">
+          <div style="font-size:.85rem;font-weight:800;color:#0D1F3C">${p.prenom || ''} ${p.nom || ''}</div>
+          <div style="font-size:.75rem;color:#6B7280">${p.specialite || ''} · ${p.ville || ''} ${p.departement || ''}</div>
+          ${p.secteur ? `<div style="font-size:.68rem;color:#0D9488;font-weight:700">${p.secteur}</div>` : ''}
+        </div>
+      </div>
+    `).join('');
+
+    // Stocker les résultats pour sélection
+    window._rppsResults = data.results;
+  } catch(e) {
+    results.innerHTML = '<div style="font-size:.78rem;color:#6B7280;padding:.4rem 0">Recherche indisponible — remplissez le formulaire manuellement.</div>';
+  }
+}
+
+function rppsSelect(idx) {
+  const p = (window._rppsResults || [])[idx];
+  if (!p) return;
+  _rppsSelected = p;
+
+  // Marquer la carte sélectionnée
+  document.querySelectorAll('.rpps-result-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.rpps-result-card[data-idx="${idx}"]`)?.classList.add('selected');
+
+  // Pré-remplir les champs lead
+  if (p.prenom) { const el = document.getElementById('lead-prenom'); if(el) el.value = p.prenom; }
+  if (p.nom)    { const el = document.getElementById('lead-nom');    if(el) el.value = p.nom; }
+  if (p.specialite) { const el = document.getElementById('lead-specialite'); if(el) el.value = p.specialite; }
+  if (p.ville)  { const el = document.getElementById('lead-ville');  if(el) el.value = p.ville; }
+
+  // Afficher disclaimer
+  const disc = document.getElementById('rpps-disclaimer');
+  if (disc) disc.style.display = 'flex';
+
+  // Afficher banner waouh Ameli
+  rppsShowAmeliBanner(p);
+}
+
+function rppsShowAmeliBanner(p) {
+  const banner = document.getElementById('rpps-selected-banner');
+  if (!banner) return;
+
+  // Extraire quelques stats Ameli du contexte si disponible
+  const ctx = p.ameli_context || '';
+  // Chercher délai et honoraires dans le contexte texte
+  const delaiMatch = ctx.match(/délai[^\d]*(\d+)[^\d]*(?:jour|semaine|mois)/i);
+  const honMatch   = ctx.match(/honoraires[^\d]*([\d\s]+)€/i);
+
+  const statDelai = delaiMatch
+    ? `<div class="rpps-ameli-stat"><span class="val">${delaiMatch[1]} j</span><span class="lbl">Délai moyen RDV<br>dans votre dép.</span></div>`
+    : '';
+  const statHon = honMatch
+    ? `<div class="rpps-ameli-stat"><span class="val">${honMatch[1].replace(/\s/g,'')}€</span><span class="lbl">Honoraires médiane<br>votre spécialité</span></div>`
+    : '';
+
+  banner.style.display = 'block';
+  banner.innerHTML = `
+    <div class="rpps-ameli-banner">
+      <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.5rem">DR BIGDOC CONNAÎT VOTRE TERRAIN</div>
+      <div style="font-size:.88rem;font-weight:700;margin-bottom:.65rem">
+        ${p.prenom} ${p.nom} · ${p.specialite} · ${p.ville}
+        ${p.secteur ? ` · <span style="opacity:.85">${p.secteur}</span>` : ''}
+      </div>
+      ${(statDelai || statHon) ? `
+        <div style="display:flex;gap:1.5rem;justify-content:flex-start;flex-wrap:wrap">
+          ${statDelai}
+          ${statHon}
+        </div>
+      ` : '<div style="font-size:.78rem;opacity:.8">Données démographiques chargées pour votre département.</div>'}
+    </div>
+  `;
+}
+
 let _calendlyUrl = 'https://calendly.com/bigdoc-realmedservices/30min';
 
 function openCalendly() {
