@@ -2702,7 +2702,7 @@ async function rppsSelect(idx) {
   if (p.nom)    { const el = document.getElementById('lead-nom');    if(el) el.value = p.nom; }
   const speBase = p.specialite_ans || p.specialite || '';
   if (speBase) { const el = document.getElementById('lead-specialite'); if(el) el.value = speBase; }
-  const villeBase = p.ville || '';
+  const villeBase = p.ville_label || p.ville || (p.departement ? `Dép. ${p.departement}` : '');
   if (villeBase) { const el = document.getElementById('lead-ville'); if(el) el.value = villeBase; }
   if (p.rpps) {
     const el = document.getElementById('lead-rpps'); if(el) el.value = p.rpps;
@@ -2731,7 +2731,7 @@ async function rppsSelect(idx) {
         const spe = enriched.specialite_ans || enriched.specialite || '';
         if (spe) { const el = document.getElementById('lead-specialite'); if(el) el.value = spe; }
 
-        const villeEnriched = enriched.ville || '';
+        const villeEnriched = enriched.ville_label || enriched.ville || (enriched.departement ? `Dép. ${enriched.departement}` : '');
         if (villeEnriched) { const el = document.getElementById('lead-ville'); if(el) el.value = villeEnriched; }
         // Copier le RPPS dans les deux champs
         const rppsVal = enriched.rpps || p.rpps || '';
@@ -2766,7 +2766,9 @@ function rppsShowAmeliBanner(p) {
     <div class="rpps-ameli-banner">
       <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.5rem">DR BIGDOC CONNAÎT VOTRE TERRAIN</div>
       <div style="font-size:.88rem;font-weight:700;margin-bottom:.65rem">
-        ${prenom} ${nom}${spe ? ' · ' + spe : ''}${adresse ? ' · ' + adresse : ''}${secteur ? ' · ' + secteur : ''}
+        ${prenom} ${nom}${spe ? ' · ' + spe : ''}
+        ${(p.ville_label || p.ville) ? ' · ' + (p.ville_label || p.ville) : (p.departement ? ' · Dép. ' + p.departement : '')}
+        ${secteur ? ' · ' + secteur : ''}
       </div>
       <div style="font-size:.78rem;opacity:.8">Données démographiques chargées pour votre département.</div>
     </div>
