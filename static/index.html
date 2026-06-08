@@ -506,8 +506,10 @@
 
 /* ── DR BIGDOC VOIX ── */
 .bigdoc-bubble { display:flex;align-items:flex-start;gap:.65rem;margin-bottom:1rem; }
-.bigdoc-bubble .avatar { width:36px;height:36px;flex-shrink:0;border-radius:50%;overflow:hidden;border:2px solid #0D9488; }
-.bigdoc-bubble .bubble { background:#F0FDF8;border:1px solid #CCFBF1;border-radius:0 12px 12px 12px;padding:.6rem .9rem;font-size:.82rem;color:#134E4A;line-height:1.55;font-weight:500; }
+.bigdoc-bubble .avatar { width:56px;height:56px;flex-shrink:0;overflow:hidden; }
+.bigdoc-bubble .bubble-wrap { display:flex;flex-direction:column;gap:.2rem; }
+.bigdoc-bubble .bubble-name { font-size:.62rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase; }
+.bigdoc-bubble .bubble { background:#F0FDF8;border:1px solid #CCFBF1;border-radius:0 12px 12px 12px;padding:.6rem .9rem;font-size:.85rem;color:#134E4A;line-height:1.55;font-weight:500; }
 
 /* ── SHERPA BIGDOC ── */
 .sherpa-cta { background:linear-gradient(135deg,#0D1F3C,#0A3347);border-radius:16px;padding:1.5rem;margin-top:1.5rem;text-align:center;color:white; }
@@ -1980,15 +1982,40 @@ function getBigdocIntro(qid) {
   return BIGDOC_INTROS[qid] || "Répondez selon votre situation réelle — c'est ce qui rend votre bilan utile.";
 }
 
-// SVG Dr Bigdoc inline mini (à remplacer par l'image réelle quand dispo)
-const BIGDOC_AVATAR_SVG = `<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="20" cy="20" r="20" fill="#0D9488"/>
-  <circle cx="20" cy="15" r="7" fill="#F7F9FB"/>
-  <ellipse cx="20" cy="32" rx="10" ry="7" fill="#F7F9FB" opacity=".85"/>
-  <circle cx="17" cy="14" r="1.5" fill="#0D1F3C"/>
-  <circle cx="23" cy="14" r="1.5" fill="#0D1F3C"/>
-  <path d="M17 18 Q20 21 23 18" stroke="#0D1F3C" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+// SVG Dr Bigdoc — vrai personnage
+function bigdocMiniSVG(size) {
+  const s = size || 56;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
+  <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
+  <path d="M96 144 Q112 148 113 162 Q114 174 106 176 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="97" cy="168" r="6" fill="none" stroke="#6366F1" stroke-width="2.5"/>
+  <circle cx="97" cy="168" r="3" fill="#6366F1"/>
+  <rect x="68" y="112" width="24" height="20" rx="8" fill="#F5D5A8"/>
+  <ellipse cx="80" cy="68" rx="44" ry="30" fill="#3D2314"/>
+  <ellipse cx="50" cy="84" rx="18" ry="14" fill="#3D2314"/>
+  <ellipse cx="110" cy="82" rx="16" ry="12" fill="#3D2314"/>
+  <path d="M52 80 Q58 90 62 97" stroke="#3D2314" stroke-width="8" stroke-linecap="round" fill="none"/>
+  <path d="M60 77 Q65 87 67 95" stroke="#3D2314" stroke-width="6" stroke-linecap="round" fill="none"/>
+  <ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/>
+  <ellipse cx="43" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+  <ellipse cx="117" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+  <ellipse cx="66" cy="85" rx="12" ry="13" fill="white"/>
+  <ellipse cx="94" cy="85" rx="12" ry="13" fill="white"/>
+  <circle cx="66" cy="87" r="8" fill="#1A1060"/>
+  <circle cx="94" cy="87" r="8" fill="#1A1060"/>
+  <circle cx="63" cy="83" r="3.5" fill="white"/>
+  <circle cx="91" cy="83" r="3.5" fill="white"/>
+  <path d="M55 73 Q66 68 77 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M83 72 Q94 68 105 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <ellipse cx="80" cy="98" rx="4.5" ry="3.5" fill="#E8B896"/>
+  <path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M66 110 Q80 122 94 110 Q80 120 66 110Z" fill="white"/>
+  <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
+  <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
 </svg>`;
+}
+const BIGDOC_AVATAR_SVG = bigdocMiniSVG(56);
 
 function renderQuestion() {
   // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
@@ -2021,8 +2048,11 @@ function renderQuestion() {
   if (q.type === 'text') {
     area.innerHTML = `
       <div class="bigdoc-bubble">
-        <div class="avatar">${BIGDOC_AVATAR_SVG}</div>
-        <div class="bubble">${getBigdocIntro(q.id)}</div>
+        <div class="avatar">${bigdocMiniSVG(56)}</div>
+        <div class="bubble-wrap">
+          <div class="bubble-name">Dr Bigdoc</div>
+          <div class="bubble">${getBigdocIntro(q.id)}</div>
+        </div>
       </div>
       <div class="question-number">Question ${state.currentStep + 1}</div>
       <div class="question-text" style="font-size:1.05rem;margin-bottom:1.25rem">${q.question}</div>
@@ -2047,8 +2077,11 @@ function renderQuestion() {
 
   area.innerHTML = `
     <div class="bigdoc-bubble">
-      <div class="avatar">${BIGDOC_AVATAR_SVG}</div>
-      <div class="bubble">${getBigdocIntro(q.id)}</div>
+      <div class="avatar">${bigdocMiniSVG(56)}</div>
+      <div class="bubble-wrap">
+        <div class="bubble-name">Dr Bigdoc</div>
+        <div class="bubble">${getBigdocIntro(q.id)}</div>
+      </div>
     </div>
     <div class="question-number">Question ${state.currentStep + 1}</div>
     <div class="question-text">${q.question}${q.type === 'multi_select' ? ' <span style="font-size:.65rem;font-weight:700;color:#6366F1;background:#EEF2FF;padding:.15rem .5rem;border-radius:999px;vertical-align:middle;letter-spacing:.5px">Plusieurs réponses possibles</span>' : ''}</div>
