@@ -10,7 +10,8 @@ import logging
 logger = logging.getLogger("bigdoc")
 
 ANS_API_KEY = os.getenv("ANS_API_KEY", "")
-ANS_BASE    = "https://gateway.api.esante.gouv.fr/fhir/v1"
+ANS_BASE_V1 = "https://gateway.api.esante.gouv.fr/fhir/v1"
+ANS_BASE    = "https://gateway.api.esante.gouv.fr/fhir/v2"
 
 
 def _headers():
@@ -30,9 +31,8 @@ async def search_by_rpps(rpps: str) -> dict | None:
     try:
         import httpx
         async with httpx.AsyncClient(timeout=10.0) as client:
-            # Practitioner par RPPS
             r = await client.get(
-                f"{ANS_BASE}/Practitioner",
+                f"{ANS_BASE_V1}/Practitioner",
                 params={"identifier": f"http://rpps.fr|{rpps}", "_format": "json"},
                 headers=_headers()
             )
@@ -44,33 +44,18 @@ async def search_by_rpps(rpps: str) -> dict | None:
             if not entries:
                 return None
             practitioner = entries[0]["resource"]
-
-            # PractitionerRole pour spécialité + adresse + secteur
-            rpps_id = practitioner.get("id", "")
-            role_data = {}
-            if rpps_id:
-                r2 = await client.get(
-                    f"{ANS_BASE}/PractitionerRole",
-                    params={"practitioner": rpps_id, "_format": "json", "_count": "5"},
-                    headers=_headers()
-                )
-                if r2.status_code == 200:
-                    role_entries = r2.json().get("entry", [])
-                    if role_entries:
-                        role_data = role_entries[0]["resource"]
-
-            return _parse_practitioner(practitioner, role_data)
+            return _parse_practitioner(practitioner, {})
     except Exception as e:
         logger.warning(f"ANS API error: {e}")
         return None
 
 
 async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str = "") -> list[dict]:
-    """Recherche des praticiens par nom et prénom, avec filtre géographique optionnel."""
+    """Recherche des praticiens par nom (et prénom optionnel) via API v2."""
     if not ANS_API_KEY or not nom:
         return []
     try:
-        import httpx, re
+        import httpx
         params = {
             "family": nom.strip(),
             "_format": "json",
@@ -79,12 +64,6 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
         if prenom:
             params["given"] = prenom.strip()
 
-        # Filtre géographique via code postal
-        if ville:
-            m = re.search(r'\((\d{5})\)', ville)
-            if m:
-                params["address-postalcode"] = m.group(1)
-
         async with httpx.AsyncClient(timeout=10.0) as client:
             r = await client.get(
                 f"{ANS_BASE}/Practitioner",
@@ -92,12 +71,12 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
                 headers=_headers()
             )
             if r.status_code != 200:
-                logger.warning(f"ANS search {nom}: HTTP {r.status_code}")
+                logger.warning(f"ANS search {nom}: HTTP {r.status_code} — {r.text[:200]}")
                 return []
             entries = r.json().get("entry", [])
             results = []
             for entry in entries[:10]:
-                p = entry["resource"]
+                p = entry.get("resource", {})
                 parsed = _parse_practitioner(p, {})
                 if parsed:
                     results.append(parsed)
