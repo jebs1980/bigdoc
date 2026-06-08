@@ -758,23 +758,30 @@ async def run_diagnostic(request: Request, body: DiagnosticRequest):
         # Nettoyer les sauts de ligne littéraux dans les strings JSON
         # (Claude génère parfois des \n non échappés dans les valeurs)
         import re as _re
+
         def fix_json_newlines(s):
-            # Remplace les vrais \n à l'intérieur des strings JSON par \\n
+            """Remplace les vrais newlines à l'intérieur des strings JSON."""
             result = []
             in_string = False
-            i = 0
-            while i < len(s):
-                c = s[i]
-                if c == '"' and (i == 0 or s[i-1] != '\\'):
+            escape_next = False
+            for c in s:
+                if escape_next:
+                    result.append(c)
+                    escape_next = False
+                elif c == '\\':
+                    result.append(c)
+                    escape_next = True
+                elif c == '"':
                     in_string = not in_string
                     result.append(c)
                 elif c == '\n' and in_string:
                     result.append('\\n')
                 elif c == '\r' and in_string:
                     result.append('\\r')
+                elif c == '\t' and in_string:
+                    result.append('\\t')
                 else:
                     result.append(c)
-                i += 1
             return ''.join(result)
 
         cleaned = fix_json_newlines(raw.strip())
