@@ -804,7 +804,7 @@ function renderTable(leads) {
       <td>${scoreBadge(l.score_global)}</td>
       <td><span style="font-size:.76rem;font-weight:700">${STATUS_LABELS[l.status||'lead']||'🔵 Lead'}</span></td>
       <td style="white-space:nowrap;display:flex;gap:.35rem">
-        <button class="btn-sm" onclick="openLeadPanel(${l.id})">📋 Fiche</button>
+        <button class="btn-sm" ${l.id ? `onclick="openLeadPanel(${l.id})"` : 'disabled'}>📋 Fiche</button>
         <button class="btn-sm" onclick='openQuoteModal(${JSON.stringify({email:l.email,prenom:l.prenom,nom:l.nom,specialite:l.specialite,ville:l.ville,recommandation_palier:l.recommandation_palier})})'>Devis</button>
       </td>
     </tr>`).join('');
@@ -1024,6 +1024,10 @@ document.getElementById('product-modal').addEventListener('click', function(e){
 let currentLead = null;
 
 async function openLeadPanel(leadId) {
+  if (!leadId || leadId === 'null' || leadId === 'undefined') {
+    alert('Ce lead n\'a pas encore d\'identifiant — il a peut-être été créé avant la mise à jour du CRM.');
+    return;
+  }
   try {
     const r = await fetch(`/api/admin/leads/${leadId}`, {credentials:'include'});
     if (!r.ok) { alert('Erreur chargement fiche'); return; }
