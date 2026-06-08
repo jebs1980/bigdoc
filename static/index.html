@@ -2071,15 +2071,7 @@ function renderQuestion() {
   const el = document.getElementById('score-preview');
   if (el) el.textContent = '';
 
-  // Bulle Dr Bigdoc
-  const speech = BIGDOC_SPEECHES[state.currentStep] || "Répondez à votre rythme — il n'y a pas de mauvaise réponse.";
-  const bubbleEl = document.getElementById('bigdoc-bubble-q');
-  if (bubbleEl) {
-    bubbleEl.innerHTML = `
-      <div class="bigdoc-avatar">${bigdocMiniSVG(32)}</div>
-      <div class="bigdoc-speech">${speech}</div>`;
-    bubbleEl.style.display = 'flex';
-  }
+
 
   const area = document.getElementById('question-area');
 
