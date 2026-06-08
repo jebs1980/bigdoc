@@ -44,7 +44,22 @@ async def search_by_rpps(rpps: str) -> dict | None:
             if not entries:
                 return None
             practitioner = entries[0]["resource"]
-            return _parse_practitioner(practitioner, {})
+            pract_id = practitioner.get("id", "")
+
+            # Récupérer PractitionerRole pour la spécialité
+            role_data = {}
+            if pract_id:
+                r2 = await client.get(
+                    f"{ANS_BASE_V1}/PractitionerRole",
+                    params={"practitioner": pract_id, "_format": "json", "_count": "5"},
+                    headers=_headers()
+                )
+                if r2.status_code == 200:
+                    role_entries = r2.json().get("entry", [])
+                    if role_entries:
+                        role_data = role_entries[0]["resource"]
+
+            return _parse_practitioner(practitioner, role_data)
     except Exception as e:
         logger.warning(f"ANS API error: {e}")
         return None
@@ -90,51 +105,59 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
     """Parse un Practitioner FHIR en dict lisible."""
     result = {}
 
-    # RPPS
+    # RPPS — cherche dans les identifiers
     for ident in p.get("identifier", []):
-        if "rpps" in ident.get("system", "").lower():
-            result["rpps"] = ident.get("value", "")
+        system = ident.get("system", "")
+        if "rpps" in system.lower() or "1.2.250.1.71.4.2.1" in system:
+            val = ident.get("value", "")
+            if val and val.isdigit():
+                result["rpps"] = val
 
-    # Nom + Prénom
+    # Nom + Prénom — cherche le nom officiel
     for name in p.get("name", []):
-        if name.get("use") == "official" or not result.get("nom"):
-            result["nom"]    = " ".join(name.get("family", []) if isinstance(name.get("family"), list) else [name.get("family", "")])
-            result["prenom"] = " ".join(name.get("given", []))
+        use = name.get("use", "")
+        if use in ("official", "usual") or not result.get("nom"):
+            family = name.get("family", "")
+            given  = name.get("given", [])
+            if isinstance(family, list):
+                family = " ".join(family)
+            if family:
+                result["nom"]    = family.strip()
+                result["prenom"] = " ".join(given).strip() if given else ""
 
-    # Spécialité depuis qualification
-    specs = []
+    # Qualification — DIPLÔMES uniquement, PAS la spécialité
+    diplomes = []
     for qual in p.get("qualification", []):
         code = qual.get("code", {})
         for coding in code.get("coding", []):
             display = coding.get("display", "")
-            if display and display not in specs:
-                specs.append(display)
-    if specs:
-        result["specialite_ans"] = specs[0]
-        result["qualifications"] = specs
+            # Filtrer les vrais diplômes vs les spécialités
+            if display and "Diplôme" not in display and "diplôme" not in display:
+                diplomes.append(display)
+    if diplomes:
+        result["qualifications"] = diplomes
 
-    # Depuis PractitionerRole
+    # Depuis PractitionerRole — spécialité + adresse + secteur
     if role:
-        # Spécialité
+        # Spécialité réelle
         for spec in role.get("specialty", []):
             for coding in spec.get("coding", []):
                 display = coding.get("display", "")
                 if display and not result.get("specialite_ans"):
                     result["specialite_ans"] = display
 
-        # Adresse
-        for loc_ref in role.get("location", []):
-            result["location_ref"] = loc_ref.get("reference", "")
-
-        # Mode exercice et secteur
+        # Mode exercice et secteur conventionnel
         for ext in role.get("extension", []):
             url = ext.get("url", "")
-            if "modeExercice" in url:
-                result["mode_exercice"] = ext.get("valueCodeableConcept", {}).get("coding", [{}])[0].get("display", "")
-            if "secteurConventionnement" in url or "conventionnement" in url.lower():
-                result["secteur_conventionnel"] = ext.get("valueCodeableConcept", {}).get("coding", [{}])[0].get("display", "")
+            val = ext.get("valueCodeableConcept", {})
+            codings = val.get("coding", [{}])
+            display = codings[0].get("display", "") if codings else ""
+            if "modeExercice" in url and display:
+                result["mode_exercice"] = display
+            if "conventionnement" in url.lower() and display:
+                result["secteur_conventionnel"] = display
 
-        # Téléphone / Email pro
+        # Téléphone / Email
         for telecom in role.get("telecom", []):
             system = telecom.get("system", "")
             value  = telecom.get("value", "")
@@ -145,10 +168,11 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
 
         # Adresse cabinet
         for addr in role.get("address", []):
-            result["adresse"] = " ".join(filter(None, [
+            parts = [
                 " ".join(addr.get("line", [])),
                 addr.get("postalCode", ""),
                 addr.get("city", "")
-            ]))
+            ]
+            result["adresse"] = " ".join(filter(None, parts)).strip()
 
     return result if result.get("rpps") or result.get("nom") else None
