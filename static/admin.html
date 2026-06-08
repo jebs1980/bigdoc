@@ -488,10 +488,13 @@
 <!-- ── MODAL EVAL FEEDBACK ── -->
 <!-- ── MODAL ANS SELECTION ── -->
 <div class="modal" id="ans-modal">
-  <div class="modal-box" style="max-width:560px">
-    <div class="modal-title" style="margin-bottom:1rem">Plusieurs praticiens trouvés</div>
-    <p style="font-size:.82rem;color:var(--muted);margin-bottom:1rem">Sélectionnez le bon praticien :</p>
-    <div id="ans-results-list"></div>
+  <div class="modal-box" style="max-width:600px">
+    <div class="modal-title" style="margin-bottom:.75rem">Praticiens trouvés dans l'Annuaire Santé</div>
+    <input type="text" id="ans-filter" placeholder="Filtrer par prénom, spécialité, ville…"
+      oninput="filterANSResults()"
+      style="width:100%;padding:.55rem .85rem;border:1.5px solid var(--border);border-radius:10px;font-size:.82rem;font-family:'Nunito Sans',sans-serif;box-sizing:border-box;margin-bottom:.75rem">
+    <div id="ans-results-list" style="max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:.4rem"></div>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:.5rem" id="ans-count"></div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeANSModal()">Annuler</button>
     </div>
@@ -1530,18 +1533,39 @@ let _ansLeadId  = null;
 function closeANSModal() { document.getElementById('ans-modal').classList.remove('open'); }
 document.getElementById('ans-modal').addEventListener('click', function(e){ if(e.target===this) closeANSModal(); });
 
+function renderANSList(results) {
+  document.getElementById('ans-count').textContent = `${results.length} praticien(s) affiché(s)`;
+  document.getElementById('ans-results-list').innerHTML = results.map((r, i) => {
+    const idx = _ansResults.indexOf(r);
+    return `<div style="background:var(--lavender);border-radius:10px;padding:.7rem .9rem;cursor:pointer;border:2px solid transparent;transition:border .15s"
+       onclick="applyANSResult(${idx})"
+       onmouseover="this.style.borderColor='var(--indigo)'"
+       onmouseout="this.style.borderColor='transparent'">
+      <div style="font-weight:700;font-family:'Nunito',sans-serif;font-size:.88rem">${r.prenom||''} ${r.nom||''}</div>
+      <div style="font-size:.76rem;color:var(--muted);margin-top:.1rem">
+        ${r.specialite_ans ? `<span style="color:var(--indigo);font-weight:600">${r.specialite_ans}</span> · ` : ''}
+        ${r.rpps ? `RPPS : ${r.rpps}` : ''}
+        ${r.mode_exercice ? ` · ${r.mode_exercice}` : ''}
+      </div>
+      ${r.adresse ? `<div style="font-size:.72rem;color:var(--muted);margin-top:.1rem">${r.adresse}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function filterANSResults() {
+  const q = document.getElementById('ans-filter').value.toLowerCase();
+  const filtered = _ansResults.filter(r =>
+    !q || [r.prenom, r.nom, r.specialite_ans, r.adresse, r.rpps]
+      .some(v => (v||'').toLowerCase().includes(q))
+  );
+  renderANSList(filtered);
+}
+
 function openANSModal(results, leadId) {
   _ansResults = results;
   _ansLeadId  = leadId;
-  document.getElementById('ans-results-list').innerHTML = results.map((r, i) => `
-    <div style="background:var(--lavender);border-radius:10px;padding:.75rem;margin-bottom:.5rem;cursor:pointer;border:2px solid transparent"
-         onclick="applyANSResult(${i})"
-         onmouseover="this.style.borderColor='var(--indigo)'"
-         onmouseout="this.style.borderColor='transparent'">
-      <div style="font-weight:700;font-family:'Nunito',sans-serif">${r.prenom||''} ${r.nom||''}</div>
-      <div style="font-size:.78rem;color:var(--muted)">${r.specialite_ans||''} ${r.rpps ? '— RPPS: '+r.rpps : ''}</div>
-      ${r.adresse ? `<div style="font-size:.75rem;color:var(--muted)">${r.adresse}</div>` : ''}
-    </div>`).join('');
+  document.getElementById('ans-filter').value = '';
+  renderANSList(results);
   document.getElementById('ans-modal').classList.add('open');
 }
 
