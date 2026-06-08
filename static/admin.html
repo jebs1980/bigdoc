@@ -1209,6 +1209,21 @@ async function enrichFromANS() {
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({rpps, prenom, nom, ville: currentLead?.ville || ''})
     });
+    if (r.status === 400) {
+      const d = await r.json();
+      const detail = d.detail || '';
+      if (detail.startsWith('too_many:')) {
+        const parts = detail.split(':');
+        const total = parts[1];
+        const nom = parts[2];
+        document.getElementById('ans-search-prenom').style.borderColor = 'var(--amber)';
+        alert(`${total} praticiens trouvés pour "${nom}".\n\nAjoutez un prénom pour affiner la recherche.`);
+      } else {
+        alert('Erreur : ' + detail);
+      }
+      btn.disabled = false; btn.textContent = '🔍 Enrichir depuis l\'ANS';
+      return;
+    }
     if (r.status === 404) { alert('Praticien non trouvé dans l\'Annuaire Santé'); btn.disabled=false; btn.textContent='🔍 ANS'; return; }
     const d = await r.json();
     if (d.multiple) {
