@@ -468,30 +468,33 @@ def get_lead_by_session(session_id: str) -> dict | None:
 
 
 def get_all_leads() -> list:
-    """Retourne tous les diagnostics pour le back office admin."""
+    """Retourne tous les leads avec leur dernier diagnostic."""
     conn = get_connection()
-    _migrate_lead_crm(conn)  # S'assure que les colonnes CRM existent
+    _migrate_lead_crm(conn)
     rows = conn.execute("""
         SELECT
             l.id,
+            l.email,
+            l.prenom,
+            l.nom,
+            l.specialite,
+            l.ville,
+            l.status,
+            l.rpps,
+            l.created_at as date,
             d.session_id,
-            d.created_at as date,
-            COALESCE(l.email, '') as email,
-            COALESCE(l.prenom, '') as prenom,
-            COALESCE(l.nom, '') as nom,
-            COALESCE(l.specialite, '') as specialite,
-            COALESCE(l.ville, '') as ville,
-            COALESCE(l.status, 'lead') as status,
             d.phase,
             d.score_global,
             d.heures_perdues_semaine,
             d.euros_evitables_an,
             d.recommandation_palier,
             d.recommandation_tarif
-        FROM diagnostics d
-        LEFT JOIN leads l ON l.id = d.lead_id
-        WHERE d.score_global IS NOT NULL
-        ORDER BY d.created_at DESC
+        FROM leads l
+        LEFT JOIN diagnostics d ON d.lead_id = l.id
+            AND d.created_at = (
+                SELECT MAX(d2.created_at) FROM diagnostics d2 WHERE d2.lead_id = l.id
+            )
+        ORDER BY l.created_at DESC
         LIMIT 500
     """).fetchall()
     conn.close()
