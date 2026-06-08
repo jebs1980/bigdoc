@@ -1341,8 +1341,82 @@ const state = {
   texteLibre: '',
   bilan: null,
   shareToken: null,
-  questions: []
+  questions: [],         // tronc commun (depuis API)
+  branche: null,         // clé spécialité détectée
+  brancheQuestions: [],  // Q7-Q9 de la branche
+  transversales: [],     // questions conditionnelles actives
+  allSteps: []           // liste finale des questions affichées
 };
+
+// ─────────────────────────────────────────
+// MAPPING SPÉCIALITÉ → BRANCHE
+// ─────────────────────────────────────────
+function normaliserSpecialite(str) {
+  return (str || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[-_]/g, ' ').trim();
+}
+
+const SPECIALITE_MAP = {
+  medecine_generale: ['generaliste','general','medecine generale','medecin generaliste','mg','omnipraticien'],
+  gynecologie: ['gyneco','gynecol','gynecologie','gynecologue','gyn','gynecologie medicale','gyneco medicale','gynecologie obstetrique','gyneco obstetrique','gyneco-obstetrique','gynecologue obstetricien','obstetrique','obstetricien','gynecologie obstetricale','gyneco obstetricale'],
+  psychiatrie: ['psychiatre','psychiatrie','psy','pedopsychiatre','pedopsychiatrie'],
+  dermatologie: ['dermato','dermatologue','dermatologie','dermatovenerologie','dermatologie venerologie'],
+  chirurgie: ['chirurgi','chirurgien','chirurgie','chirurgie generale','chirurgie digestive','chirurgie vasculaire','chirurgie thoracique','chirurgie plastique','chirurgie orthopedique','orthopediste','chirurgie visceral','chirurgie viscerale']
+};
+
+function detecterBranche(specialiteStr) {
+  const norm = normaliserSpecialite(specialiteStr);
+  for (const [branche, variants] of Object.entries(SPECIALITE_MAP)) {
+    for (const v of variants) {
+      if (norm.includes(v) || v.includes(norm)) return branche;
+    }
+  }
+  return 'specialiste_technique'; // fallback
+}
+
+// ─────────────────────────────────────────
+// QUESTIONS TRANSVERSALES (conditions)
+// ─────────────────────────────────────────
+function calculerTransversales(reponses) {
+  const txList = [];
+  // Associé détecté ?
+  const devRep = reponses['projet_12mois'] || '';
+  const mgStruct = reponses['mg_structure'] || [];
+  if (Array.isArray(mgStruct) && mgStruct.includes('groupe')) {
+    txList.push('tx_pacte_associe');
+  }
+  // Phase installation
+  if (reponses['phase'] === 'installation') {
+    txList.push('tx_installation_horizon');
+  }
+  // Délai long détecté
+  const delaiLong = ['mg_delai','gyn_delai','derm_delai','spe_delai'].some(id => reponses[id] === '0' || reponses[id] === '1');
+  if (delaiLong) txList.push('tx_refus_patients');
+  // Situation financière tendue
+  if (reponses['compta'] === '0' || reponses['compta'] === '1') {
+    txList.push('tx_tension_financiere');
+  }
+  return txList;
+}
+
+// ─────────────────────────────────────────
+// CONSTRUCTION DE LA LISTE COMPLÈTE DES ÉTAPES
+// ─────────────────────────────────────────
+function buildAllSteps() {
+  // Tronc commun + branche + transversales actives + question finale
+  const tronc = state.questions.filter(q => q.id !== 'preoccupation');
+  const finale = state.questions.find(q => q.id === 'preoccupation');
+  const txActives = calculerTransversales(state.reponses);
+  const txDefs = window._txDefs || [];
+  const txQuestions = txDefs.filter(t => txActives.includes(t.id));
+  state.allSteps = [
+    ...tronc,
+    ...state.brancheQuestions,
+    ...txQuestions,
+    ...(finale ? [finale] : [])
+  ];
+}
 
 // ─────────────────────────────────────────
 // INIT
@@ -1518,12 +1592,15 @@ async function init() {
     }
   } catch(e) {}
 
-  // Charger le questionnaire — toujours en premier
+  // Charger le questionnaire — tronc commun + branches + transversales
   try {
     const r = await fetch('/api/questionnaire');
     const data = await r.json();
     state.questions = data.questions;
-  } catch(e) { console.error('Questionnaire non chargé', e); }
+    // Stocker branches et transversales pour buildAllSteps()
+    window._branches = data.branches || {};
+    window._txDefs   = data.transversales || [];
+  } catch(e) { console.error('Questionnaire non charge', e); }
 
   // Charger settings publics (URL Calendly, etc.)
   try {
@@ -1573,6 +1650,13 @@ function showScreen(id) {
 
 function startDiagnostic() {
   state.currentStep = 0;
+  state.reponses = {};
+  // Détecter la branche depuis la spécialité saisie dans le formulaire lead
+  const specialiteEl = document.getElementById('lead-specialite');
+  const specialiteVal = specialiteEl ? specialiteEl.value : '';
+  state.branche = detecterBranche(specialiteVal);
+  state.brancheQuestions = (window._branches && window._branches[state.branche]) ? window._branches[state.branche] : [];
+  buildAllSteps();
   renderQuestion();
   showScreen('questionnaire');
 }
@@ -1801,10 +1885,12 @@ function bigdocMiniSVG(size = 36) {
 }
 
 function renderQuestion() {
-  const q = state.questions[state.currentStep];
+  // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
+  const steps = state.allSteps.length > 0 ? state.allSteps : state.questions;
+  const q = steps[state.currentStep];
   if (!q) return;
 
-  const total = state.questions.length;
+  const total = steps.length;
   const pct = Math.round((state.currentStep / total) * 100);
 
   document.getElementById('progress-fill').style.width = pct + '%';
@@ -1922,7 +2008,9 @@ function selectMulti(questionId, value) {
 }
 
 function nextQuestion() {
-  if (state.currentStep < state.questions.length - 1) {
+  // Recalculer allSteps à chaque avancement (les transversales peuvent changer)
+  buildAllSteps();
+  if (state.currentStep < state.allSteps.length - 1) {
     state.currentStep++;
     renderQuestion();
   } else {
