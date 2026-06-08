@@ -31,33 +31,44 @@ async def search_by_rpps(rpps: str) -> dict | None:
     try:
         import httpx
         async with httpx.AsyncClient(timeout=10.0) as client:
-            r = await client.get(
-                f"{ANS_BASE_V1}/Practitioner",
-                params={"identifier": f"http://rpps.fr|{rpps}", "_format": "json"},
-                headers=_headers()
-            )
-            if r.status_code != 200:
-                logger.warning(f"ANS RPPS {rpps}: HTTP {r.status_code}")
-                return None
-            data = r.json()
-            entries = data.get("entry", [])
-            if not entries:
-                return None
-            practitioner = entries[0]["resource"]
-            pract_id = practitioner.get("id", "")
-
-            # Récupérer PractitionerRole pour la spécialité
-            role_data = {}
-            if pract_id:
-                r2 = await client.get(
-                    f"{ANS_BASE_V1}/PractitionerRole",
-                    params={"practitioner": pract_id, "_format": "json", "_count": "5"},
+            # Essayer v2 d'abord (meilleur coverage adresses), fallback v1
+            practitioner = None
+            pract_id = ""
+            for base in [ANS_BASE, ANS_BASE_V1]:
+                r = await client.get(
+                    f"{base}/Practitioner",
+                    params={"identifier": f"http://rpps.fr|{rpps}", "_format": "json"},
                     headers=_headers()
                 )
-                if r2.status_code == 200:
-                    role_entries = r2.json().get("entry", [])
-                    if role_entries:
-                        role_data = role_entries[0]["resource"]
+                if r.status_code == 200:
+                    entries = r.json().get("entry", [])
+                    if entries:
+                        practitioner = entries[0]["resource"]
+                        pract_id = practitioner.get("id", "")
+                        break
+
+            if not practitioner:
+                logger.warning(f"ANS RPPS {rpps}: non trouvé v1/v2")
+                return None
+
+            # Récupérer PractitionerRole — essayer v2 puis v1
+            role_data = {}
+            if pract_id:
+                for base in [ANS_BASE, ANS_BASE_V1]:
+                    r2 = await client.get(
+                        f"{base}/PractitionerRole",
+                        params={"practitioner": pract_id, "_format": "json", "_count": "5"},
+                        headers=_headers()
+                    )
+                    if r2.status_code == 200:
+                        role_entries = r2.json().get("entry", [])
+                        if role_entries:
+                            role_data = role_entries[0]["resource"]
+                            # Si on a une adresse, on s'arrête
+                            if role_data.get("address") or any(
+                                addr.get("city") for addr in role_data.get("address", [])
+                            ):
+                                break
 
             return _parse_practitioner(practitioner, role_data)
     except Exception as e:
