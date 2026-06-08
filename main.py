@@ -1634,11 +1634,14 @@ async def enrich_lead_ans(lead_id: int, request: Request):
     else:
         results = await search_by_name(prenom, nom, ville=ville)
         if not results:
-            raise HTTPException(status_code=404, detail="Aucun praticien trouvé — essayez avec un RPPS ou une ville plus précise")
-        if len(results) == 1 or apply:
+            raise HTTPException(status_code=404, detail="Aucun praticien trouvé — vérifiez le nom ou ajoutez un prénom")
+        # Trop de résultats sans prénom
+        if results[0].get("__too_many__"):
+            total = results[0].get("__total__", "?")
+            raise HTTPException(status_code=400, detail=f"too_many:{total}:{nom}")
+        if len(results) == 1:
             ans_data = results[0]
         else:
-            # Plusieurs résultats — retourner la liste pour sélection
             return {"success": False, "multiple": True, "results": results}
 
     # Appliquer les données ANS au lead
