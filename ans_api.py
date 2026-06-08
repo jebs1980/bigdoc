@@ -183,4 +183,20 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
             ]
             result["adresse"] = " ".join(filter(None, parts)).strip()
 
+    # Fallback spécialité — extraire depuis qualifications si specialite_ans absent
+    if not result.get("specialite_ans") and result.get("qualifications"):
+        # Chercher un CES ou DES ou spécialité reconnue
+        spe_keywords = ["Gynécologie", "Médecine générale", "Pédiatrie", "Psychiatrie",
+                        "Dermatologie", "Cardiologie", "Chirurgie", "Ophtalmologie",
+                        "Rhumatologie", "Neurologie", "Oncologie", "Anesthésie",
+                        "Radiologie", "Gastro", "Pneumologie", "Endocrinologie",
+                        "Néphrologie", "Urologie", "ORL", "Stomatologie"]
+        for q in result["qualifications"]:
+            for kw in spe_keywords:
+                if kw.lower() in q.lower():
+                    result["specialite_ans"] = q.replace("CES ", "").replace("DES ", "").replace("DESC ", "").strip()
+                    break
+            if result.get("specialite_ans"):
+                break
+
     return result if result.get("rpps") or result.get("nom") else None
