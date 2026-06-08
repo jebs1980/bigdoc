@@ -685,9 +685,10 @@ async def rpps_search_public(request: Request, prenom: str = "", nom: str = "", 
         result = await search_by_rpps(rpps.strip())
         if not result:
             return {"results": [], "too_many": False}
-        # Enrichir avec contexte Ameli
-        specialite = result.get("specialite", "")
-        ville = result.get("ville", "")
+        # Enrichir avec contexte Ameli — utiliser specialite_ans et extraire ville depuis adresse
+        specialite = result.get("specialite_ans") or result.get("specialite", "")
+        adresse = result.get("adresse", "")
+        ville = adresse.split()[-1] if adresse else result.get("ville", "")
         ameli_context = get_demographic_context(specialite, ville)
         result["ameli_context"] = ameli_context
         return {"results": [result], "too_many": False}
@@ -701,8 +702,9 @@ async def rpps_search_public(request: Request, prenom: str = "", nom: str = "", 
     results = results[:50]
     # Enrichir chaque résultat avec contexte Ameli
     for r in results:
-        specialite = r.get("specialite", "")
-        ville = r.get("ville", "")
+        specialite = r.get("specialite_ans") or r.get("specialite", "")
+        adresse = r.get("adresse", "")
+        ville = adresse.split()[-1] if adresse else r.get("ville", "")
         r["ameli_context"] = get_demographic_context(specialite, ville)
     return {"results": results, "too_many": too_many}
 
