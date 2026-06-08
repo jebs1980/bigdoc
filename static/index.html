@@ -1257,6 +1257,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
                    autocomplete="off"
                    oninput="searchVille(this.value)"
                    onblur="setTimeout(()=>closeDropdown('drop-ville'),200)"/>
+            <div id="ville-note" style="display:none;font-size:.68rem;color:#92400E;margin-top:.25rem;line-height:1.4"></div>
             <div id="drop-ville" style="
               display:none;position:absolute;top:100%;left:0;right:0;
               background:white;border:1px solid #E8EBF0;border-radius:8px;
@@ -2703,7 +2704,21 @@ async function rppsSelect(idx) {
   const speBase = p.specialite_ans || p.specialite || '';
   if (speBase) { const el = document.getElementById('lead-specialite'); if(el) el.value = speBase; }
   const villeBase = p.ville_label || p.ville || (p.departement ? `Dép. ${p.departement}` : '');
-  if (villeBase) { const el = document.getElementById('lead-ville'); if(el) el.value = villeBase; }
+  const villeIncertaine = !p.ville && !!p.departement; // déduite du CP, pas certaine
+  if (villeBase) {
+    const el = document.getElementById('lead-ville');
+    if (el) el.value = villeBase;
+  }
+  // Afficher note si ville déduite
+  const villeNote = document.getElementById('ville-note');
+  if (villeNote) {
+    if (villeIncertaine) {
+      villeNote.style.display = 'block';
+      villeNote.textContent = '⚠️ Localisation déduite — les données ANS ne permettent pas de la définir avec certitude. Vérifiez et corrigez si besoin.';
+    } else {
+      villeNote.style.display = 'none';
+    }
+  }
   if (p.rpps) {
     const el = document.getElementById('lead-rpps'); if(el) el.value = p.rpps;
     const elDirect = document.getElementById('rpps-direct'); if(elDirect) elDirect.value = p.rpps;
