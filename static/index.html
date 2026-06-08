@@ -2658,8 +2658,8 @@ async function rppsSearch() {
         <div class="rpps-avatar">👨‍⚕️</div>
         <div style="min-width:0">
           <div style="font-size:.85rem;font-weight:800;color:#0D1F3C">${p.prenom || ''} ${p.nom || ''}</div>
-          <div style="font-size:.75rem;color:#6B7280">${p.specialite || ''} · ${p.ville || ''} ${p.departement || ''}</div>
-          ${p.secteur ? `<div style="font-size:.68rem;color:#0D9488;font-weight:700">${p.secteur}</div>` : ''}
+          <div style="font-size:.75rem;color:#6B7280">${p.specialite_ans || p.specialite || ''} · ${p.adresse || p.ville || ''}</div>
+          ${p.secteur_conventionnel ? `<div style="font-size:.68rem;color:#0D9488;font-weight:700">${p.secteur_conventionnel}</div>` : ''}
         </div>
       </div>
     `).join('');
@@ -2683,8 +2683,12 @@ function rppsSelect(idx) {
   // Pré-remplir les champs lead
   if (p.prenom) { const el = document.getElementById('lead-prenom'); if(el) el.value = p.prenom; }
   if (p.nom)    { const el = document.getElementById('lead-nom');    if(el) el.value = p.nom; }
-  if (p.specialite) { const el = document.getElementById('lead-specialite'); if(el) el.value = p.specialite; }
-  if (p.ville)  { const el = document.getElementById('lead-ville');  if(el) el.value = p.ville; }
+  const spe = p.specialite_ans || p.specialite || '';
+  if (spe) { const el = document.getElementById('lead-specialite'); if(el) el.value = spe; }
+  // Extraire la ville depuis l'adresse (dernier mot en majuscules)
+  const villeMatch = (p.adresse || '').match(/([A-Z][A-Z\s-]+)$/);
+  const ville = villeMatch ? villeMatch[1].trim() : (p.ville || '');
+  if (ville) { const el = document.getElementById('lead-ville'); if(el) el.value = ville; }
 
   // Afficher disclaimer
   const disc = document.getElementById('rpps-disclaimer');
@@ -2716,8 +2720,8 @@ function rppsShowAmeliBanner(p) {
     <div class="rpps-ameli-banner">
       <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.5rem">DR BIGDOC CONNAÎT VOTRE TERRAIN</div>
       <div style="font-size:.88rem;font-weight:700;margin-bottom:.65rem">
-        ${p.prenom} ${p.nom} · ${p.specialite} · ${p.ville}
-        ${p.secteur ? ` · <span style="opacity:.85">${p.secteur}</span>` : ''}
+        ${p.prenom} ${p.nom}${p.specialite_ans ? ' · ' + p.specialite_ans : ''}${p.adresse ? ' · ' + p.adresse : ''}
+        ${p.secteur_conventionnel ? ` · <span style="opacity:.85">${p.secteur_conventionnel}</span>` : ''}
       </div>
       ${(statDelai || statHon) ? `
         <div style="display:flex;gap:1.5rem;justify-content:flex-start;flex-wrap:wrap">
