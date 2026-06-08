@@ -2656,11 +2656,12 @@ async function rppsSearch() {
     results.innerHTML = data.results.map((p, i) => `
       <div class="rpps-result-card" onclick="rppsSelect(${i})" data-idx="${i}">
         <div class="rpps-avatar">👨‍⚕️</div>
-        <div style="min-width:0">
+        <div style="min-width:0;flex:1">
           <div style="font-size:.85rem;font-weight:800;color:#0D1F3C">${p.prenom || ''} ${p.nom || ''}</div>
-          <div style="font-size:.75rem;color:#6B7280">${p.specialite_ans || p.specialite || ''} · ${p.adresse || p.ville || ''}</div>
+          <div style="font-size:.75rem;color:#6B7280">${p.specialite_ans || p.specialite || '—'} · ${p.adresse || p.ville || ''}</div>
           ${p.secteur_conventionnel ? `<div style="font-size:.68rem;color:#0D9488;font-weight:700">${p.secteur_conventionnel}</div>` : ''}
         </div>
+        ${p.rpps ? `<div style="font-size:.65rem;color:#9CA3AF;font-family:monospace;flex-shrink:0;text-align:right">RPPS<br><span style="color:#0D9488;font-weight:700">${p.rpps}</span></div>` : ''}
       </div>
     `).join('');
 
