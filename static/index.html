@@ -1205,6 +1205,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
         <!-- ── RPPS SEARCH ── -->
         <div class="rpps-search-box" id="rpps-search-zone">
           <label>🔍 Retrouvez votre fiche en quelques secondes</label>
+          <div id="ameli-date-badge" style="display:none;font-size:.65rem;color:#0D9488;font-weight:600;margin-bottom:.5rem"></div>
           <div style="display:flex;gap:.5rem;margin-bottom:.75rem">
             <input type="text" id="rpps-prenom" placeholder="Prénom" style="flex:1;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="rppsSearchDebounce()" />
             <input type="text" id="rpps-nom" placeholder="Nom" style="flex:1;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="rppsSearchDebounce()" />
@@ -1645,6 +1646,19 @@ async function init() {
     window._branches = data.branches || {};
     window._txDefs   = data.transversales || [];
   } catch(e) { console.error('Questionnaire non charge', e); }
+
+  // Charger la date de mise à jour Ameli
+  try {
+    const ra = await fetch('/api/ameli-date');
+    const da = await ra.json();
+    if (da.date) {
+      const badge = document.getElementById('ameli-date-badge');
+      if (badge) {
+        badge.textContent = `Données Ameli mises à jour le ${da.date}`;
+        badge.style.display = 'block';
+      }
+    }
+  } catch(e) {}
 
   // Charger settings publics (URL Calendly, etc.)
   try {
