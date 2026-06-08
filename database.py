@@ -476,12 +476,12 @@ def get_all_leads() -> list:
             l.id,
             d.session_id,
             d.created_at as date,
-            l.email,
-            l.prenom,
-            l.nom,
-            l.specialite,
-            l.ville,
-            l.status,
+            COALESCE(l.email, '') as email,
+            COALESCE(l.prenom, '') as prenom,
+            COALESCE(l.nom, '') as nom,
+            COALESCE(l.specialite, '') as specialite,
+            COALESCE(l.ville, '') as ville,
+            COALESCE(l.status, 'lead') as status,
             d.phase,
             d.score_global,
             d.heures_perdues_semaine,
@@ -490,7 +490,7 @@ def get_all_leads() -> list:
             d.recommandation_tarif
         FROM diagnostics d
         LEFT JOIN leads l ON l.id = d.lead_id
-        WHERE d.score_global IS NOT NULL AND l.id IS NOT NULL
+        WHERE d.score_global IS NOT NULL
         ORDER BY d.created_at DESC
         LIMIT 500
     """).fetchall()
