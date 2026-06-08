@@ -4,7 +4,7 @@ from pathlib import Path
 from datetime import datetime
 from ameli_api import get_ameli_context
 from security import validate_email_security, check_honeypot, check_email_rate_limit
-from ans_api import search_by_rpps, search_by_name
+from ans_api import search_by_rpps, search_by_name, get_ameli_annuaire_date
 import secrets
 import httpx
 import os
@@ -675,6 +675,12 @@ async def get_questionnaire():
         "branches": QUESTIONNAIRE_BRANCHES,
         "transversales": QUESTIONS_TRANSVERSALES
     }
+
+
+@app.get("/api/ameli-date")
+async def ameli_annuaire_date():
+    """Retourne la date de dernière mise à jour du CSV Ameli."""""
+    return {"date": get_ameli_annuaire_date()}
 
 
 @app.get("/api/rpps-search")
