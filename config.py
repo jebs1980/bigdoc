@@ -311,7 +311,7 @@ Pas de texte avant. Pas de texte après. Pas de markdown. JSON pur uniquement.
   "phase": "installation|consolidation|croissance|transmission",
   "score_global": 0,
   "niveau": "Cabinet sous tension|Cabinet en transition|Cabinet en progression|Cabinet bien structuré",
-  "titre_personnalise": "Une formule clinique en 5-8 mots qui décrit CET état de cabinet — mémorable et juste. Ex: 'Cabinet en bonne santé mais épuisé par l'admin', 'Cabinet solide qui s'ignore', 'Cabinet en déséquilibre silencieux'.",
+  "titre_personnalise": "Une formule clinique en 5-8 mots qui décrit CET état de cabinet — mémorable et juste. Ton : Carter/Abby, pas juridique, pas alarmiste. Utiliser 'angle mort' pour les risques cachés, jamais 'infraction', 'illégal', 'non conforme'. Ex: 'Cabinet gynéco solide, un angle mort périlleux à traiter', 'Cabinet en bonne santé mais épuisé par l\'admin', 'Cabinet solide qui s\'ignore', 'Cabinet en déséquilibre silencieux', 'Cabinet bien construit, une faille qui coûte cher'.",
   "ce_que_vous_nignorez_probablement_pas": "La vérité que le médecin se dit peut-être mais n'a pas écrite. 1 phrase percutante. Ex: 'Vous savez que vous perdez du temps, mais vous ne savez pas encore combien ça vous coûte en euros.'",
   "dimensions": {
     "administration":  {"score": 0, "commentaire": "3-4 phrases concrètes et chiffrées. Citer un chiffre sourcé. Révéler quelque chose que le médecin n'a pas vu. Terminer sur ce qui est récupérable."},
