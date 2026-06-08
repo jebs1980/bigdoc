@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import datetime
 from ameli_api import get_ameli_context
 from security import validate_email_security, check_honeypot, check_email_rate_limit
+from ans_api import search_by_rpps, search_by_name
 import secrets
 import httpx
 import os
@@ -1566,9 +1567,73 @@ async def cancel_quote(quote_id: str, request: Request):
 
 
 
-# ─────────────────────────────────────────
-# EVAL — Routes admin
-# ─────────────────────────────────────────
+
+# ── ANS / RPPS ──
+@app.get("/api/admin/rpps/{rpps}")
+async def rpps_lookup(rpps: str, request: Request):
+    """Recherche un médecin par numéro RPPS via l'ANS."""
+    require_admin(request)
+    result = await search_by_rpps(rpps)
+    if not result:
+        raise HTTPException(status_code=404, detail="Praticien non trouvé dans l'Annuaire Santé")
+    return result
+
+
+@app.get("/api/admin/rpps-search")
+async def rpps_search(request: Request, prenom: str = "", nom: str = "", specialite: str = ""):
+    """Recherche des praticiens par nom/prénom via l'ANS."""
+    require_admin(request)
+    results = await search_by_name(prenom, nom, specialite)
+    return {"results": results}
+
+
+@app.post("/api/admin/leads/{lead_id}/enrich-ans")
+async def enrich_lead_ans(lead_id: int, request: Request):
+    """Enrichit une fiche lead depuis l'ANS (RPPS ou nom/prénom)."""
+    require_admin(request)
+    data = await request.json()
+    rpps   = data.get("rpps", "")
+    prenom = data.get("prenom", "")
+    nom    = data.get("nom", "")
+
+    ans_data = None
+    if rpps:
+        ans_data = await search_by_rpps(rpps)
+    elif nom:
+        results = await search_by_name(prenom, nom)
+        ans_data = results[0] if results else None
+
+    if not ans_data:
+        raise HTTPException(status_code=404, detail="Praticien non trouvé dans l'Annuaire Santé")
+
+    # Mettre à jour le lead avec les données ANS
+    updates = {}
+    if ans_data.get("rpps"):
+        updates["rpps"] = ans_data["rpps"]
+    if ans_data.get("nom") and not data.get("keep_nom"):
+        updates["nom"] = ans_data["nom"]
+    if ans_data.get("prenom") and not data.get("keep_prenom"):
+        updates["prenom"] = ans_data["prenom"]
+    if ans_data.get("specialite_ans"):
+        updates["specialite"] = ans_data["specialite_ans"]
+
+    if updates:
+        update_lead_info(lead_id, updates)
+
+    # Ajouter un event dans la timeline
+    note = f"✅ Enrichi depuis l'Annuaire Santé ANS"
+    if ans_data.get("secteur_conventionnel"):
+        note += f" — Secteur : {ans_data['secteur_conventionnel']}"
+    if ans_data.get("mode_exercice"):
+        note += f" — Mode : {ans_data['mode_exercice']}"
+    if ans_data.get("adresse"):
+        note += f" — {ans_data['adresse']}"
+    add_lead_note(lead_id, note)
+
+    return {"success": True, "data": ans_data}
+
+
+
 import threading, uuid as _uuid
 
 _eval_jobs = {}  # job_id → {done, total, status}
