@@ -677,6 +677,36 @@ async def get_questionnaire():
     }
 
 
+@app.get("/api/rpps-search")
+@limiter.limit("20/hour")
+async def rpps_search_public(request: Request, prenom: str = "", nom: str = "", rpps: str = ""):
+    """Recherche publique ANS — nom/prénom ou RPPS direct. Rate-limitée."""
+    if rpps.strip():
+        result = await search_by_rpps(rpps.strip())
+        if not result:
+            return {"results": [], "too_many": False}
+        # Enrichir avec contexte Ameli
+        specialite = result.get("specialite", "")
+        ville = result.get("ville", "")
+        ameli_context = get_demographic_context(specialite, ville)
+        result["ameli_context"] = ameli_context
+        return {"results": [result], "too_many": False}
+    
+    if not nom.strip():
+        return {"results": [], "too_many": False}
+    
+    results = await search_by_name(prenom.strip(), nom.strip())
+    too_many = len(results) > 50
+    # Limiter à 50 résultats
+    results = results[:50]
+    # Enrichir chaque résultat avec contexte Ameli
+    for r in results:
+        specialite = r.get("specialite", "")
+        ville = r.get("ville", "")
+        r["ameli_context"] = get_demographic_context(specialite, ville)
+    return {"results": results, "too_many": too_many}
+
+
 @app.post("/api/diagnostic")
 @limiter.limit("5/hour")
 async def run_diagnostic(request: Request, body: DiagnosticRequest):
