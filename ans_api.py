@@ -65,19 +65,26 @@ async def search_by_rpps(rpps: str) -> dict | None:
         return None
 
 
-async def search_by_name(prenom: str, nom: str, specialite: str = "") -> list[dict]:
-    """Recherche des praticiens par nom et prénom."""
+async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str = "") -> list[dict]:
+    """Recherche des praticiens par nom et prénom, avec filtre géographique optionnel."""
     if not ANS_API_KEY or not nom:
         return []
     try:
-        import httpx
+        import httpx, re
         params = {
             "family": nom.strip(),
             "_format": "json",
-            "_count": "5"
+            "_count": "10"
         }
         if prenom:
             params["given"] = prenom.strip()
+
+        # Filtre géographique via code postal
+        if ville:
+            m = re.search(r'\((\d{5})\)', ville)
+            if m:
+                params["address-postalcode"] = m.group(1)
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             r = await client.get(
                 f"{ANS_BASE}/Practitioner",
@@ -85,10 +92,11 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "") -> list[di
                 headers=_headers()
             )
             if r.status_code != 200:
+                logger.warning(f"ANS search {nom}: HTTP {r.status_code}")
                 return []
             entries = r.json().get("entry", [])
             results = []
-            for entry in entries[:5]:
+            for entry in entries[:10]:
                 p = entry["resource"]
                 parsed = _parse_practitioner(p, {})
                 if parsed:
