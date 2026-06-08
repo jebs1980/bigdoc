@@ -1568,7 +1568,28 @@ async def cancel_quote(quote_id: str, request: Request):
 
 
 
-# ── ANS / RPPS ──
+@app.post("/api/admin/leads/manual")
+async def create_lead_manual(request: Request):
+    """Crée un lead manuellement depuis l'admin."""
+    require_admin(request)
+    data = await request.json()
+    email = data.get("email", "").strip()
+    if not email:
+        raise HTTPException(status_code=400, detail="Email obligatoire")
+    import uuid as _uuid2
+    session_id = str(_uuid2.uuid4())
+    lead_id = save_lead(
+        session_id,
+        email,
+        data.get("prenom", ""),
+        data.get("specialite", ""),
+        data.get("ville", ""),
+        data.get("nom", ""),
+    )
+    return {"success": True, "lead_id": lead_id}
+
+
+
 @app.get("/api/admin/rpps/{rpps}")
 async def rpps_lookup(rpps: str, request: Request):
     """Recherche un médecin par numéro RPPS via l'ANS."""
@@ -1595,42 +1616,47 @@ async def enrich_lead_ans(lead_id: int, request: Request):
     rpps   = data.get("rpps", "")
     prenom = data.get("prenom", "")
     nom    = data.get("nom", "")
+    ville  = data.get("ville", "")
+    apply  = data.get("apply", False)  # True = appliquer le choix, False = juste chercher
+    chosen = data.get("chosen_index", 0)
 
-    ans_data = None
-    if rpps:
+    if apply:
+        # Appliquer le résultat choisi
+        results = data.get("results", [])
+        if not results or chosen >= len(results):
+            raise HTTPException(status_code=400, detail="Résultat invalide")
+        ans_data = results[chosen]
+    elif rpps:
         ans_data = await search_by_rpps(rpps)
-    elif nom:
-        results = await search_by_name(prenom, nom)
-        ans_data = results[0] if results else None
+        if not ans_data:
+            raise HTTPException(status_code=404, detail="RPPS non trouvé dans l'Annuaire Santé")
+        results = [ans_data]
+    else:
+        results = await search_by_name(prenom, nom, ville=ville)
+        if not results:
+            raise HTTPException(status_code=404, detail="Aucun praticien trouvé — essayez avec un RPPS ou une ville plus précise")
+        if len(results) == 1 or apply:
+            ans_data = results[0]
+        else:
+            # Plusieurs résultats — retourner la liste pour sélection
+            return {"success": False, "multiple": True, "results": results}
 
-    if not ans_data:
-        raise HTTPException(status_code=404, detail="Praticien non trouvé dans l'Annuaire Santé")
-
-    # Mettre à jour le lead avec les données ANS
+    # Appliquer les données ANS au lead
     updates = {}
-    if ans_data.get("rpps"):
-        updates["rpps"] = ans_data["rpps"]
-    if ans_data.get("nom") and not data.get("keep_nom"):
-        updates["nom"] = ans_data["nom"]
-    if ans_data.get("prenom") and not data.get("keep_prenom"):
-        updates["prenom"] = ans_data["prenom"]
-    if ans_data.get("specialite_ans"):
-        updates["specialite"] = ans_data["specialite_ans"]
-
+    if ans_data.get("rpps"): updates["rpps"] = ans_data["rpps"]
+    if ans_data.get("nom"): updates["nom"] = ans_data["nom"]
+    if ans_data.get("prenom"): updates["prenom"] = ans_data["prenom"]
+    if ans_data.get("specialite_ans"): updates["specialite"] = ans_data["specialite_ans"]
     if updates:
         update_lead_info(lead_id, updates)
 
-    # Ajouter un event dans la timeline
-    note = f"✅ Enrichi depuis l'Annuaire Santé ANS"
-    if ans_data.get("secteur_conventionnel"):
-        note += f" — Secteur : {ans_data['secteur_conventionnel']}"
-    if ans_data.get("mode_exercice"):
-        note += f" — Mode : {ans_data['mode_exercice']}"
-    if ans_data.get("adresse"):
-        note += f" — {ans_data['adresse']}"
+    note = "✅ Enrichi depuis l'Annuaire Santé ANS"
+    if ans_data.get("secteur_conventionnel"): note += f" — Secteur : {ans_data['secteur_conventionnel']}"
+    if ans_data.get("mode_exercice"): note += f" — Mode : {ans_data['mode_exercice']}"
+    if ans_data.get("adresse"): note += f" — {ans_data['adresse']}"
     add_lead_note(lead_id, note)
 
-    return {"success": True, "data": ans_data}
+    return {"success": True, "multiple": False, "data": ans_data}
 
 
 
