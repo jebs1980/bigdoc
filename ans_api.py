@@ -97,13 +97,64 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
             if total > 50 and not prenom:
                 return [{"__too_many__": True, "__total__": total, "__nom__": nom}]
 
-            results = []
+            # Parser les praticiens de base d'abord
+            base_results = []
             for entry in entries:
                 p = entry.get("resource", {})
                 parsed = _parse_practitioner(p, {})
                 if parsed:
-                    results.append(parsed)
-            return results
+                    # Stocker l'ID FHIR pour enrichissement
+                    parsed["_fhir_id"] = p.get("id", "")
+                    base_results.append(parsed)
+
+            # Enrichir en parallèle avec PractitionerRole (adresse + spécialité + secteur)
+            import asyncio
+            async def enrich_one(client, result):
+                fhir_id = result.pop("_fhir_id", "")
+                if not fhir_id:
+                    return result
+                try:
+                    r2 = await client.get(
+                        f"{ANS_BASE_V1}/PractitionerRole",
+                        params={"practitioner": fhir_id, "_format": "json", "_count": "5"},
+                        headers=_headers(),
+                        timeout=3.0
+                    )
+                    if r2.status_code == 200:
+                        role_entries = r2.json().get("entry", [])
+                        if role_entries:
+                            role_data = role_entries[0]["resource"]
+                            # Extraire spécialité, adresse, secteur depuis le rôle
+                            for spec in role_data.get("specialty", []):
+                                for coding in spec.get("coding", []):
+                                    display = coding.get("display", "")
+                                    if display and not result.get("specialite_ans"):
+                                        result["specialite_ans"] = display
+                            for ext in role_data.get("extension", []):
+                                url = ext.get("url", "")
+                                val = ext.get("valueCodeableConcept", {})
+                                codings = val.get("coding", [{}])
+                                display = codings[0].get("display", "") if codings else ""
+                                if "conventionnement" in url.lower() and display:
+                                    result["secteur_conventionnel"] = display
+                            for addr in role_data.get("address", []):
+                                parts = [
+                                    " ".join(addr.get("line", [])),
+                                    addr.get("postalCode", ""),
+                                    addr.get("city", "")
+                                ]
+                                result["adresse"] = " ".join(filter(None, parts)).strip()
+                                if addr.get("city"):
+                                    result["ville"] = addr["city"]
+                except Exception:
+                    pass  # Timeout ou erreur — on garde le résultat de base
+                return result
+
+            async with httpx.AsyncClient(timeout=15.0) as enrich_client:
+                tasks = [enrich_one(enrich_client, r) for r in base_results]
+                results = await asyncio.gather(*tasks)
+
+            return list(results)
     except Exception as e:
         logger.warning(f"ANS name search error: {e}")
         return []
