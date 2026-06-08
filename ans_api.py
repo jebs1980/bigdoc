@@ -66,7 +66,7 @@ async def search_by_rpps(rpps: str) -> dict | None:
 
 
 async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str = "") -> list[dict]:
-    """Recherche des praticiens par nom (et prénom optionnel) via API v2."""
+    """Recherche des praticiens par nom et prénom via API v2."""
     if not ANS_API_KEY or not nom:
         return []
     try:
@@ -74,7 +74,8 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
         params = {
             "family": nom.strip(),
             "_format": "json",
-            "_count": "50"
+            "_count": "50",
+            "_total": "accurate"
         }
         if prenom:
             params["given"] = prenom.strip()
@@ -86,10 +87,16 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
                 headers=_headers()
             )
             if r.status_code != 200:
-                logger.warning(f"ANS search {nom}: HTTP {r.status_code} — {r.text[:200]}")
+                logger.warning(f"ANS search {nom}: HTTP {r.status_code}")
                 return []
             data = r.json()
+            total = data.get("total", 0)
             entries = data.get("entry", [])
+
+            # Si trop de résultats et pas de prénom → signal pour demander affinement
+            if total > 50 and not prenom:
+                return [{"__too_many__": True, "__total__": total, "__nom__": nom}]
+
             results = []
             for entry in entries:
                 p = entry.get("resource", {})
