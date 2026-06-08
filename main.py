@@ -23,7 +23,8 @@ import anthropic
 from config import (
     ANTHROPIC_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
     TURNSTILE_SECRET, SYSTEM_PROMPT, SYSTEM_PROMPT_CHAT_REACTION,
-    QUESTIONNAIRE, RESEND_API_KEY, FROM_EMAIL, ALERT_EMAIL
+    QUESTIONNAIRE, QUESTIONNAIRE_BRANCHES, QUESTIONS_TRANSVERSALES,
+    SPECIALITE_BRANCHES, RESEND_API_KEY, FROM_EMAIL, ALERT_EMAIL
 )
 from database import (
     init_db, save_diagnostic, save_lead, get_diagnostic,
@@ -533,7 +534,11 @@ async def partage_page(token: str):
 
 @app.get("/api/questionnaire")
 async def get_questionnaire():
-    return {"questions": QUESTIONNAIRE}
+    return {
+        "questions": QUESTIONNAIRE,
+        "branches": QUESTIONNAIRE_BRANCHES,
+        "transversales": QUESTIONS_TRANSVERSALES
+    }
 
 
 @app.post("/api/diagnostic")
