@@ -344,6 +344,13 @@ TON :
 """
 
 # Questionnaire steps
+
+# ─────────────────────────────────────────────────────────────────────────────
+# QUESTIONNAIRE — TRONC COMMUN (Q1-Q6, tous médecins)
+# + QUESTIONNAIRE_BRANCHES (Q7-Q9 selon spécialité)
+# + QUESTION_TRANSVERSALES (déclenchées par les réponses)
+# ─────────────────────────────────────────────────────────────────────────────
+
 QUESTIONNAIRE = [
     {
         "id": "phase",
@@ -354,6 +361,19 @@ QUESTIONNAIRE = [
             {"value": "consolidation", "label": "Installé, activité stable, je cherche à optimiser"},
             {"value": "croissance",    "label": "J'ai un projet de développement actif (2e cabinet, MSP, association…)"},
             {"value": "transmission",  "label": "Proche de la retraite ou en réflexion sur la transmission"}
+        ]
+    },
+    {
+        "id": "secteur_tarifaire",
+        "question": "Votre secteur de conventionnement…",
+        "type": "single",
+        "dimension": "comptabilite",
+        "options": [
+            {"value": "s1",           "label": "Secteur 1 — tarifs opposables, sans dépassement"},
+            {"value": "s2_optam",     "label": "Secteur 2 avec OPTAM — dépassements modérés, remboursement renforcé"},
+            {"value": "s2_hors",      "label": "Secteur 2 hors OPTAM — dépassements libres, remboursement standard"},
+            {"value": "s3",           "label": "Secteur 3 / non conventionné — tarifs entièrement libres"},
+            {"value": "nc",           "label": "Je ne sais pas exactement où j'en suis"}
         ]
     },
     {
@@ -369,32 +389,20 @@ QUESTIONNAIRE = [
         ]
     },
     {
-        "id": "materiel",
-        "question": "Vos équipements et consommables sont…",
-        "type": "single",
-        "dimension": "achats_materiel",
-        "options": [
-            {"value": "4", "label": "Toujours disponibles et opérationnels"},
-            {"value": "2", "label": "Quelques ruptures ou pannes occasionnelles"},
-            {"value": "1", "label": "Des ruptures fréquentes ou du matériel en attente"},
-            {"value": "0", "label": "Une panne actuelle non résolue qui impacte mon activité"}
-        ]
-    },
-    {
-        "id": "informatique",
-        "question": "Votre infrastructure informatique…",
+        "id": "logiciel",
+        "question": "Votre logiciel et votre infrastructure informatique…",
         "type": "multi_select",
         "dimension": "informatique",
         "options": [
-            {"value": "ok",        "label": "Logiciel cabinet adapté et à jour (Doctolib, Maiia, HelloDoc…)"},
-            {"value": "backup",    "label": "Données sauvegardées régulièrement"},
-            {"value": "teleok",    "label": "Téléconsultation sur plateforme agréée HDS"},
-            {"value": "galeres",   "label": "Problèmes réguliers — bugs, lenteurs, galères informatiques hebdomadaires"},
-            {"value": "bloquant",  "label": "Situation bloquante — panne actuelle ou données inaccessibles"},
-            {"value": "notele",    "label": "Pas de téléconsultation — je ne sais pas comment m'y mettre"},
-            {"value": "zoomtele",  "label": "Téléconsultation sur Zoom, Teams ou WhatsApp"},
-            {"value": "nobackup",  "label": "Pas de sauvegarde organisée"},
-            {"value": "nosetup",   "label": "Pas d'infrastructure structurée — je bricole"}
+            {"value": "ok",       "label": "Logiciel cabinet adapté et à jour"},
+            {"value": "backup",   "label": "Données sauvegardées régulièrement"},
+            {"value": "teleok",   "label": "Téléconsultation sur plateforme agréée HDS"},
+            {"value": "galeres",  "label": "Problèmes réguliers — bugs, lenteurs, galères informatiques"},
+            {"value": "bloquant", "label": "Situation bloquante — panne ou données inaccessibles"},
+            {"value": "notele",   "label": "Pas de téléconsultation — je ne sais pas comment m'y mettre"},
+            {"value": "zoomtele", "label": "Téléconsultation sur Zoom, Teams ou WhatsApp"},
+            {"value": "nobackup", "label": "Pas de sauvegarde organisée"},
+            {"value": "nosetup",  "label": "Pas d'infrastructure structurée — je bricole"}
         ]
     },
     {
@@ -410,62 +418,356 @@ QUESTIONNAIRE = [
         ]
     },
     {
-        "id": "charge",
-        "question": "En dehors des soins, vous vous occupez de…",
+        "id": "projet_12mois",
+        "question": "Dans les 12 prochains mois, votre priorité est…",
         "type": "single",
-        "dimension": "charge_mentale",
+        "dimension": "developpement",
         "options": [
-            {"value": "4", "label": "Pratiquement rien — j'ai délégué"},
-            {"value": "3", "label": "Quelques tâches mais ça reste gérable"},
-            {"value": "1", "label": "Beaucoup de choses qui ne sont pas de la médecine"},
-            {"value": "0", "label": "Tout — je suis aussi le gestionnaire, le technicien, le secrétaire"}
+            {"value": "stabiliser",   "label": "Stabiliser et optimiser ce qui existe déjà"},
+            {"value": "developper",   "label": "Développer mon activité (nouveaux actes, 2e cabinet, associé…)"},
+            {"value": "financer",     "label": "Financer un projet important (matériel, travaux, installation)"},
+            {"value": "transmettre",  "label": "Préparer une transition ou une transmission sereine"},
+            {"value": "survivre",     "label": "Tenir — je gère les urgences au quotidien"}
         ]
-    },
+    }
+]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# BRANCHES PAR SPÉCIALITÉ — Q7 à Q9
+# Clés : medecine_generale | gynecologie | psychiatrie | dermatologie
+#        chirurgie | specialiste_technique
+# ─────────────────────────────────────────────────────────────────────────────
+
+QUESTIONNAIRE_BRANCHES = {
+
+    "medecine_generale": [
+        {
+            "id": "mg_patientele",
+            "question": "Votre patientèle médecin traitant (MT)…",
+            "type": "single",
+            "dimension": "administration",
+            "options": [
+                {"value": "4", "label": "Est stable et gérée — file active maîtrisée"},
+                {"value": "3", "label": "Je reçois encore des demandes MT mais mon agenda est tendu"},
+                {"value": "1", "label": "Je n'accepte plus de nouveaux MT — délais trop longs"},
+                {"value": "0", "label": "Je n'ai pas de patientèle MT ou elle est très réduite"}
+            ]
+        },
+        {
+            "id": "mg_delai",
+            "question": "Votre délai moyen pour un rendez-vous non urgent…",
+            "type": "single",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "4", "label": "Moins de 48h — agenda fluide"},
+                {"value": "3", "label": "3 à 7 jours — raisonnable"},
+                {"value": "1", "label": "2 à 4 semaines — je refuse parfois des patients"},
+                {"value": "0", "label": "Plus d'un mois — ou je refuse systématiquement"}
+            ]
+        },
+        {
+            "id": "mg_structure",
+            "question": "Votre mode d'exercice…",
+            "type": "multi_select",
+            "dimension": "developpement",
+            "options": [
+                {"value": "seul",     "label": "Seul en cabinet"},
+                {"value": "groupe",   "label": "En cabinet de groupe ou maison médicale"},
+                {"value": "cpts",     "label": "Membre d'une CPTS active"},
+                {"value": "msp",      "label": "En MSP avec projet de santé formalisé"},
+                {"value": "remplace", "label": "Je fais des remplacements ou j'en accueille"},
+                {"value": "aucune",   "label": "Aucune structure collective — exercice isolé"}
+            ]
+        }
+    ],
+
+    "gynecologie": [
+        {
+            "id": "gyn_activite",
+            "question": "Votre activité gynécologique est principalement…",
+            "type": "single",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "med",    "label": "Gynécologie médicale — suivi, contraception, ménopause"},
+                {"value": "obst",   "label": "Obstétrique — suivi grossesse, accouchements"},
+                {"value": "mixte",  "label": "Mixte médical et obstétrique"},
+                {"value": "chir",   "label": "Gynécologie chirurgicale — blocs, hystéroscopies, cœlioscopies"}
+            ]
+        },
+        {
+            "id": "gyn_actes",
+            "question": "Vos actes techniques au cabinet… (plusieurs réponses possibles)",
+            "type": "multi_select",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "echo",    "label": "Échographie (obstétricale, pelvienne, mammaire)"},
+                {"value": "colpo",   "label": "Colposcopie"},
+                {"value": "hystero", "label": "Hystéroscopie diagnostique ou opératoire"},
+                {"value": "sterilet","label": "Pose de stérilet / implant"},
+                {"value": "frottis", "label": "Frottis et biopsies"},
+                {"value": "aucun",   "label": "Peu ou pas d'actes techniques au cabinet"}
+            ]
+        },
+        {
+            "id": "gyn_delai",
+            "question": "Votre délai moyen pour un premier rendez-vous gynéco…",
+            "type": "single",
+            "dimension": "charge_mentale",
+            "options": [
+                {"value": "4", "label": "Moins de 2 semaines"},
+                {"value": "3", "label": "2 à 6 semaines"},
+                {"value": "1", "label": "2 à 4 mois"},
+                {"value": "0", "label": "Plus de 4 mois ou je refuse des patientes"}
+            ]
+        }
+    ],
+
+    "psychiatrie": [
+        {
+            "id": "psy_liste",
+            "question": "Votre liste d'attente pour un premier rendez-vous…",
+            "type": "single",
+            "dimension": "charge_mentale",
+            "options": [
+                {"value": "4", "label": "Moins d'1 mois — accessible rapidement"},
+                {"value": "3", "label": "1 à 3 mois"},
+                {"value": "1", "label": "3 à 6 mois"},
+                {"value": "0", "label": "Plus de 6 mois ou liste fermée"}
+            ]
+        },
+        {
+            "id": "psy_duree",
+            "question": "La durée moyenne de vos consultations…",
+            "type": "single",
+            "dimension": "administration",
+            "options": [
+                {"value": "4", "label": "45 min ou plus — séances longues, peu de patients/jour"},
+                {"value": "3", "label": "30 à 45 min"},
+                {"value": "1", "label": "20 à 30 min — format mixte suivi/primo-consult"},
+                {"value": "0", "label": "Moins de 20 min — rythme soutenu, charge mentale élevée"}
+            ]
+        },
+        {
+            "id": "psy_teleconsult",
+            "question": "La téléconsultation dans votre pratique…",
+            "type": "single",
+            "dimension": "informatique",
+            "options": [
+                {"value": "4", "label": "Intégrée sur plateforme agréée — une vraie partie de mon activité"},
+                {"value": "3", "label": "J'en fais occasionnellement, plateforme agréée"},
+                {"value": "1", "label": "J'en fais mais pas sur plateforme agréée (Zoom, WhatsApp…)"},
+                {"value": "0", "label": "Je n'en fais pas — je ne sais pas comment m'y mettre"}
+            ]
+        }
+    ],
+
+    "dermatologie": [
+        {
+            "id": "derm_actes",
+            "question": "Vos actes techniques en dermatologie… (plusieurs réponses possibles)",
+            "type": "multi_select",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "dermato",   "label": "Dermoscopie numérique"},
+                {"value": "cryoth",    "label": "Cryothérapie"},
+                {"value": "biopsie",   "label": "Biopsies cutanées"},
+                {"value": "exerese",   "label": "Exérèses chirurgicales au cabinet"},
+                {"value": "laser",     "label": "Laser ou photothérapie"},
+                {"value": "telederma", "label": "Télédermato — lecture différée d'images"},
+                {"value": "aucun",     "label": "Peu ou pas d'actes techniques — consultation pure"}
+            ]
+        },
+        {
+            "id": "derm_delai",
+            "question": "Votre délai moyen pour un premier rendez-vous…",
+            "type": "single",
+            "dimension": "charge_mentale",
+            "options": [
+                {"value": "4", "label": "Moins de 4 semaines"},
+                {"value": "3", "label": "1 à 3 mois"},
+                {"value": "1", "label": "3 à 6 mois"},
+                {"value": "0", "label": "Plus de 6 mois ou je refuse des patients"}
+            ]
+        },
+        {
+            "id": "derm_materiel",
+            "question": "Votre matériel dermatologique…",
+            "type": "single",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "4", "label": "Opérationnel, récent, entretenu — aucun problème"},
+                {"value": "2", "label": "Fonctionnel mais vieillissant ou avec quelques lacunes"},
+                {"value": "1", "label": "Du matériel manquant ou en attente de remplacement"},
+                {"value": "0", "label": "Une panne ou un manquant qui impacte mon activité aujourd'hui"}
+            ]
+        }
+    ],
+
+    "chirurgie": [
+        {
+            "id": "chir_bloc",
+            "question": "Votre accès au bloc opératoire…",
+            "type": "single",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "4", "label": "Stable — créneaux réguliers dans une ou plusieurs cliniques"},
+                {"value": "3", "label": "Globalement correct mais avec des tensions ponctuelles"},
+                {"value": "1", "label": "Tendu — j'ai du mal à obtenir les créneaux dont j'ai besoin"},
+                {"value": "0", "label": "Problématique — perte de créneau, conflit clinique, ou situation précaire"}
+            ]
+        },
+        {
+            "id": "chir_activite",
+            "question": "La part chirurgicale dans votre activité totale…",
+            "type": "single",
+            "dimension": "developpement",
+            "options": [
+                {"value": "4", "label": "Plus de 80% — je suis principalement chirurgien opérateur"},
+                {"value": "3", "label": "50 à 80% — activité mixte consult/bloc équilibrée"},
+                {"value": "2", "label": "20 à 50% — plus de consultations que de blocs"},
+                {"value": "1", "label": "Moins de 20% — activité chirurgicale réduite ou en déclin"}
+            ]
+        },
+        {
+            "id": "chir_structure",
+            "question": "Votre organisation autour du bloc… (plusieurs réponses possibles)",
+            "type": "multi_select",
+            "dimension": "charge_mentale",
+            "options": [
+                {"value": "assistants",  "label": "J'ai un ou des assistants de chirurgie"},
+                {"value": "iade",        "label": "Accès IADE / anesthésiste stable"},
+                {"value": "secretariat", "label": "Secrétariat dédié pour la gestion des blocs et ententes"},
+                {"value": "seul",        "label": "Je gère seul les ententes préalables et la facturation CCAM"},
+                {"value": "litige",      "label": "Des refus ou litiges CPAM sur mes cotations CCAM"}
+            ]
+        }
+    ],
+
+    "specialiste_technique": [
+        {
+            "id": "spe_actes",
+            "question": "Dans votre activité, la part des actes techniques (hors consultation)…",
+            "type": "single",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "4", "label": "Moins de 20% — principalement consultation"},
+                {"value": "3", "label": "20 à 50% — équilibre consultation / actes"},
+                {"value": "2", "label": "50 à 80% — activité technique dominante"},
+                {"value": "1", "label": "Plus de 80% — quasi exclusivement technique"}
+            ]
+        },
+        {
+            "id": "spe_materiel",
+            "question": "Votre matériel technique spécialisé…",
+            "type": "single",
+            "dimension": "achats_materiel",
+            "options": [
+                {"value": "4", "label": "Opérationnel, récent, aucun problème"},
+                {"value": "2", "label": "Fonctionnel mais vieillissant ou avec des lacunes"},
+                {"value": "1", "label": "Du matériel manquant ou en attente de remplacement"},
+                {"value": "0", "label": "Une panne ou un manquant qui impacte mon activité aujourd'hui"}
+            ]
+        },
+        {
+            "id": "spe_delai",
+            "question": "Votre délai moyen pour un premier rendez-vous…",
+            "type": "single",
+            "dimension": "charge_mentale",
+            "options": [
+                {"value": "4", "label": "Moins de 2 semaines"},
+                {"value": "3", "label": "2 à 6 semaines"},
+                {"value": "1", "label": "2 à 4 mois"},
+                {"value": "0", "label": "Plus de 4 mois ou refus systématique"}
+            ]
+        }
+    ]
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# QUESTIONS TRANSVERSALES — déclenchées par les réponses, pas la spécialité
+# Injectées dynamiquement côté front si condition remplie
+# ─────────────────────────────────────────────────────────────────────────────
+
+QUESTIONS_TRANSVERSALES = [
     {
-        "id": "maintenance",
-        "question": "L'entretien et la maintenance de votre cabinet…",
-        "type": "single",
-        "dimension": "charge_mentale",
-        "options": [
-            {"value": "4", "label": "Sont gérés par un prestataire fiable — aucune préoccupation"},
-            {"value": "2", "label": "J'ai quelqu'un mais je gère les plannings, remplacements et normes moi-même"},
-            {"value": "1", "label": "Je m'en occupe moi-même entre les consultations"},
-            {"value": "0", "label": "Ce n'est pas organisé — hygiène, DASRI, maintenance sont un vrai problème"}
-        ]
-    },
-    {
-        "id": "financement",
-        "question": "Avez-vous un projet de financement ou d'investissement dans les 12 mois ?",
+        "condition": "phase == 'installation'",
+        "id": "tx_installation_horizon",
+        "question": "Vous vous installez — votre horizon est…",
         "type": "single",
         "dimension": "financement",
         "options": [
-            {"value": "4", "label": "Non, pas de projet prévu"},
-            {"value": "2", "label": "Oui, achat matériel important (>5 000€)"},
-            {"value": "1", "label": "Oui, projet d'installation ou d'extension de cabinet"},
-            {"value": "0", "label": "Oui, mais je n'ai pas encore de dossier bancaire formalisé"}
+            {"value": "court",  "label": "Moins de 3 mois — c'est imminent ou en cours"},
+            {"value": "moyen",  "label": "3 à 12 mois — je prépare activement"},
+            {"value": "long",   "label": "Plus d'un an — j'explore encore mes options"},
+            {"value": "flou",   "label": "Je ne sais pas encore — beaucoup d'incertitudes"}
         ]
     },
     {
-        "id": "developpement",
-        "question": "Quels projets avez-vous pour votre cabinet ? (plusieurs choix possibles)",
-        "type": "multi_select",
-        "dimension": "developpement",
+        "condition": "associe detecté dans réponses",
+        "id": "tx_pacte_associe",
+        "question": "Avec votre associé, vous avez…",
+        "type": "single",
+        "dimension": "administration",
         "options": [
-            {"value": "aucun",        "label": "Aucun projet — je gère le quotidien"},
-            {"value": "association",  "label": "M'associer ou accueillir un collaborateur"},
-            {"value": "msp",          "label": "Rejoindre ou créer une MSP / CPTS"},
-            {"value": "extension",    "label": "Ouvrir un 2e cabinet ou déménager"},
-            {"value": "actes",        "label": "Développer de nouveaux actes ou la téléconsultation"},
-            {"value": "secteur",      "label": "Changer de secteur ou optimiser mes tarifs"},
-            {"value": "retraite", "label": "Préparer une transition sereine vers la retraite"},
-            {"value": "idees",        "label": "J'ai des idées mais rien de structuré"}
+            {"value": "4", "label": "Un pacte d'associés formalisé et signé"},
+            {"value": "2", "label": "Un accord oral mais rien de formalisé"},
+            {"value": "0", "label": "Rien — on fonctionne à la confiance"}
         ]
     },
     {
-        "id": "preoccupation",
-        "question": "Qu'est-ce qui vous empêche de dormir concernant votre cabinet en ce moment ?",
-        "type": "text",
-        "placeholder": "Décrivez librement — c'est la donnée la plus importante de ce diagnostic",
-        "obligatoire": False
+        "condition": "delai > 2 semaines",
+        "id": "tx_refus_patients",
+        "question": "Face à vos délais, il vous arrive…",
+        "type": "single",
+        "dimension": "charge_mentale",
+        "options": [
+            {"value": "4", "label": "De trouver toujours une solution — je redirige ou trouve un créneau"},
+            {"value": "2", "label": "De refuser occasionnellement des patients"},
+            {"value": "0", "label": "De refuser régulièrement — c'est une situation qui me pèse"}
+        ]
+    },
+    {
+        "condition": "situation financière tendue",
+        "id": "tx_tension_financiere",
+        "question": "Cette situation dure depuis…",
+        "type": "single",
+        "dimension": "financement",
+        "options": [
+            {"value": "3", "label": "Moins de 3 mois — c'est récent"},
+            {"value": "1", "label": "3 à 12 mois — ça s'installe"},
+            {"value": "0", "label": "Plus d'un an — c'est chronique"}
+        ]
     }
 ]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MAPPING SPÉCIALITÉ → BRANCHE
+# Normalisation : minuscules, sans accents, trim
+# ─────────────────────────────────────────────────────────────────────────────
+
+SPECIALITE_BRANCHES = {
+    "medecine_generale": [
+        "generaliste", "general", "medecine generale", "medecin generaliste",
+        "mg", "omnipraticien"
+    ],
+    "gynecologie": [
+        "gyneco", "gynecol", "gynecologie", "gynecologue",
+        "gynecologie medicale", "gyneco medicale", "gynéco médicale",
+        "gynecologie obstetrique", "gyneco obstetrique", "gyneco-obstetrique",
+        "gynecologue obstetricien", "obstetrique", "obstetricien",
+        "gynecologie obstetricale", "gyn"
+    ],
+    "psychiatrie": [
+        "psychiatre", "psychiatrie", "psy", "pedopsychiatre", "pedopsychiatrie"
+    ],
+    "dermatologie": [
+        "dermato", "dermatologue", "dermatologie", "dermatovenerologie",
+        "dermatologie venerologie"
+    ],
+    "chirurgie": [
+        "chirurgi", "chirurgien", "chirurgie", "chirurgie generale",
+        "chirurgie digestive", "chirurgie vasculaire", "chirurgie thoracique",
+        "chirurgie plastique", "chirurgie orthopedique", "orthopediste",
+        "chirurgie visceral", "chirurgie viscérale"
+    ]
+}
