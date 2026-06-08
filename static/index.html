@@ -521,8 +521,27 @@
 
 /* ── DR BIGDOC COLONNE ── */
 @media (max-width: 640px) {
-  #bigdoc-col { display: none !important; }
-  #screen-questionnaire > div { flex-direction: column !important; }
+  #screen-questionnaire > div { flex-direction: column !important; gap: .75rem !important; }
+  #bigdoc-col {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center;
+    gap: .75rem;
+    position: static !important;
+    background: #F0FDF8;
+    border-radius: 12px;
+    padding: .6rem .75rem;
+  }
+  #bigdoc-col-svg { flex-shrink: 0; }
+  #bigdoc-col-svg svg { width: 64px !important; height: 64px !important; }
+  #bigdoc-col > div:nth-child(2) { display: none; } /* cache le label "Dr Bigdoc" texte */
+  #bigdoc-speech {
+    margin-top: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: .78rem !important;
+  }
 }
 
 /* ── HERO CTA ── */
