@@ -2671,7 +2671,7 @@ async function rppsSearch() {
   }
 }
 
-function rppsSelect(idx) {
+async function rppsSelect(idx) {
   const p = (window._rppsResults || [])[idx];
   if (!p) return;
   _rppsSelected = p;
@@ -2680,22 +2680,42 @@ function rppsSelect(idx) {
   document.querySelectorAll('.rpps-result-card').forEach(c => c.classList.remove('selected'));
   document.querySelector(`.rpps-result-card[data-idx="${idx}"]`)?.classList.add('selected');
 
-  // Pré-remplir les champs lead
+  // Pré-remplir prénom/nom immédiatement
   if (p.prenom) { const el = document.getElementById('lead-prenom'); if(el) el.value = p.prenom; }
   if (p.nom)    { const el = document.getElementById('lead-nom');    if(el) el.value = p.nom; }
-  const spe = p.specialite_ans || p.specialite || '';
-  if (spe) { const el = document.getElementById('lead-specialite'); if(el) el.value = spe; }
-  // Extraire la ville depuis l'adresse (dernier mot en majuscules)
-  const villeMatch = (p.adresse || '').match(/([A-Z][A-Z\s-]+)$/);
-  const ville = villeMatch ? villeMatch[1].trim() : (p.ville || '');
-  if (ville) { const el = document.getElementById('lead-ville'); if(el) el.value = ville; }
 
   // Afficher disclaimer
   const disc = document.getElementById('rpps-disclaimer');
   if (disc) disc.style.display = 'flex';
 
-  // Afficher banner waouh Ameli
+  // Afficher banner provisoire
   rppsShowAmeliBanner(p);
+
+  // Si on a le RPPS, enrichir avec appel direct pour avoir spécialité + adresse
+  if (p.rpps) {
+    try {
+      const r = await fetch(`/api/rpps-search?rpps=${p.rpps}`);
+      const data = await r.json();
+      if (data.results?.[0]) {
+        const enriched = data.results[0];
+        _rppsSelected = enriched;
+
+        const spe = enriched.specialite_ans || enriched.specialite || '';
+        if (spe) { const el = document.getElementById('lead-specialite'); if(el) el.value = spe; }
+
+        const adresse = enriched.adresse || '';
+        // Extraire la ville — dernier segment en majuscules
+        const parts = adresse.split(' ');
+        const ville = parts.filter(w => w === w.toUpperCase() && w.length > 2).pop() || '';
+        if (ville) { const el = document.getElementById('lead-ville'); if(el) el.value = ville; }
+
+        // Mettre à jour le banner avec données enrichies
+        rppsShowAmeliBanner(enriched);
+      }
+    } catch(e) {
+      // Silencieux — les champs restent vides, le médecin remplit manuellement
+    }
+  }
 }
 
 function rppsShowAmeliBanner(p) {
