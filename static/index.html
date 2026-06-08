@@ -2723,6 +2723,9 @@ async function rppsSelect(idx) {
       const data = await r.json();
       if (data.results?.[0]) {
         const enriched = data.results[0];
+        // Préserver prénom/nom depuis l'objet de base
+        enriched.prenom = enriched.prenom || p.prenom || '';
+        enriched.nom    = enriched.nom    || p.nom    || '';
         _rppsSelected = enriched;
 
         const spe = enriched.specialite_ans || enriched.specialite || '';
@@ -2730,7 +2733,12 @@ async function rppsSelect(idx) {
 
         const villeEnriched = enriched.ville || '';
         if (villeEnriched) { const el = document.getElementById('lead-ville'); if(el) el.value = villeEnriched; }
-        if (enriched.rpps) { const el = document.getElementById('lead-rpps'); if(el) el.value = enriched.rpps; }
+        // Copier le RPPS dans les deux champs
+        const rppsVal = enriched.rpps || p.rpps || '';
+        if (rppsVal) {
+          const el = document.getElementById('lead-rpps'); if(el) el.value = rppsVal;
+          const elD = document.getElementById('rpps-direct'); if(elD) elD.value = rppsVal;
+        }
 
         // Mettre à jour le banner avec données enrichies
         rppsShowAmeliBanner(enriched);
