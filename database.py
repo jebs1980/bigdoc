@@ -470,6 +470,7 @@ def get_lead_by_session(session_id: str) -> dict | None:
 def get_all_leads() -> list:
     """Retourne tous les diagnostics pour le back office admin."""
     conn = get_connection()
+    _migrate_lead_crm(conn)  # S'assure que les colonnes CRM existent
     rows = conn.execute("""
         SELECT
             l.id,
