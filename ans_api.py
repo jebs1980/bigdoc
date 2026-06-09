@@ -81,11 +81,18 @@ async def search_by_rpps(rpps: str) -> dict | None:
         import httpx
         async with httpx.AsyncClient(timeout=10.0) as client:
             # Recherche par RPPS — v1 uniquement (v2 format différent pour identifier)
+            # Essayer v2 d'abord (actif), puis v1 en fallback
             r = await client.get(
-                f"{ANS_BASE_V1}/Practitioner",
-                params={"identifier": f"http://rpps.fr|{rpps}", "_format": "json"},
+                f"{ANS_BASE}/Practitioner",
+                params={"identifier": f"https://rpps.esante.gouv.fr|{rpps}", "_format": "json"},
                 headers=_headers()
             )
+            if r.status_code != 200 or not r.json().get("entry"):
+                r = await client.get(
+                    f"{ANS_BASE_V1}/Practitioner",
+                    params={"identifier": f"http://rpps.fr|{rpps}", "_format": "json"},
+                    headers=_headers()
+                )
             if r.status_code != 200:
                 logger.warning(f"ANS RPPS {rpps}: HTTP {r.status_code}")
                 return None
@@ -99,11 +106,18 @@ async def search_by_rpps(rpps: str) -> dict | None:
             # Récupérer PractitionerRole v1
             role_data = {}
             if pract_id:
+                # Essayer v2 pour PractitionerRole
                 r2 = await client.get(
-                    f"{ANS_BASE_V1}/PractitionerRole",
-                    params={"practitioner": pract_id, "_format": "json", "_count": "5"},
+                    f"{ANS_BASE}/PractitionerRole",
+                    params={"practitioner": pract_id, "_format": "json", "_count": "5", "active": "true"},
                     headers=_headers()
                 )
+                if r2.status_code != 200 or not r2.json().get("entry"):
+                    r2 = await client.get(
+                        f"{ANS_BASE_V1}/PractitionerRole",
+                        params={"practitioner": pract_id, "_format": "json", "_count": "5"},
+                        headers=_headers()
+                    )
                 if r2.status_code == 200:
                     role_entries = r2.json().get("entry", [])
                     if role_entries:
