@@ -3355,13 +3355,18 @@ function identContinue() {
       if (el && val) el.value = val;
     });
   }
-  showScreen('capture');
+  showChoixPost();
 }
 
 function identSkip() {
   // Continuer sans identification — le formulaire lead reste vide
   state.identifiedPractitioner = null;
-  showScreen('capture');
+  showChoixPost();
+}
+
+function showChoixPost() {
+  // Afficher le choix du mode après identification
+  showScreen('choix');
 }
 
 // Initialiser Dr Bigdoc sur le screen identification
