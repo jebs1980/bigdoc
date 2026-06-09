@@ -109,7 +109,8 @@ async def search_by_rpps(rpps: str) -> dict | None:
                 # Essayer v2 pour PractitionerRole
                 r2 = await client.get(
                     f"{ANS_BASE}/PractitionerRole",
-                    params={"practitioner": pract_id, "_format": "json", "_count": "5", "active": "true"},
+                    params={"practitioner": pract_id, "_format": "json", "_count": "5",
+                            "active": "true", "_include": "PractitionerRole:organization"},
                     headers=_headers()
                 )
                 if r2.status_code != 200 or not r2.json().get("entry"):
@@ -119,9 +120,16 @@ async def search_by_rpps(rpps: str) -> dict | None:
                         headers=_headers()
                     )
                 if r2.status_code == 200:
-                    role_entries = r2.json().get("entry", [])
-                    if role_entries:
-                        role_data = role_entries[0]["resource"]
+                    role_entries_all = r2.json().get("entry", [])
+                    # Séparer PractitionerRole et Organization
+                    role_entries = [e for e in role_entries_all if e.get("resource",{}).get("resourceType") == "PractitionerRole"]
+                    org_entries   = [e for e in role_entries_all if e.get("resource",{}).get("resourceType") == "Organization"]
+                    role_data = role_entries[0]["resource"] if role_entries else {}
+                    # Enrichir role_data avec l'adresse de l'Organization
+                    if org_entries and not role_data.get("address"):
+                        org = org_entries[0]["resource"]
+                        if org.get("address"):
+                            role_data["address"] = org["address"]
 
             result = _parse_practitioner(practitioner, role_data)
             # Enrichir avec adresse Ameli si manquante
@@ -185,15 +193,22 @@ async def search_by_name(prenom: str, nom: str, specialite: str = "", ville: str
                     return result
                 try:
                     r2 = await client.get(
-                        f"{ANS_BASE_V1}/PractitionerRole",
-                        params={"practitioner": fhir_id, "_format": "json", "_count": "5"},
+                        f"{ANS_BASE}/PractitionerRole",
+                        params={"practitioner": fhir_id, "_format": "json", "_count": "5",
+                                "active": "true", "_include": "PractitionerRole:organization"},
                         headers=_headers(),
                         timeout=3.0
                     )
                     if r2.status_code == 200:
-                        role_entries = r2.json().get("entry", [])
-                        if role_entries:
-                            role_data = role_entries[0]["resource"]
+                        all_entries = r2.json().get("entry", [])
+                        role_entries = [e for e in all_entries if e.get("resource",{}).get("resourceType") == "PractitionerRole"]
+                        org_entries  = [e for e in all_entries if e.get("resource",{}).get("resourceType") == "Organization"]
+                        role_data = role_entries[0]["resource"] if role_entries else {}
+                        # Enrichir avec adresse Organization si PractitionerRole n'en a pas
+                        if org_entries and not role_data.get("address"):
+                            org = org_entries[0]["resource"]
+                            if org.get("address"):
+                                role_data["address"] = org["address"]
                             # Extraire spécialité, adresse, secteur depuis le rôle
                             for spec in role_data.get("specialty", []):
                                 for coding in spec.get("coding", []):
