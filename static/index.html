@@ -1207,10 +1207,10 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 </div>
 
 <div id="screen-questionnaire" class="screen">
-  <div style="max-width:900px;margin:2rem auto 0;padding:0 1rem;display:flex;gap:2rem;align-items:flex-start">
+  <div style="max-width:960px;margin:2rem auto 0;padding:0 1rem">
 
-    <!-- BANDEAU PRATICIEN -->
-    <div id="praticien-banner" style="display:none;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:10px;padding:.5rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+    <!-- BANDEAU PRATICIEN — pleine largeur au-dessus -->
+    <div id="praticien-banner" style="display:none;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:10px;padding:.45rem 1rem;margin-bottom:.75rem;align-items:center;gap:.75rem;flex-wrap:wrap">
       <div id="praticien-avatar" style="flex-shrink:0"></div>
       <div style="min-width:0">
         <div id="praticien-nom" style="font-size:.82rem;font-weight:800;color:#1A1060"></div>
@@ -1218,8 +1218,10 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
       </div>
     </div>
 
+  <div style="display:flex;gap:1.5rem;align-items:flex-start">
+
     <!-- DR BIGDOC — colonne gauche fixe -->
-    <div id="bigdoc-col" style="flex-shrink:0;width:140px;text-align:center;position:sticky;top:2rem;align-self:flex-start">
+    <div id="bigdoc-col" style="flex-shrink:0;width:130px;text-align:center;position:sticky;top:2rem;align-self:flex-start">
       <div id="bigdoc-col-svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(79,70,229,.25))">
       </div>
       <div style="font-size:.62rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase;margin-top:.4rem">Dr Bigdoc</div>
@@ -1227,7 +1229,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
     </div>
 
     <!-- QUESTIONS — colonne droite -->
-    <div style="flex:1;min-width:300px">
+    <div style="flex:1;min-width:0;max-width:680px">
       <div class="card" id="question-card">
         <div class="progress-bar-track">
           <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
@@ -3395,16 +3397,35 @@ async function identSelect(idx) {
   const disc = document.getElementById('ident-disclaimer');
   if (disc) disc.style.display = 'flex';
 
+  // Sélectionner automatiquement la meilleure structure (score le plus élevé)
+  if (enriched && enriched.organisations && enriched.organisations.length > 0) {
+    const { bestOrg, totalScore, scored } = getStructureSuggestion(enriched.organisations);
+    if (bestOrg && scored.find(s => s.org === bestOrg)?.score >= 1) {
+      // Cabinet libéral détecté → pré-sélectionner sans modale si évident
+      enriched._structure_selectionnee = bestOrg;
+      enriched._structure_type = scored.find(s => s.org === bestOrg)?.type || 'liberal';
+      const elStruct = document.getElementById('lead-structure');
+      if (elStruct) elStruct.value = bestOrg;
+      const elType = document.getElementById('lead-structure-type');
+      if (elType) elType.value = enriched._structure_type;
+    }
+    // Toujours proposer la modale si plusieurs structures (pour confirmer)
+    if (enriched.organisations.length > 1) {
+      setTimeout(() => showModaleStructure(enriched.organisations, enriched), 300);
+    }
+  }
+
   // Banner
   const banner = document.getElementById('ident-selected-banner');
   if (banner) {
     const pp = state.identifiedPractitioner;
+    const structAff = pp._structure_selectionnee || (pp.organisations?.[0]) || '';
     banner.style.display = 'block';
     banner.innerHTML = `
       <div class="rpps-ameli-banner" style="margin-top:.75rem">
         <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.4rem">DR BIGDOC VOUS A TROUVÉ</div>
         <div style="font-size:.88rem;font-weight:700">${pp.prenom||''} ${pp.nom||''} · ${pp.specialite_ans||pp.specialite||''} ${pp.ville?'· '+pp.ville:''}</div>
-        ${pp.organisations?.length?`<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${pp.organisations[0]}</div>`:''}
+        ${structAff?`<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${structAff}</div>`:''}
       </div>`;
   }
 
