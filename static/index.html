@@ -1910,8 +1910,35 @@ function startDiagnostic() {
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
   const specialiteVal = specialiteEl ? specialiteEl.value : '';
-  state.branche = detecterBranche(specialiteVal);
+  // Si praticien identifié, utiliser sa spécialité ANS
+  const identP = state.identifiedPractitioner;
+  const speForBranche = (identP && (identP.specialite_ans || identP.specialite)) || specialiteVal;
+  state.branche = detecterBranche(speForBranche);
   state.brancheQuestions = (window._branches && window._branches[state.branche]) ? window._branches[state.branche] : [];
+
+  // Pré-remplir secteur depuis ANS ou Claude
+  if (identP && !state.reponses['secteur_tarifaire']) {
+    const sectANS = identP.secteur_conventionnel || '';
+    const sectClaude = identP._secteur_detecte || '';
+    const n = (sectANS || sectClaude).toLowerCase();
+    let val = '';
+    if (n.includes('secteur 1') || n === 's1' || n.includes('opposable')) val = 's1';
+    else if (n.includes('optam')) val = 's2_optam';
+    else if (n.includes('secteur 2') || n === 's2') val = 's2_hors';
+    else if (n.includes('secteur 3') || n.includes('non conven')) val = 's3';
+    if (val) state.reponses['secteur_tarifaire'] = val;
+  }
+
+  // Pré-remplir phase si titulaire libéral connu
+  if (identP && identP.est_titulaire && identP.est_liberal && !state.reponses['phase']) {
+    state.reponses['phase'] = 'consolidation';
+  }
+
+  // Détecter Qare dans les organisations
+  if (identP && identP.organisations) {
+    state._qareDetected = identP.organisations.some(o => o.toLowerCase().includes('qare'));
+  }
+
   buildAllSteps();
   renderQuestion();
   showScreen('questionnaire');
@@ -2228,7 +2255,7 @@ const BIGDOC_AVATAR_SVG = bigdocMiniSVG(56, 'neutre');
 function renderQuestion() {
   // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
   const steps = state.allSteps.length > 0 ? state.allSteps : state.questions;
-  const q = steps[state.currentStep];
+  let q = steps[state.currentStep];
   if (!q) return;
 
   const total = steps.length;
@@ -3312,6 +3339,10 @@ async function identSelect(idx) {
         if (enriched.organisations && enriched.organisations.length > 1) {
           setTimeout(() => showModaleStructure(enriched.organisations, enriched), 300);
         }
+        // Chercher le secteur via Claude si pas dans l'ANS
+        if (!enriched.secteur_conventionnel) {
+          fetchSecteurViaClaud(enriched);
+        }
       }
     } catch(e) {}
   }
@@ -3380,6 +3411,34 @@ function initIdentScreen() {
     badge.textContent = document.getElementById('ameli-date-badge').textContent;
     badge.style.display = 'block';
   }
+}
+
+// Chercher secteur via Claude web search
+async function fetchSecteurViaClaud(p) {
+  try {
+    const prenom = encodeURIComponent(p.prenom || '');
+    const nom    = encodeURIComponent(p.nom || '');
+    const spe    = encodeURIComponent(p.specialite_ans || p.specialite || '');
+    const ville  = encodeURIComponent(p.ville || '');
+    const r = await fetch(`/api/secteur-lookup?prenom=${prenom}&nom=${nom}&specialite=${spe}&ville=${ville}`);
+    const d = await r.json();
+    if (d.secteur && d.confidence >= 60) {
+      p._secteur_detecte = d.secteur;
+      // Badge discret dans le banner
+      const banner = document.getElementById('ident-selected-banner');
+      if (banner) {
+        const labels = {s1:'Secteur 1', s2_optam:'S2 OPTAM', s2_hors:'S2 hors OPTAM', s3:'Secteur 3'};
+        const existing = banner.querySelector('.secteur-badge');
+        if (!existing) {
+          const badge = document.createElement('div');
+          badge.className = 'secteur-badge';
+          badge.style.cssText = 'font-size:.7rem;color:rgba(255,255,255,.8);margin-top:.3rem';
+          badge.innerHTML = `📋 Secteur détecté : <strong>${labels[d.secteur]||d.secteur}</strong> — vérifiez et corrigez si besoin`;
+          banner.querySelector('.rpps-ameli-banner')?.appendChild(badge);
+        }
+      }
+    }
+  } catch(e) {}
 }
 
 let _calendlyUrl = 'https://calendly.com/bigdoc-realmedservices/30min';
