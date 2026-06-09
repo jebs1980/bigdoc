@@ -3076,8 +3076,8 @@ function scoreStructure(name) {
   return { type: 'autre', score: 0, label: 'Structure de santé' };
 }
 
-function getStructureSuggestion(orgs) {
-  // Scorer chaque organisation et sommer
+function getStructureSuggestion(orgs, practitionerData) {
+  // Scorer chaque organisation
   let totalScore = 0;
   let bestOrg = null;
   let bestScore = -99;
@@ -3088,6 +3088,17 @@ function getStructureSuggestion(orgs) {
     if (s.score > bestScore) { bestScore = s.score; bestOrg = org; }
     return { org, ...s };
   });
+
+  // Bonus : si le praticien a est_titulaire sur une structure libérale → forcer ce choix
+  const p = practitionerData || state.identifiedPractitioner;
+  if (p && p.est_titulaire && p.est_liberal) {
+    // Chercher la structure libérale dans la liste
+    const liberalOrg = scored.find(s => s.score >= 3);
+    if (liberalOrg) {
+      bestOrg = liberalOrg.org;
+      bestScore = liberalOrg.score;
+    }
+  }
 
   return { totalScore, bestOrg, bestScore, scored };
 }
