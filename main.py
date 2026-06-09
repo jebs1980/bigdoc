@@ -34,6 +34,9 @@ from database import (
     is_admin_setup_done, setup_admin,
     create_admin_session, verify_admin_session,
     delete_admin_session, create_reset_token, reset_admin_password,
+    create_magic_link, verify_magic_link, create_medecin_session,
+    verify_medecin_session, save_medecin_question, get_medecin_questions,
+    get_medecin_diagnostic,
     get_app_settings, save_app_settings,
     init_products, get_products, get_product,
     create_product, update_product, delete_product,
@@ -1203,6 +1206,177 @@ async def update_info(lead_id: int, request: Request):
     return {"success": True}
 
 
+
+
+# ─────────────────────────────────────────────────────────────────
+# ESPACE MÉDECIN
+# ─────────────────────────────────────────────────────────────────
+
+def get_medecin_from_session(request: Request) -> dict | None:
+    token = request.cookies.get("medecin_session")
+    if not token:
+        return None
+    return verify_medecin_session(token)
+
+
+@app.get("/space")
+async def serve_space():
+    from fastapi.responses import FileResponse
+    return FileResponse("/app/static/space.html")
+
+
+@app.post("/api/space/request-link")
+@limiter.limit("5/hour")
+async def request_magic_link(request: Request):
+    """Envoie un lien magique par email pour accéder à l'espace médecin."""
+    body = await request.json()
+    email = (body.get("email") or "").strip().lower()
+    if not email or "@" not in email:
+        raise HTTPException(status_code=400, detail="Email invalide")
+
+    # Trouver le dernier diagnostic pour cet email
+    diag = get_medecin_diagnostic(email)
+    diagnostic_id = diag["id"] if diag else None
+
+    token = create_magic_link(email, diagnostic_id)
+    space_url = f"https://bigdoc.fr/space?token={token}"
+
+    # Envoyer l'email via Resend
+    try:
+        import httpx
+        async with httpx.AsyncClient() as client:
+            await client.post(
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"},
+                json={
+                    "from": FROM_EMAIL,
+                    "to": [email],
+                    "subject": "Dr Bigdoc — Votre espace médecin",
+                    "html": f"""
+                    <div style="font-family:sans-serif;max-width:500px;margin:0 auto">
+                        <h2 style="color:#1A1060">Dr Bigdoc</h2>
+                        <p>Bonjour,</p>
+                        <p>Voici votre lien d'accès à votre espace médecin. Il est valable 24h.</p>
+                        <a href="{space_url}" style="display:inline-block;background:#4F46E5;color:white;padding:.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:bold">
+                            Accéder à mon espace →
+                        </a>
+                        <p style="color:#6B7280;font-size:.85rem;margin-top:2rem">
+                            Si vous n'avez pas demandé cet email, ignorez-le simplement.
+                        </p>
+                    </div>
+                    """
+                }
+            )
+    except Exception as e:
+        logger.warning(f"Email magic link error: {e}")
+
+    return {"success": True}
+
+
+@app.get("/api/space/auth")
+async def auth_magic_link(token: str, response: Response):
+    """Valide le lien magique et crée une session."""
+    data = verify_magic_link(token)
+    if not data:
+        raise HTTPException(status_code=401, detail="Lien invalide ou expiré")
+
+    session_token = create_medecin_session(data["email"], data.get("diagnostic_id"))
+    response.set_cookie(
+        key="medecin_session",
+        value=session_token,
+        httponly=True,
+        max_age=30 * 24 * 3600,
+        samesite="lax"
+    )
+    return {"success": True, "email": data["email"]}
+
+
+@app.get("/api/space/me")
+async def get_space_me(request: Request):
+    """Retourne les infos du médecin connecté."""
+    medecin = get_medecin_from_session(request)
+    if not medecin:
+        raise HTTPException(status_code=401, detail="Non connecté")
+    diag = get_medecin_diagnostic(medecin["email"])
+    questions = get_medecin_questions(medecin["email"])
+    return {
+        "email": medecin["email"],
+        "bilan": json.loads(diag["bilan_json"]) if diag and diag.get("bilan_json") else None,
+        "questions": questions
+    }
+
+
+@app.post("/api/space/ask")
+@limiter.limit("20/hour")
+async def ask_dr_bigdoc(request: Request):
+    """Pose une question à Dr Bigdoc depuis l'espace médecin."""
+    medecin = get_medecin_from_session(request)
+    if not medecin:
+        raise HTTPException(status_code=401, detail="Non connecté")
+
+    body = await request.json()
+    question = (body.get("question") or "").strip()
+    if not question:
+        raise HTTPException(status_code=400, detail="Question vide")
+
+    # Récupérer le bilan pour contexte
+    diag = get_medecin_diagnostic(medecin["email"])
+    bilan_context = ""
+    if diag and diag.get("bilan_json"):
+        try:
+            b = json.loads(diag["bilan_json"])
+            bilan_context = f"""
+Contexte du médecin (bilan Bigdoc) :
+- Score global : {b.get('score_global', '?')}/100
+- Niveau : {b.get('niveau', '')}
+- Titre : {b.get('titre_personnalise', '')}
+- Alerte : {b.get('alerte_urgente', '')}
+- Recommandation principale : {b.get('recommandation_principale', {}).get('service', '')}
+"""
+        except Exception:
+            pass
+
+    # Historique des dernières questions
+    historique = get_medecin_questions(medecin["email"])[:5]
+    hist_text = ""
+    for q in reversed(historique):
+        hist_text += f"Médecin : {q['question']}\nDr Bigdoc : {q['reponse']}\n\n"
+
+    system_prompt = f"""Tu es Dr Bigdoc, l'assistant bienveillant de la plateforme Bigdoc / RMS.
+Tu es l'ami médecin de ce praticien — tu connais son bilan, tu réponds à ses questions avec chaleur et expertise.
+Ton rôle : informer, éclairer, orienter. Jamais donner de conseil médical ou juridique précis.
+Toujours terminer par une ouverture vers le Sherpa RMS pour la mise en oeuvre.
+
+{bilan_context}
+
+RÈGLES :
+- Ton Carter/Abby — humain, direct, bienveillant
+- Jamais "illégal" → "non conforme"
+- Jamais "vous devez" → "il serait utile de"
+- Toujours finir par : "Votre Sherpa RMS peut s'en occuper concrètement — prenez RDV en 2 clics."
+- Réponse courte : 3-5 phrases max
+"""
+
+    user_msg = f"""{hist_text}Médecin : {question}
+Dr Bigdoc :"""
+
+    client_ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    msg = client_ai.messages.create(
+        model=ANTHROPIC_MODEL,
+        max_tokens=400,
+        system=system_prompt,
+        messages=[{"role": "user", "content": user_msg}]
+    )
+    reponse = msg.content[0].text.strip()
+
+    save_medecin_question(medecin["email"], question, reponse, medecin.get("diagnostic_id"))
+    return {"reponse": reponse}
+
+
+@app.post("/api/space/logout")
+async def logout_medecin(response: Response):
+    response.delete_cookie("medecin_session")
+    return {"success": True}
 
 
 @app.post("/api/admin/deploy-demo")
