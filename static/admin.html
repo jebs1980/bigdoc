@@ -336,6 +336,21 @@
 
   <!-- ── SETTINGS ── -->
   <div class="tab" id="tab-settings">
+
+    <!-- Déploiement Demo -->
+    <div class="card" style="margin-bottom:1rem;border:1.5px solid #E0E7FF">
+      <div class="card-header">
+        <span class="card-title">🚀 Déploiement</span>
+      </div>
+      <div style="padding:1rem 1.5rem">
+        <p style="font-size:.85rem;color:#6B7280;margin:0 0 1rem">Déploie la version actuelle de <strong>dev.bigdoc.fr</strong> sur <strong>demo.bigdoc.fr</strong>. L'opération prend 3-5 minutes.</p>
+        <button class="btn btn-primary" onclick="deployDemo()" id="btn-deploy-demo">
+          🎯 Déployer sur demo.bigdoc.fr
+        </button>
+        <span id="deploy-status" style="margin-left:1rem;font-size:.82rem;color:#6B7280"></span>
+      </div>
+    </div>
+
     <div class="card">
       <div class="card-header">
         <span class="card-title">Paramètres</span>
@@ -908,6 +923,32 @@ async function loadSettings() {
     document.getElementById('s-tel').value = settings.telephone||'';
     document.getElementById('s-seuil-rdv').value = settings.seuil_rdv||50;
   } catch(e) {}
+}
+
+async function deployDemo() {
+  const btn = document.getElementById('btn-deploy-demo');
+  const status = document.getElementById('deploy-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ Déploiement en cours…';
+  status.textContent = 'Lancé — ~3-5 min. Ne fermez pas cette page.';
+  try {
+    const r = await fetch('/api/admin/deploy-demo', { method: 'POST' });
+    const d = await r.json();
+    if (d.success) {
+      status.textContent = '✅ ' + d.message;
+      status.style.color = '#059669';
+    } else {
+      status.textContent = '❌ Erreur';
+      status.style.color = '#DC2626';
+    }
+  } catch(e) {
+    status.textContent = '❌ Erreur réseau';
+    status.style.color = '#DC2626';
+  }
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = '🎯 Déployer sur demo.bigdoc.fr';
+  }, 10000);
 }
 
 async function saveSettings() {
