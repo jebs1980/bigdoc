@@ -727,7 +727,7 @@
           Score personnalisé, heures perdues, euros récupérables.
         </p>
         <div style="display:flex;gap:.6rem;align-items:center">
-          <button onclick="initIdentScreen(); showScreen('identification')" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
+          <button onclick="goIdentification()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
             🩺 Je veux mon diagnostic
           </button>
           <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
@@ -847,7 +847,7 @@
         </p>
       </div>
 
-      <button class="hero-cta" onclick="initIdentScreen(); showScreen('identification')" style="margin-bottom:.75rem">
+      <button class="hero-cta" onclick="goIdentification()" style="margin-bottom:.75rem">
         Faire mon diagnostic — gratuit →
       </button>
       <div style="font-size:.72rem;color:rgba(200,200,255,.35);font-family:'Nunito Sans',sans-serif">3 minutes · Sans inscription · Résultat immédiat</div>
@@ -941,7 +941,7 @@
 
       <!-- CTA bas -->
       <div style="text-align:center">
-        <button class="hero-cta" onclick="initIdentScreen(); showScreen('identification')" style="font-size:.95rem;padding:.85rem 2.2rem">
+        <button class="hero-cta" onclick="goIdentification()" style="font-size:.95rem;padding:.85rem 2.2rem">
           Lancer mon diagnostic gratuit →
         </button>
         <div style="font-size:.72rem;color:var(--grey);margin-top:.6rem">3 minutes · Aucune inscription · Bilan par email</div>
@@ -1548,6 +1548,11 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 // ─────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────
+function goIdentification() {
+  if (typeof initIdentScreen === 'function') initIdentScreen();
+  showScreen('identification');
+}
+
 const state = {
   sessionId: generateUUID(),
   currentStep: 0,
@@ -1775,7 +1780,7 @@ function fillTestData() {
   state.brancheQuestions = window._branches?.gynecologie || [];
   buildAllSteps();
 
-  initIdentScreen(); showScreen('identification');
+  goIdentification();
 
   const tryFill = (attempts) => {
     const email = document.getElementById('lead-email');
@@ -2023,7 +2028,7 @@ function renderInstallationResult(data) {
   `;
 }
 
-function initIdentScreen(); showScreen('identification') {
+function goIdentification() {
   showScreen('choix');
 }
 
@@ -2058,7 +2063,7 @@ async function goChatCapture() {
     if (!data.reaction) {
       btn.disabled = false;
       btn.textContent = 'Recevoir mon bilan complet →';
-      btn.onclick = () => { initIdentScreen(); showScreen('identification'); };
+      btn.onclick = () => { goIdentification(); };
       return;
     }
     const area = document.querySelector('#screen-chat .question-area');
@@ -2088,14 +2093,14 @@ async function goChatCapture() {
     btn.onclick = () => {
       document.getElementById('partial-score').textContent = '?';
       document.getElementById('score-niveau').textContent = 'Votre ordonnance complète est en préparation.';
-      initIdentScreen(); showScreen('identification');
+      goIdentification();
     };
 
   } catch(e) {
     // En cas d'erreur, passer directement à la capture
     btn.disabled = false;
     btn.textContent = 'Recevoir mon bilan complet →';
-    btn.onclick = () => { initIdentScreen(); showScreen('identification'); };
+    btn.onclick = () => { goIdentification(); };
   }
 }
 
@@ -2416,7 +2421,7 @@ function goToCapture() {
     noteEl.style.display = 'none';
   }
 
-  initIdentScreen(); showScreen('identification');
+  goIdentification();
 }
 
 function getScoreLabel(score) {
