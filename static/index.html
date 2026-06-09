@@ -1651,33 +1651,6 @@ function calculerTransversales(reponses) {
   return txList;
 }
 
-// Chercher secteur via Claude web search
-async function fetchSecteurViaClaud(p) {
-  try {
-    const prenom = encodeURIComponent(p.prenom || '');
-    const nom    = encodeURIComponent(p.nom || '');
-    const spe    = encodeURIComponent(p.specialite_ans || p.specialite || '');
-    const ville  = encodeURIComponent(p.ville || '');
-    const r = await fetch(`/api/secteur-lookup?prenom=${prenom}&nom=${nom}&specialite=${spe}&ville=${ville}`);
-    const d = await r.json();
-    if (d.secteur && d.confidence >= 60) {
-      // Stocker le secteur trouvé
-      p._secteur_detecte = d.secteur;
-      p._secteur_confidence = d.confidence;
-      // Mettre à jour le banner avec l'info secteur
-      const struct = document.getElementById('praticien-structure');
-      if (struct && d.secteur) {
-        const labels = {s1:'Secteur 1', s2_optam:'S2 OPTAM', s2_hors:'S2 hors OPTAM', s3:'Secteur 3'};
-        const badge = document.createElement('span');
-        badge.style.cssText = 'font-size:.62rem;background:#EEF2FF;color:#4F46E5;border-radius:4px;padding:.1rem .35rem;font-weight:700;margin-left:.4rem';
-        badge.title = `Source: web search (confiance: ${d.confidence}%)`;
-        badge.textContent = labels[d.secteur] || d.secteur;
-        struct.appendChild(badge);
-      }
-    }
-  } catch(e) {}
-}
-
 // Changer de structure depuis le bandeau
 function switchStructure(newOrg) {
   const p = state.identifiedPractitioner;
@@ -1729,14 +1702,10 @@ function prefillSecteurFromANS() {
   else if (n.includes('secteur 3') || n.includes('non conventionné') || n.includes('libre')) val = 's3';
 
   if (val) {
+    // Pré-sélectionner dans les réponses
     if (!state.reponses['secteur_tarifaire']) {
       state.reponses['secteur_tarifaire'] = val;
     }
-  }
-
-  // Fallback — secteur détecté via Claude web search
-  if (!state.reponses['secteur_tarifaire'] && p._secteur_detecte) {
-    state.reponses['secteur_tarifaire'] = p._secteur_detecte;
   }
 }
 
@@ -2391,7 +2360,7 @@ const BIGDOC_AVATAR_SVG = bigdocMiniSVG(56, 'neutre');
 function renderQuestion() {
   // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
   const steps = state.allSteps.length > 0 ? state.allSteps : state.questions;
-  let q = steps[state.currentStep];
+  const q = steps[state.currentStep];
   if (!q) return;
 
   const total = steps.length;
@@ -2409,13 +2378,6 @@ function renderQuestion() {
 
 
   const area = document.getElementById('question-area');
-
-  // Adapter la question si titulaire de cabinet détecté
-  const _p = state.identifiedPractitioner;
-  if (q.id === 'phase' && q.variant_titulaire && _p && _p.est_titulaire) {
-    q = Object.assign({}, q, q.variant_titulaire);
-  }
-
 
   // Question de type texte libre
   if (q.type === 'text') {
@@ -3492,11 +3454,6 @@ async function identSelect(idx) {
         // Modale structure si plusieurs organisations
         if (enriched.organisations && enriched.organisations.length > 1) {
           setTimeout(() => showModaleStructure(enriched.organisations, enriched), 300);
-        }
-
-        // Chercher le secteur via Claude web search si pas trouvé dans l'ANS
-        if (!enriched.secteur_conventionnel) {
-          fetchSecteurViaClaud(enriched);
         }
       }
     } catch(e) {}
