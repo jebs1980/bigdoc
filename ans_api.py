@@ -125,11 +125,14 @@ async def search_by_rpps(rpps: str) -> dict | None:
                     role_entries = [e for e in role_entries_all if e.get("resource",{}).get("resourceType") == "PractitionerRole"]
                     org_entries   = [e for e in role_entries_all if e.get("resource",{}).get("resourceType") == "Organization"]
                     role_data = role_entries[0]["resource"] if role_entries else {}
-                    # Enrichir role_data avec l'adresse de l'Organization
-                    if org_entries and not role_data.get("address"):
-                        org = org_entries[0]["resource"]
-                        if org.get("address"):
-                            role_data["address"] = org["address"]
+                    # Enrichir role_data avec adresse + nom Organisation
+                    if org_entries:
+                        org_names = [e["resource"].get("name","") for e in org_entries if e.get("resource",{}).get("name")]
+                        role_data["_organizations"] = [{"name": n} for n in org_names if n]
+                        if not role_data.get("address"):
+                            org = org_entries[0]["resource"]
+                            if org.get("address"):
+                                role_data["address"] = org["address"]
 
             result = _parse_practitioner(practitioner, role_data)
             # Enrichir avec adresse Ameli si manquante
@@ -324,8 +327,9 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
 
         # Adresse cabinet
         for addr in role.get("address", []):
+            lines = addr.get("line", [])
             parts = [
-                " ".join(addr.get("line", [])),
+                " ".join(lines),
                 addr.get("postalCode", ""),
                 addr.get("city", "")
             ]
@@ -333,11 +337,21 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
             cp = addr.get("postalCode", "").strip()
             if cp:
                 result["code_postal"] = cp
-                # Déduire le département depuis le CP
                 dept = cp[:2] if len(cp) >= 2 else ""
-                if dept == "97":  # DOM
+                if dept == "97":
                     dept = cp[:3]
                 result["departement"] = dept
+            if addr.get("city"):
+                result["ville"] = addr["city"]
+
+        # Organisation(s) liée(s) — nom du cabinet/structure
+        orgs = []
+        for ext in role.get("_organizations", []):
+            name = ext.get("name", "")
+            if name:
+                orgs.append(name)
+        if orgs:
+            result["organisations"] = orgs
 
     # Fallback spécialité — extraire depuis qualifications si specialite_ans absent
     if not result.get("specialite_ans") and result.get("qualifications"):
