@@ -680,6 +680,49 @@ async def get_questionnaire():
     }
 
 
+@app.get("/api/secteur-lookup")
+@limiter.limit("10/hour")
+async def secteur_lookup(request: Request, prenom: str = "", nom: str = "", specialite: str = "", ville: str = ""):
+    """Cherche le secteur conventionnel d'un médecin via Claude + web search."""
+    if not nom or not specialite:
+        return {"secteur": None, "confidence": 0}
+
+    prompt = f"""Tu es un assistant qui cherche le secteur conventionnel d'un médecin libéral français.
+Cherche sur le web le secteur conventionnel (Secteur 1, Secteur 2 avec OPTAM, Secteur 2 hors OPTAM, ou Secteur 3) du médecin suivant :
+- Nom : {prenom} {nom}
+- Spécialité : {specialite}
+- Ville : {ville}
+
+Utilise l'outil de recherche web pour vérifier sur Ameli, Doctolib, ou l'annuaire santé.
+Réponds UNIQUEMENT avec un JSON strict : {{"secteur": "s1" | "s2_optam" | "s2_hors" | "s3" | null, "source": "url trouvée", "confidence": 0-100}}
+Si tu ne trouves pas avec certitude, retourne {{"secteur": null, "confidence": 0}}"""
+
+    try:
+        client_ai = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+        msg = client_ai.messages.create(
+            model=ANTHROPIC_MODEL,
+            max_tokens=200,
+            tools=[{"type": "web_search_20250305", "name": "web_search"}],
+            messages=[{"role": "user", "content": prompt}]
+        )
+        # Extraire le texte de la réponse
+        result_text = ""
+        for block in msg.content:
+            if hasattr(block, 'text'):
+                result_text += block.text
+
+        # Parser le JSON
+        import re as _re
+        match = _re.search(r'\{.*?\}', result_text, _re.DOTALL)
+        if match:
+            data = json.loads(match.group())
+            return data
+    except Exception as e:
+        logger.warning(f"Secteur lookup error: {e}")
+
+    return {"secteur": None, "confidence": 0}
+
+
 @app.get("/api/ameli-date")
 async def ameli_annuaire_date():
     """Retourne la date de dernière mise à jour du CSV Ameli."""""
