@@ -260,10 +260,13 @@
       text-align: left;
       transition: all .18s ease;
       font-family: 'Nunito Sans', sans-serif;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       color: #374151;
-      line-height: 1.4;
+      line-height: 1.5;
       font-weight: 500;
+      width: 100%;
+      word-break: normal;
+      hyphens: none;
     }
 
     .option-btn:hover {
@@ -1216,7 +1219,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
     </div>
 
     <!-- DR BIGDOC — colonne gauche fixe -->
-    <div id="bigdoc-col" style="flex-shrink:0;width:160px;text-align:center;position:sticky;top:2rem">
+    <div id="bigdoc-col" style="flex-shrink:0;width:140px;text-align:center;position:sticky;top:2rem;align-self:flex-start">
       <div id="bigdoc-col-svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(79,70,229,.25))">
       </div>
       <div style="font-size:.62rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase;margin-top:.4rem">Dr Bigdoc</div>
@@ -1224,7 +1227,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
     </div>
 
     <!-- QUESTIONS — colonne droite -->
-    <div style="flex:1;min-width:0">
+    <div style="flex:1;min-width:300px">
       <div class="card" id="question-card">
         <div class="progress-bar-track">
           <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
