@@ -305,16 +305,40 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
                 if display and not result.get("specialite_ans"):
                     result["specialite_ans"] = display
 
-        # Mode exercice et secteur conventionnel
+        # Mode exercice et secteur conventionnel (depuis extensions)
         for ext in role.get("extension", []):
             url = ext.get("url", "")
             val = ext.get("valueCodeableConcept", {})
             codings = val.get("coding", [{}])
             display = codings[0].get("display", "") if codings else ""
+            code = codings[0].get("code", "") if codings else ""
             if "modeExercice" in url and display:
                 result["mode_exercice"] = display
+                result["mode_exercice_code"] = code
             if "conventionnement" in url.lower() and display:
                 result["secteur_conventionnel"] = display
+
+        # Fonction + mode exercice depuis code[] du PractitionerRole
+        for code_item in role.get("code", []):
+            for coding in code_item.get("coding", []):
+                system = coding.get("system", "")
+                display = coding.get("display", "")
+                code_val = coding.get("code", "")
+                # Mode d'exercice — L = Libéral
+                if "ModeExercice" in system:
+                    result["mode_exercice"] = display
+                    result["mode_exercice_code"] = code_val
+                    if code_val == "L":
+                        result["est_liberal"] = True
+                # Fonction — FON-01 = Titulaire de cabinet (structure principale)
+                if "Fonction" in system or ("FON" in code_val and len(code_val) <= 8):
+                    result["fonction"] = display
+                    result["fonction_code"] = code_val
+                    if code_val == "FON-01":
+                        result["est_titulaire"] = True
+                # Genre activité
+                if "GenreActivite" in system:
+                    result["genre_activite"] = display
 
         # Téléphone / Email
         for telecom in role.get("telecom", []):
