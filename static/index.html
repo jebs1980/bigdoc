@@ -522,6 +522,7 @@
 /* ── DR BIGDOC COLONNE ── */
 @media (max-width: 640px) {
   #screen-questionnaire > div { flex-direction: column !important; gap: .75rem !important; }
+  #bilan-bigdoc-col { display: none !important; }
   #bigdoc-col {
     width: 100% !important;
     display: flex !important;
@@ -1545,8 +1546,20 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 
 <!-- ── RÉSULTAT ── -->
 <div id="screen-result" class="screen">
-  <div style="width:100%;max-width:100%;padding:1.5rem 2rem 4rem;">
-    <div class="card fade-in" id="result-card" style="border-radius:16px;overflow:hidden;max-width:1200px;margin:0 auto"></div>
+  <div style="max-width:1200px;margin:0 auto;padding:1.5rem 2rem 4rem;display:flex;gap:2rem;align-items:flex-start">
+
+    <!-- DR BIGDOC — colonne sticky gauche -->
+    <div id="bilan-bigdoc-col" style="flex-shrink:0;width:140px;text-align:center;position:sticky;top:2rem;align-self:flex-start">
+      <div id="bilan-bigdoc-svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(79,70,229,.2))"></div>
+      <div style="font-size:.6rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase;margin-top:.4rem">Dr Bigdoc</div>
+      <div id="bilan-bigdoc-msg" style="margin-top:.5rem;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:10px;padding:.5rem .65rem;font-size:.72rem;color:#134E4A;font-weight:500;text-align:left;line-height:1.5"></div>
+    </div>
+
+    <!-- BILAN — colonne principale -->
+    <div style="flex:1;min-width:0">
+      <div class="card fade-in" id="result-card" style="border-radius:16px;overflow:hidden"></div>
+    </div>
+
   </div>
 </div>
 
@@ -2706,11 +2719,11 @@ function renderResult() {
   const colSvgR = document.getElementById('bigdoc-col-svg');
   if (colSvgR) colSvgR.innerHTML = bigdocMiniSVG(160, bigdocExpression(b?.score_global || 0));
 
-  // Injecter Dr Bigdoc dans le bilan avec expression selon le score
+  // Injecter Dr Bigdoc dans la colonne sticky du bilan
   const bilanSvg = document.getElementById('bilan-bigdoc-svg');
   const score = b?.score_global || 0;
   const expr = bigdocExpression(score);
-  if (bilanSvg) bilanSvg.innerHTML = bigdocMiniSVG(72, expr);
+  if (bilanSvg) bilanSvg.innerHTML = bigdocMiniSVG(130, expr);
   // Message Dr Bigdoc personnalisé selon le score
   const bilanMsg = document.getElementById('bilan-bigdoc-msg');
   if (bilanMsg && b) {
