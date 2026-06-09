@@ -1206,6 +1206,15 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 <div id="screen-questionnaire" class="screen">
   <div style="max-width:900px;margin:2rem auto 0;padding:0 1rem;display:flex;gap:2rem;align-items:flex-start">
 
+    <!-- BANDEAU PRATICIEN -->
+    <div id="praticien-banner" style="display:none;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:10px;padding:.5rem 1rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+      <div id="praticien-avatar" style="flex-shrink:0"></div>
+      <div style="min-width:0">
+        <div id="praticien-nom" style="font-size:.82rem;font-weight:800;color:#1A1060"></div>
+        <div id="praticien-structure" style="font-size:.72rem;color:#0D9488;font-weight:600"></div>
+      </div>
+    </div>
+
     <!-- DR BIGDOC — colonne gauche fixe -->
     <div id="bigdoc-col" style="flex-shrink:0;width:160px;text-align:center;position:sticky;top:2rem">
       <div id="bigdoc-col-svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(79,70,229,.25))">
@@ -1907,6 +1916,22 @@ function startDiagnostic() {
   // Injecter le vrai SVG Dr Bigdoc dans la colonne
   const colSvg = document.getElementById('bigdoc-col-svg');
   if (colSvg) colSvg.innerHTML = bigdocMiniSVG(160, 'neutre');
+
+  // Afficher le bandeau praticien si identifié
+  const p = state.identifiedPractitioner;
+  const banner = document.getElementById('praticien-banner');
+  if (p && banner) {
+    const nom = [p.prenom, p.nom].filter(Boolean).join(' ');
+    const struct = p._structure_selectionnee || (p.organisations?.[0]) || '';
+    const spe = p.specialite_ans || p.specialite || '';
+    document.getElementById('praticien-nom').textContent = nom + (spe ? ' · ' + spe : '');
+    document.getElementById('praticien-structure').textContent = struct ? '🏥 ' + struct : '';
+    const av = document.getElementById('praticien-avatar');
+    if (av) av.innerHTML = bigdocMiniSVG(32, 'neutre');
+    banner.style.display = 'flex';
+  } else if (banner) {
+    banner.style.display = 'none';
+  }
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
   const specialiteVal = specialiteEl ? specialiteEl.value : '';
