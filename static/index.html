@@ -3349,6 +3349,15 @@ async function identSelect(idx) {
         }
         // Chercher le secteur via Claude si pas dans l'ANS
         if (!enriched.secteur_conventionnel) {
+          // Afficher message "en cours"
+          const banner = document.getElementById('ident-selected-banner');
+          if (banner) {
+            const loading = document.createElement('div');
+            loading.id = 'secteur-loading';
+            loading.style.cssText = 'font-size:.7rem;color:rgba(255,255,255,.7);margin-top:.3rem';
+            loading.textContent = '🔍 Détection du secteur en cours…';
+            banner.querySelector('.rpps-ameli-banner')?.appendChild(loading);
+          }
           fetchSecteurViaClaud(enriched);
         }
       }
@@ -3436,6 +3445,7 @@ async function fetchSecteurViaClaud(p) {
       const banner = document.getElementById('ident-selected-banner');
       if (banner) {
         const labels = {s1:'Secteur 1', s2_optam:'S2 OPTAM', s2_hors:'S2 hors OPTAM', s3:'Secteur 3'};
+        document.getElementById('secteur-loading')?.remove();
         const existing = banner.querySelector('.secteur-badge');
         if (!existing) {
           const badge = document.createElement('div');
