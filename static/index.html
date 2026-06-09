@@ -260,13 +260,10 @@
       text-align: left;
       transition: all .18s ease;
       font-family: 'Nunito Sans', sans-serif;
-      font-size: 0.88rem;
+      font-size: 0.92rem;
       color: #374151;
-      line-height: 1.5;
+      line-height: 1.4;
       font-weight: 500;
-      width: 100%;
-      word-break: normal;
-      hyphens: none;
     }
 
     .option-btn:hover {
@@ -1207,31 +1204,10 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 </div>
 
 <div id="screen-questionnaire" class="screen">
-  <div style="max-width:960px;margin:2rem auto 0;padding:0 1rem">
-
-    <!-- BANDEAU PRATICIEN — pleine largeur au-dessus -->
-    <div id="praticien-banner" style="display:none;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:10px;padding:.45rem 1rem;margin-bottom:.75rem;align-items:center;gap:.75rem;flex-wrap:wrap">
-      <div id="praticien-avatar" style="flex-shrink:0"></div>
-      <div style="min-width:0;flex:1">
-        <div id="praticien-nom" style="font-size:.82rem;font-weight:800;color:#1A1060"></div>
-        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.1rem">
-          <div id="praticien-structure" style="font-size:.72rem;color:#0D9488;font-weight:600"></div>
-          <select id="praticien-structure-select" onchange="switchStructure(this.value)"
-            style="display:none;font-size:.68rem;border:1px solid #0D9488;border-radius:6px;padding:.1rem .4rem;color:#0D9488;background:white;font-family:'Nunito Sans',sans-serif;cursor:pointer">
-          </select>
-          <button onclick="document.getElementById('praticien-structure-select').style.display='inline-block';this.style.display='none'"
-            id="btn-change-structure"
-            style="display:none;font-size:.65rem;color:#6B7280;background:none;border:1px solid #E8EBF0;border-radius:6px;padding:.1rem .4rem;cursor:pointer;font-family:'Nunito Sans',sans-serif">
-            Changer →
-          </button>
-        </div>
-      </div>
-    </div>
-
-  <div style="display:flex;gap:1.5rem;align-items:flex-start">
+  <div style="max-width:900px;margin:2rem auto 0;padding:0 1rem;display:flex;gap:2rem;align-items:flex-start">
 
     <!-- DR BIGDOC — colonne gauche fixe -->
-    <div id="bigdoc-col" style="flex-shrink:0;width:130px;text-align:center;position:sticky;top:2rem;align-self:flex-start">
+    <div id="bigdoc-col" style="flex-shrink:0;width:160px;text-align:center;position:sticky;top:2rem">
       <div id="bigdoc-col-svg" style="animation:bd-float 3.5s ease-in-out infinite;filter:drop-shadow(0 8px 24px rgba(79,70,229,.25))">
       </div>
       <div style="font-size:.62rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase;margin-top:.4rem">Dr Bigdoc</div>
@@ -1239,7 +1215,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
     </div>
 
     <!-- QUESTIONS — colonne droite -->
-    <div style="flex:1;min-width:0;max-width:680px">
+    <div style="flex:1;min-width:0">
       <div class="card" id="question-card">
         <div class="progress-bar-track">
           <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
@@ -1623,101 +1599,24 @@ function detecterBranche(specialiteStr) {
 // ─────────────────────────────────────────
 function calculerTransversales(reponses) {
   const txList = [];
-
-  // Structure hospitalière
-  const structType = document.getElementById('lead-structure-type')?.value || state.identifiedPractitioner?._structure_type || '';
-  if (structType === 'hospitalier') txList.push('tx_part_liberale');
-
-  // Qare détecté dans les structures
-  if (state._qareDetected) txList.push('tx_qare_liberal');
-
-  // Associé détecté
+  // Associé détecté ?
+  const devRep = reponses['projet_12mois'] || '';
   const mgStruct = reponses['mg_structure'] || [];
-  if (Array.isArray(mgStruct) && mgStruct.includes('groupe')) txList.push('tx_pacte_associe');
-
+  if (Array.isArray(mgStruct) && mgStruct.includes('groupe')) {
+    txList.push('tx_pacte_associe');
+  }
   // Phase installation
-  if (reponses['phase'] === 'installation') txList.push('tx_installation_horizon');
-
+  if (reponses['phase'] === 'installation') {
+    txList.push('tx_installation_horizon');
+  }
   // Délai long détecté
   const delaiLong = ['mg_delai','gyn_delai','derm_delai','spe_delai'].some(id => reponses[id] === '0' || reponses[id] === '1');
   if (delaiLong) txList.push('tx_refus_patients');
-
   // Situation financière tendue
-  if (reponses['compta'] === '0' || reponses['compta'] === '1') txList.push('tx_tension_financiere');
-
-  // Interrogation changement secteur
-  if (reponses['secteur_tarifaire'] === 'interroge') txList.push('tx_changement_secteur');
-
+  if (reponses['compta'] === '0' || reponses['compta'] === '1') {
+    txList.push('tx_tension_financiere');
+  }
   return txList;
-}
-
-// Changer de structure depuis le bandeau
-function switchStructure(newOrg) {
-  const p = state.identifiedPractitioner;
-  if (!p || !newOrg) return;
-  p._structure_selectionnee = newOrg;
-  const scored = getStructureSuggestion(p.organisations || []);
-  const found = scored.scored?.find(s => s.org === newOrg);
-  p._structure_type = found?.type || 'liberal';
-
-  // Mettre à jour les champs cachés
-  const elStruct = document.getElementById('lead-structure');
-  if (elStruct) elStruct.value = newOrg;
-  const elType = document.getElementById('lead-structure-type');
-  if (elType) elType.value = p._structure_type;
-
-  // Mettre à jour l'affichage du bandeau
-  document.getElementById('praticien-structure').textContent = '🏥 ' + newOrg;
-
-  // Recalculer les transversales avec la nouvelle structure
-  buildAllSteps();
-  renderQuestion();
-}
-
-// Pré-remplir la phase depuis la structure
-function prefillPhaseFromStructure() {
-  const p = state.identifiedPractitioner;
-  if (!p || state.reponses['phase']) return;
-  const structType = p._structure_type || 'liberal';
-  // Cabinet libéral actif → pré-sélectionner "consolidation" (installé, activité stable)
-  if (structType === 'liberal' || structType === 'clinique') {
-    state.reponses['phase'] = 'consolidation';
-  }
-  // Hospitalier → pas de présupposition sur la phase libérale
-}
-
-// Pré-remplir le secteur tarifaire depuis l'ANS si disponible
-function prefillSecteurFromANS() {
-  const p = state.identifiedPractitioner;
-  if (!p) return;
-  const secteurANS = p.secteur_conventionnel || p.secteur_ameli || '';
-  if (!secteurANS) return;
-
-  // Mapper le libellé ANS vers une valeur de question
-  const n = secteurANS.toLowerCase();
-  let val = '';
-  if (n.includes('secteur 1') || n.includes('s1') || n.includes('opposable')) val = 's1';
-  else if (n.includes('optam')) val = 's2_optam';
-  else if (n.includes('secteur 2') || n.includes('s2')) val = 's2_hors';
-  else if (n.includes('secteur 3') || n.includes('non conventionné') || n.includes('libre')) val = 's3';
-
-  if (val) {
-    // Pré-sélectionner dans les réponses
-    if (!state.reponses['secteur_tarifaire']) {
-      state.reponses['secteur_tarifaire'] = val;
-    }
-  }
-}
-
-// Détecter Qare dans les structures pour déclencher la question transversale
-function prefillTeleFromStructure() {
-  const p = state.identifiedPractitioner;
-  if (!p || !p.organisations) return;
-  const hasQare = p.organisations.some(o => o.toLowerCase().includes('qare'));
-  // Stocker le flag Qare pour calculerTransversales
-  state._qareDetected = hasQare;
-  // Ne PAS pré-cocher téléconsultation — Qare ≠ solution libérale
-  // La question tx_qare_liberal sera posée si Qare détecté
 }
 
 // ─────────────────────────────────────────
@@ -2008,36 +1907,6 @@ function startDiagnostic() {
   // Injecter le vrai SVG Dr Bigdoc dans la colonne
   const colSvg = document.getElementById('bigdoc-col-svg');
   if (colSvg) colSvg.innerHTML = bigdocMiniSVG(160, 'neutre');
-
-  // Afficher le bandeau praticien si identifié
-  const p = state.identifiedPractitioner;
-  const banner = document.getElementById('praticien-banner');
-  if (p && banner) {
-    const nom = [p.prenom, p.nom].filter(Boolean).join(' ');
-    const struct = p._structure_selectionnee || (p.organisations?.[0]) || '';
-    const spe = p.specialite_ans || p.specialite || '';
-    document.getElementById('praticien-nom').textContent = nom + (spe ? ' · ' + spe : '');
-    document.getElementById('praticien-structure').textContent = struct ? '🏥 ' + struct : '';
-    const av = document.getElementById('praticien-avatar');
-    if (av) av.innerHTML = bigdocMiniSVG(32, 'neutre');
-    banner.style.display = 'flex';
-
-    // Remplir le select de changement de structure
-    const orgs = p.organisations || [];
-    const sel = document.getElementById('praticien-structure-select');
-    const btnChange = document.getElementById('btn-change-structure');
-    if (sel && orgs.length > 1) {
-      sel.innerHTML = orgs.map(o => `<option value="${o}" ${o===struct?'selected':''}>${o}</option>`).join('');
-      if (btnChange) btnChange.style.display = 'inline-block';
-    }
-  } else if (banner) {
-    banner.style.display = 'none';
-  }
-  // Pré-remplir secteur et téléconsultation depuis les données ANS/structure
-  prefillSecteurFromANS();
-  prefillTeleFromStructure();
-  prefillPhaseFromStructure();
-
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
   const specialiteVal = specialiteEl ? specialiteEl.value : '';
@@ -2298,7 +2167,6 @@ const BIGDOC_INTROS = {
   tx_refus_patients: "Refuser des patients, ça pèse. Comment vous gérez ça ?",
   tx_tension_financiere: "La tension financière, c'est pas une honte — c'est un signal qu'on traite ensemble.",
   preoccupation:     "Dernière question — et la plus importante. Ce qui vous empêche de dormir.",
-  tx_qare_liberal:   "Vous savez faire de la téléconsultation — c'est une vraie compétence. Mais Qare c'est leur outil, pas le vôtre. Pour votre cabinet libéral, qu'est-ce qui se passe ?",
 };
 
 function getBigdocIntro(qid) {
@@ -3076,8 +2944,8 @@ function scoreStructure(name) {
   return { type: 'autre', score: 0, label: 'Structure de santé' };
 }
 
-function getStructureSuggestion(orgs, practitionerData) {
-  // Scorer chaque organisation
+function getStructureSuggestion(orgs) {
+  // Scorer chaque organisation et sommer
   let totalScore = 0;
   let bestOrg = null;
   let bestScore = -99;
@@ -3088,17 +2956,6 @@ function getStructureSuggestion(orgs, practitionerData) {
     if (s.score > bestScore) { bestScore = s.score; bestOrg = org; }
     return { org, ...s };
   });
-
-  // Bonus : si le praticien a est_titulaire sur une structure libérale → forcer ce choix
-  const p = practitionerData || state.identifiedPractitioner;
-  if (p && p.est_titulaire && p.est_liberal) {
-    // Chercher la structure libérale dans la liste
-    const liberalOrg = scored.find(s => s.score >= 3);
-    if (liberalOrg) {
-      bestOrg = liberalOrg.org;
-      bestScore = liberalOrg.score;
-    }
-  }
 
   return { totalScore, bestOrg, bestScore, scored };
 }
@@ -3463,35 +3320,16 @@ async function identSelect(idx) {
   const disc = document.getElementById('ident-disclaimer');
   if (disc) disc.style.display = 'flex';
 
-  // Sélectionner automatiquement la meilleure structure (score le plus élevé)
-  if (enriched && enriched.organisations && enriched.organisations.length > 0) {
-    const { bestOrg, totalScore, scored } = getStructureSuggestion(enriched.organisations);
-    if (bestOrg && scored.find(s => s.org === bestOrg)?.score >= 1) {
-      // Cabinet libéral détecté → pré-sélectionner sans modale si évident
-      enriched._structure_selectionnee = bestOrg;
-      enriched._structure_type = scored.find(s => s.org === bestOrg)?.type || 'liberal';
-      const elStruct = document.getElementById('lead-structure');
-      if (elStruct) elStruct.value = bestOrg;
-      const elType = document.getElementById('lead-structure-type');
-      if (elType) elType.value = enriched._structure_type;
-    }
-    // Toujours proposer la modale si plusieurs structures (pour confirmer)
-    if (enriched.organisations.length > 1) {
-      setTimeout(() => showModaleStructure(enriched.organisations, enriched), 300);
-    }
-  }
-
   // Banner
   const banner = document.getElementById('ident-selected-banner');
   if (banner) {
     const pp = state.identifiedPractitioner;
-    const structAff = pp._structure_selectionnee || (pp.organisations?.[0]) || '';
     banner.style.display = 'block';
     banner.innerHTML = `
       <div class="rpps-ameli-banner" style="margin-top:.75rem">
         <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.4rem">DR BIGDOC VOUS A TROUVÉ</div>
         <div style="font-size:.88rem;font-weight:700">${pp.prenom||''} ${pp.nom||''} · ${pp.specialite_ans||pp.specialite||''} ${pp.ville?'· '+pp.ville:''}</div>
-        ${structAff?`<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${structAff}</div>`:''}
+        ${pp.organisations?.length?`<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${pp.organisations[0]}</div>`:''}
       </div>`;
   }
 
