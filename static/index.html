@@ -1212,9 +1212,19 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
     <!-- BANDEAU PRATICIEN — pleine largeur au-dessus -->
     <div id="praticien-banner" style="display:none;background:#F0FDF8;border:1px solid #CCFBF1;border-radius:10px;padding:.45rem 1rem;margin-bottom:.75rem;align-items:center;gap:.75rem;flex-wrap:wrap">
       <div id="praticien-avatar" style="flex-shrink:0"></div>
-      <div style="min-width:0">
+      <div style="min-width:0;flex:1">
         <div id="praticien-nom" style="font-size:.82rem;font-weight:800;color:#1A1060"></div>
-        <div id="praticien-structure" style="font-size:.72rem;color:#0D9488;font-weight:600"></div>
+        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.1rem">
+          <div id="praticien-structure" style="font-size:.72rem;color:#0D9488;font-weight:600"></div>
+          <select id="praticien-structure-select" onchange="switchStructure(this.value)"
+            style="display:none;font-size:.68rem;border:1px solid #0D9488;border-radius:6px;padding:.1rem .4rem;color:#0D9488;background:white;font-family:'Nunito Sans',sans-serif;cursor:pointer">
+          </select>
+          <button onclick="document.getElementById('praticien-structure-select').style.display='inline-block';this.style.display='none'"
+            id="btn-change-structure"
+            style="display:none;font-size:.65rem;color:#6B7280;background:none;border:1px solid #E8EBF0;border-radius:6px;padding:.1rem .4rem;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Changer →
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1641,6 +1651,41 @@ function calculerTransversales(reponses) {
   return txList;
 }
 
+// Changer de structure depuis le bandeau
+function switchStructure(newOrg) {
+  const p = state.identifiedPractitioner;
+  if (!p || !newOrg) return;
+  p._structure_selectionnee = newOrg;
+  const scored = getStructureSuggestion(p.organisations || []);
+  const found = scored.scored?.find(s => s.org === newOrg);
+  p._structure_type = found?.type || 'liberal';
+
+  // Mettre à jour les champs cachés
+  const elStruct = document.getElementById('lead-structure');
+  if (elStruct) elStruct.value = newOrg;
+  const elType = document.getElementById('lead-structure-type');
+  if (elType) elType.value = p._structure_type;
+
+  // Mettre à jour l'affichage du bandeau
+  document.getElementById('praticien-structure').textContent = '🏥 ' + newOrg;
+
+  // Recalculer les transversales avec la nouvelle structure
+  buildAllSteps();
+  renderQuestion();
+}
+
+// Pré-remplir la phase depuis la structure
+function prefillPhaseFromStructure() {
+  const p = state.identifiedPractitioner;
+  if (!p || state.reponses['phase']) return;
+  const structType = p._structure_type || 'liberal';
+  // Cabinet libéral actif → pré-sélectionner "consolidation" (installé, activité stable)
+  if (structType === 'liberal' || structType === 'clinique') {
+    state.reponses['phase'] = 'consolidation';
+  }
+  // Hospitalier → pas de présupposition sur la phase libérale
+}
+
 // Pré-remplir le secteur tarifaire depuis l'ANS si disponible
 function prefillSecteurFromANS() {
   const p = state.identifiedPractitioner;
@@ -1976,12 +2021,22 @@ function startDiagnostic() {
     const av = document.getElementById('praticien-avatar');
     if (av) av.innerHTML = bigdocMiniSVG(32, 'neutre');
     banner.style.display = 'flex';
+
+    // Remplir le select de changement de structure
+    const orgs = p.organisations || [];
+    const sel = document.getElementById('praticien-structure-select');
+    const btnChange = document.getElementById('btn-change-structure');
+    if (sel && orgs.length > 1) {
+      sel.innerHTML = orgs.map(o => `<option value="${o}" ${o===struct?'selected':''}>${o}</option>`).join('');
+      if (btnChange) btnChange.style.display = 'inline-block';
+    }
   } else if (banner) {
     banner.style.display = 'none';
   }
   // Pré-remplir secteur et téléconsultation depuis les données ANS/structure
   prefillSecteurFromANS();
   prefillTeleFromStructure();
+  prefillPhaseFromStructure();
 
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
