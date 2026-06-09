@@ -1924,9 +1924,12 @@ function startDiagnostic() {
     const sectClaude = identP._secteur_detecte || '';
     const n = (sectANS || sectClaude).toLowerCase();
     let val = '';
-    if (n.includes('secteur 1') || n === 's1' || n.includes('opposable')) val = 's1';
+    // Valeur directe depuis Claude (déjà au bon format)
+    if (['s1','s2_optam','s2_hors','s3'].includes(sectClaude)) {
+      val = sectClaude;
+    } else if (n.includes('secteur 1') || n === 's1' || n.includes('opposable')) val = 's1';
     else if (n.includes('optam')) val = 's2_optam';
-    else if (n.includes('secteur 2') || n === 's2') val = 's2_hors';
+    else if (n.includes('secteur 2') || n.includes('s2')) val = 's2_hors';
     else if (n.includes('secteur 3') || n.includes('non conven')) val = 's3';
     if (val) state.reponses['secteur_tarifaire'] = val;
   }
