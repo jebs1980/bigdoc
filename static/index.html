@@ -1336,6 +1336,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <input type="text" id="lead-honeypot" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
           <input type="hidden" id="lead-rpps" />
           <input type="hidden" id="lead-structure" />
+          <input type="hidden" id="lead-structure-type" />
         </div>
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1">
@@ -2828,48 +2829,138 @@ function rppsSearchDebounce() {
   _rppsSearchTimer = setTimeout(rppsSearch, 600);
 }
 
+// ─────────────────────────────────────────
+// LOGIQUE SCORING STRUCTURE D'EXERCICE
+// ─────────────────────────────────────────
+const STRUCTURE_SCORES = {
+  liberal: { keywords: ['cabinet', 'dr ', 'docteur', 'selarl', 'scp', 'scm', 'sas', 'scpam'], score: 3, label: 'Cabinet libéral' },
+  clinique: { keywords: ['clinique', 'polyclinique', 'hopital prive', 'hôpital privé', 'geoffroy', 'idf'], score: 1, label: 'Clinique privée' },
+  tele: { keywords: ['qare', 'livi', 'medecindirect', 'h4d', 'medaviz'], score: 0, label: 'Téléconsultation' },
+  doctolib: { keywords: ['doctolib'], score: 0, label: 'Plateforme RDV' },
+  hospitalier: { keywords: ['chu', 'chru', 'aphp', 'ap-hp', 'chp', 'ghm', 'ghu', 'centre hospitalier', 'hopital', 'hôpital', 'trousseau', 'lariboisiere', 'cochin', 'necker', 'pitie'], score: -1, label: 'Établissement hospitalier' },
+};
+
+function scoreStructure(name) {
+  const n = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  for (const [type, cfg] of Object.entries(STRUCTURE_SCORES)) {
+    if (cfg.keywords.some(k => n.includes(k))) {
+      return { type, score: cfg.score, label: cfg.label };
+    }
+  }
+  return { type: 'autre', score: 0, label: 'Structure de santé' };
+}
+
+function getStructureSuggestion(orgs) {
+  // Scorer chaque organisation et sommer
+  let totalScore = 0;
+  let bestOrg = null;
+  let bestScore = -99;
+
+  const scored = orgs.map(org => {
+    const s = scoreStructure(org);
+    totalScore += s.score;
+    if (s.score > bestScore) { bestScore = s.score; bestOrg = org; }
+    return { org, ...s };
+  });
+
+  return { totalScore, bestOrg, bestScore, scored };
+}
+
 function showModaleStructure(orgs, p) {
-  // Afficher la modale de sélection de structure si plusieurs orgs
   const list = document.getElementById('structure-list');
   if (!list) return;
 
-  // Classifier les organisations
-  const types = {
-    liberal: ['cabinet', 'dr ', 'docteur', 'selarl', 'scp', 'scm', 'sas'],
-    hopital: ['chu', 'chru', 'chp', 'aphp', 'ap-hp', 'hôpital', 'hopital', 'clinique', 'ghm', 'ghu'],
-    tele: ['qare', 'doctolib', 'medecindirect', 'livi', 'filsante'],
-  };
-
-  function getType(name) {
-    const n = name.toLowerCase();
-    if (types.tele.some(k => n.includes(k))) return 'Téléconsultation';
-    if (types.hopital.some(k => n.includes(k))) return 'Établissement hospitalier';
-    if (types.liberal.some(k => n.includes(k))) return 'Cabinet libéral';
-    return 'Structure de santé';
-  }
-
-  list.innerHTML = orgs.map((org, i) => `
-    <button class="structure-btn" onclick="selectStructure(${i})">
-      ${org}
-      <span class="structure-type">${getType(org)}</span>
-    </button>
-  `).join('');
-
+  const { totalScore, bestOrg, bestScore, scored } = getStructureSuggestion(orgs);
   window._structureOrgs = orgs;
   window._structureP = p;
+  window._structureScored = scored;
+
+  // Construire le contenu de la modale
+  let html = '';
+
+  // Si on a une suggestion claire (score libéral dominant)
+  if (bestOrg && bestScore >= 3) {
+    html += `
+      <div style="background:#F0FDF8;border:1.5px solid #0D9488;border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem">
+        <div style="font-size:.68rem;font-weight:800;color:#0D9488;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem">Dr Bigdoc suggère</div>
+        <div style="font-weight:700;color:#1A1060;margin-bottom:.2rem">${bestOrg}</div>
+        <div style="font-size:.72rem;color:#6B7280">${scoreStructure(bestOrg).label}</div>
+        <div style="display:flex;gap:.5rem;margin-top:.65rem">
+          <button onclick="selectStructure(${orgs.indexOf(bestOrg)}, true)" style="flex:1;background:#0D9488;color:white;border:none;border-radius:8px;padding:.55rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            ✓ Oui, c'est ça
+          </button>
+          <button onclick="showAllStructures()" style="flex:1;background:none;border:1.5px solid #E8EBF0;border-radius:8px;padding:.55rem;font-size:.82rem;color:#6B7280;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Non, autre structure
+          </button>
+        </div>
+      </div>`;
+  } else if (totalScore === 0) {
+    // Ambigu — demander si exercice libéral
+    html += `
+      <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem">
+        <div style="font-size:.82rem;font-weight:700;color:#92400E;margin-bottom:.5rem">Exercez-vous en libéral ?</div>
+        <div style="font-size:.78rem;color:#92400E;margin-bottom:.65rem">Dr Bigdoc détecte une activité de téléconsultation. Avez-vous aussi un cabinet libéral ?</div>
+        <div style="display:flex;gap:.5rem">
+          <button onclick="showAllStructures()" style="flex:1;background:#F59E0B;color:white;border:none;border-radius:8px;padding:.55rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Oui, je choisis mon cabinet
+          </button>
+          <button onclick="selectStructure(0, false)" style="flex:1;background:none;border:1.5px solid #E8EBF0;border-radius:8px;padding:.55rem;font-size:.82rem;color:#6B7280;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Non, téléconsultation only
+          </button>
+        </div>
+      </div>`;
+  } else if (totalScore < 0) {
+    // Hospitalier dominant
+    html += `
+      <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:12px;padding:.85rem 1rem;margin-bottom:.75rem">
+        <div style="font-size:.82rem;font-weight:700;color:#1E40AF;margin-bottom:.5rem">Avez-vous une activité libérale ?</div>
+        <div style="font-size:.78rem;color:#1E40AF;margin-bottom:.65rem">Dr Bigdoc détecte principalement une activité hospitalière. Avez-vous aussi un cabinet libéral ?</div>
+        <div style="display:flex;gap:.5rem">
+          <button onclick="showAllStructures()" style="flex:1;background:#3B82F6;color:white;border:none;border-radius:8px;padding:.55rem;font-size:.82rem;font-weight:700;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Oui, je choisis mon cabinet
+          </button>
+          <button onclick="selectStructure(0, false)" style="flex:1;background:none;border:1.5px solid #E8EBF0;border-radius:8px;padding:.55rem;font-size:.82rem;color:#6B7280;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Diagnostic pour mon activité hospitalière
+          </button>
+        </div>
+      </div>`;
+  }
+
+  // Liste complète (cachée par défaut si suggestion)
+  html += `<div id="all-structures" style="display:${bestScore >= 3 ? 'none' : 'block'}">`;
+  html += scored.map((s, i) => `
+    <button class="structure-btn" onclick="selectStructure(${i})">
+      ${s.org}
+      <span class="structure-type">${s.label}</span>
+    </button>
+  `).join('');
+  html += '</div>';
+
+  list.innerHTML = html;
   document.getElementById('modale-structure').style.display = 'flex';
 }
 
-function selectStructure(idx) {
-  const org = (window._structureOrgs || [])[idx];
-  const p   = window._structureP;
+function showAllStructures() {
+  const el = document.getElementById('all-structures');
+  if (el) el.style.display = 'block';
+}
+
+function selectStructure(idx, confirmed) {
+  const scored = window._structureScored || [];
+  const orgs   = window._structureOrgs || [];
+  const org    = scored[idx]?.org || orgs[idx];
+  const type   = scored[idx]?.type || 'autre';
+  const p      = window._structureP;
+
   if (org) {
-    // Injecter la structure sélectionnée dans le formulaire
     const elOrg = document.getElementById('lead-structure');
     if (elOrg) elOrg.value = org;
-    // Mettre à jour le banner
+    // Stocker aussi le type pour nourrir le questionnaire
+    const elType = document.getElementById('lead-structure-type');
+    if (elType) elType.value = type;
     if (p) {
       p._structure_selectionnee = org;
+      p._structure_type = type;
       rppsShowAmeliBanner(p);
     }
   }
