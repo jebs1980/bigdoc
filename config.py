@@ -431,12 +431,14 @@ QUESTIONNAIRE = [
         "question": "Votre secteur de conventionnement…",
         "type": "single",
         "dimension": "comptabilite",
+        "prefillable": True,
         "options": [
             {"value": "s1",           "label": "Secteur 1 — tarifs opposables, sans dépassement"},
             {"value": "s2_optam",     "label": "Secteur 2 avec OPTAM — dépassements modérés, remboursement renforcé"},
             {"value": "s2_hors",      "label": "Secteur 2 hors OPTAM — dépassements libres, remboursement standard"},
             {"value": "s3",           "label": "Secteur 3 / non conventionné — tarifs entièrement libres"},
-            {"value": "nc",           "label": "Je ne sais pas exactement où j'en suis"}
+            {"value": "nc",           "label": "Je ne sais pas exactement où j'en suis"},
+            {"value": "interroge",    "label": "Je suis en secteur X mais j'envisage de changer"}
         ]
     },
     {
@@ -457,15 +459,17 @@ QUESTIONNAIRE = [
         "type": "multi_select",
         "dimension": "informatique",
         "options": [
-            {"value": "ok",       "label": "Logiciel cabinet adapté et à jour"},
-            {"value": "backup",   "label": "Données sauvegardées régulièrement"},
-            {"value": "teleok",   "label": "Téléconsultation sur plateforme agréée HDS"},
-            {"value": "galeres",  "label": "Problèmes réguliers — bugs, lenteurs, galères informatiques"},
-            {"value": "bloquant", "label": "Situation bloquante — panne ou données inaccessibles"},
-            {"value": "notele",   "label": "Pas de téléconsultation — je ne sais pas comment m'y mettre"},
-            {"value": "zoomtele", "label": "Téléconsultation sur Zoom, Teams ou WhatsApp"},
-            {"value": "nobackup", "label": "Pas de sauvegarde organisée"},
-            {"value": "nosetup",  "label": "Pas d'infrastructure structurée — je bricole"}
+            {"value": "ok",         "label": "Logiciel cabinet adapté et à jour"},
+            {"value": "backup",     "label": "Données sauvegardées régulièrement"},
+            {"value": "teleok",     "label": "Téléconsultation sur plateforme agréée HDS (Doctolib, Maiia, Qare…)"},
+            {"value": "tele_qare",  "label": "Téléconsultation via Qare (activité libérale ou salariée)"},
+            {"value": "galeres",    "label": "Problèmes réguliers — bugs, lenteurs, galères informatiques"},
+            {"value": "bloquant",   "label": "Situation bloquante — panne ou données inaccessibles"},
+            {"value": "notele",     "label": "Pas de téléconsultation — je ne sais pas comment m'y mettre"},
+            {"value": "zoomtele",   "label": "Téléconsultation sur Zoom, Teams ou WhatsApp (non agréé CPAM)"},
+            {"value": "nobackup",   "label": "Pas de sauvegarde organisée"},
+            {"value": "nosetup",    "label": "Pas d'infrastructure structurée — je bricole"},
+            {"value": "logiciel_liberal", "label": "Logiciel cabinet libéral distinct de mon activité salariée"}
         ]
     },
     {
@@ -752,6 +756,34 @@ QUESTIONNAIRE_BRANCHES = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 QUESTIONS_TRANSVERSALES = [
+    {
+        "condition": "structure_type == 'hospitalier'",
+        "id": "tx_part_liberale",
+        "question": "Quelle est la part de votre activité libérale dans votre pratique totale ?",
+        "type": "single",
+        "dimension": "financement",
+        "options": [
+            {"value": "liberale_100",  "label": "100% libérale — pas d'activité hospitalière"},
+            {"value": "liberale_75",   "label": "75% libérale — quelques vacations hospitalières"},
+            {"value": "liberale_50",   "label": "50/50 — activité mixte équilibrée"},
+            {"value": "liberale_25",   "label": "25% libérale — surtout hospitalier"},
+            {"value": "liberale_0",    "label": "Je n'ai pas d'activité libérale — diagnostic pour mon cabinet de consultation privée"}
+        ]
+    },
+    {
+        "condition": "secteur_tarifaire == 'interroge'",
+        "id": "tx_changement_secteur",
+        "question": "Qu'est-ce qui vous pousse à envisager un changement de secteur ?",
+        "type": "single",
+        "dimension": "comptabilite",
+        "options": [
+            {"value": "revenus",    "label": "Augmenter mes revenus — les dépassements me semblent justifiés"},
+            {"value": "patients",   "label": "Rester accessible — je veux rester en secteur 1 ou OPTAM"},
+            {"value": "optam",      "label": "Rejoindre l'OPTAM — je ne sais pas si j'y ai droit"},
+            {"value": "retraite",   "label": "Préparer ma transmission — je veux optimiser ma situation"},
+            {"value": "curiosite",  "label": "Je m'informe — pas de décision prise"}
+        ]
+    },
     {
         "condition": "phase == 'installation'",
         "id": "tx_installation_horizon",
