@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Espace médecin — Dr Bigdoc</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito Sans', sans-serif; background: #F7F9FB; color: #1A1060; min-height: 100vh; }
+    .header { background: white; border-bottom: 1px solid #E8EBF0; padding: .85rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-family: 'Nunito', sans-serif; font-size: 1.2rem; font-weight: 900; color: #4F46E5; }
+    .btn { padding: .5rem 1.25rem; border-radius: 999px; font-size: .82rem; font-weight: 700; cursor: pointer; border: none; font-family: 'Nunito Sans', sans-serif; }
+    .btn-primary { background: #4F46E5; color: white; }
+    .btn-outline { background: none; border: 1.5px solid #E8EBF0; color: #6B7280; }
+    .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; }
+    @media (max-width: 700px) { .container { grid-template-columns: 1fr; } }
+    .card { background: white; border-radius: 16px; border: 1px solid #E8EBF0; overflow: hidden; }
+    .card-header { padding: 1rem 1.5rem; border-bottom: 1px solid #F1F5F9; font-weight: 800; font-size: .95rem; color: #1A1060; }
+
+    /* Bilan */
+    .score-badge { display: inline-flex; align-items: center; gap: .5rem; background: #EEF2FF; border-radius: 999px; padding: .35rem 1rem; font-size: .85rem; font-weight: 800; color: #4F46E5; margin-bottom: 1rem; }
+    .dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: 1rem 1.5rem; }
+    .dim-item { background: #F8FAFC; border-radius: 10px; padding: .6rem .85rem; }
+    .dim-label { font-size: .72rem; color: #6B7280; font-weight: 600; margin-bottom: .2rem; }
+    .dim-bar { height: 5px; background: #E8EBF0; border-radius: 999px; overflow: hidden; }
+    .dim-bar-fill { height: 100%; border-radius: 999px; transition: width .6s; }
+
+    /* Chat Dr Bigdoc */
+    .chat-zone { display: flex; flex-direction: column; height: 500px; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: .75rem; }
+    .msg { max-width: 85%; }
+    .msg.user { align-self: flex-end; }
+    .msg.bot { align-self: flex-start; display: flex; gap: .5rem; align-items: flex-start; }
+    .msg-bubble { padding: .65rem .9rem; border-radius: 12px; font-size: .83rem; line-height: 1.55; }
+    .msg.user .msg-bubble { background: #4F46E5; color: white; border-radius: 12px 12px 2px 12px; }
+    .msg.bot .msg-bubble { background: #F0FDF8; border: 1px solid #CCFBF1; color: #134E4A; border-radius: 2px 12px 12px 12px; }
+    .msg-avatar { width: 32px; height: 32px; flex-shrink: 0; }
+    .chat-input-zone { padding: .75rem 1rem; border-top: 1px solid #F1F5F9; display: flex; gap: .5rem; }
+    .chat-input { flex: 1; padding: .6rem .9rem; border: 1.5px solid #E8EBF0; border-radius: 999px; font-size: .85rem; font-family: 'Nunito Sans', sans-serif; outline: none; }
+    .chat-input:focus { border-color: #4F46E5; }
+
+    /* Login */
+    #screen-login { display: flex; align-items: center; justify-content: center; min-height: 80vh; }
+    .login-card { background: white; border-radius: 20px; border: 1px solid #E8EBF0; padding: 2.5rem; max-width: 420px; width: 100%; text-align: center; }
+    .login-card h2 { font-family: 'Nunito', sans-serif; font-size: 1.4rem; margin-bottom: .5rem; }
+    .login-card p { color: #6B7280; font-size: .88rem; margin-bottom: 1.5rem; }
+    .input { width: 100%; padding: .7rem 1rem; border: 1.5px solid #E8EBF0; border-radius: 10px; font-size: .9rem; font-family: 'Nunito Sans', sans-serif; outline: none; margin-bottom: .75rem; }
+    .input:focus { border-color: #4F46E5; }
+
+    /* Suggestions */
+    .suggestions { padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: .5rem; }
+    .suggestion-btn { background: #F8FAFC; border: 1px solid #E8EBF0; border-radius: 10px; padding: .6rem .9rem; font-size: .8rem; color: #4F46E5; font-weight: 600; cursor: pointer; text-align: left; transition: all .15s; font-family: 'Nunito Sans', sans-serif; }
+    .suggestion-btn:hover { background: #EEF2FF; border-color: #C7D2FE; }
+
+    @keyframes bd-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+    .typing { display: flex; gap: 4px; padding: .65rem .9rem; background: #F0FDF8; border-radius: 2px 12px 12px 12px; }
+    .typing span { width: 7px; height: 7px; background: #0D9488; border-radius: 50%; animation: bounce .8s infinite; }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Dr Bigdoc</div>
+  <div id="header-user" style="font-size:.82rem;color:#6B7280"></div>
+  <button class="btn btn-outline" onclick="logout()" id="btn-logout" style="display:none">Déconnexion</button>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login">
+  <div class="login-card">
+    <div style="animation:bd-float 3.5s ease-in-out infinite;margin-bottom:1rem">
+      <svg width="80" height="100" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/><rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
+        <path d="M96 144 Q112 148 113 162 Q114 174 106 176 Q98 178 97 170" stroke="#9CA3AF" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="97" cy="168" r="6" fill="none" stroke="#6366F1" stroke-width="2.5"/><circle cx="97" cy="168" r="3" fill="#6366F1"/>
+        <rect x="68" y="112" width="24" height="20" rx="8" fill="#F5D5A8"/>
+        <ellipse cx="80" cy="68" rx="44" ry="30" fill="#3D2314"/><ellipse cx="50" cy="84" rx="18" ry="14" fill="#3D2314"/>
+        <ellipse cx="110" cy="82" rx="16" ry="12" fill="#3D2314"/>
+        <ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/>
+        <ellipse cx="43" cy="94" rx="9" ry="12" fill="#F0C89A"/><ellipse cx="117" cy="94" rx="9" ry="12" fill="#F0C89A"/>
+        <ellipse cx="66" cy="85" rx="12" ry="13" fill="white"/><ellipse cx="94" cy="85" rx="12" ry="13" fill="white"/>
+        <circle cx="66" cy="87" r="8" fill="#1A1060"/><circle cx="94" cy="87" r="8" fill="#1A1060"/>
+        <circle cx="63" cy="83" r="3.5" fill="white"/><circle cx="91" cy="83" r="3.5" fill="white"/>
+        <path d="M55 73 Q66 68 77 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M83 72 Q94 68 105 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+        <path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
+        <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
+      </svg>
+    </div>
+    <h2>Votre espace médecin</h2>
+    <p>Retrouvez votre bilan et posez vos questions à Dr Bigdoc. Un lien d'accès vous sera envoyé par email.</p>
+    <input class="input" type="email" id="login-email" placeholder="votre@email.fr" onkeydown="if(event.key==='Enter')requestLink()"/>
+    <button class="btn btn-primary" style="width:100%;padding:.75rem" onclick="requestLink()" id="btn-request">
+      Recevoir mon lien d'accès →
+    </button>
+    <div id="login-status" style="margin-top:.75rem;font-size:.82rem;color:#6B7280"></div>
+  </div>
+</div>
+
+<!-- ESPACE MÉDECIN -->
+<div id="screen-space" style="display:none">
+  <div class="container">
+
+    <!-- Colonne gauche — bilan -->
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-header">📋 Votre bilan</div>
+        <div id="bilan-zone" style="padding:1rem 1.5rem">
+          <div style="color:#9CA3AF;font-size:.85rem">Chargement…</div>
+        </div>
+      </div>
+
+      <!-- Questions suggérées -->
+      <div class="card">
+        <div class="card-header">💡 Questions fréquentes</div>
+        <div class="suggestions" id="suggestions-zone"></div>
+      </div>
+    </div>
+
+    <!-- Colonne droite — chat Dr Bigdoc -->
+    <div class="card chat-zone">
+      <div class="card-header" style="display:flex;align-items:center;gap:.5rem">
+        <svg width="28" height="35" viewBox="0 0 160 200" fill="none"><rect x="28" y="128" width="104" height="72" rx="20" fill="white"/><rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/><ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/><ellipse cx="66" cy="85" rx="12" ry="13" fill="white"/><ellipse cx="94" cy="85" rx="12" ry="13" fill="white"/><circle cx="66" cy="87" r="8" fill="#1A1060"/><circle cx="94" cy="87" r="8" fill="#1A1060"/><circle cx="63" cy="83" r="3.5" fill="white"/><circle cx="91" cy="83" r="3.5" fill="white"/><path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>
+        Dr Bigdoc
+      </div>
+      <div class="chat-messages" id="chat-messages"></div>
+      <div class="chat-input-zone">
+        <input class="chat-input" id="chat-input" placeholder="Posez votre question…" onkeydown="if(event.key==='Enter')sendQuestion()"/>
+        <button class="btn btn-primary" onclick="sendQuestion()" style="padding:.6rem 1.1rem">→</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const BIGDOC_SVG = `<svg width="28" height="35" viewBox="0 0 160 200" fill="none"><rect x="28" y="128" width="104" height="72" rx="20" fill="white"/><rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/><ellipse cx="80" cy="92" rx="37" ry="36" fill="#F5D5A8"/><ellipse cx="66" cy="85" rx="12" ry="13" fill="white"/><ellipse cx="94" cy="85" rx="12" ry="13" fill="white"/><circle cx="66" cy="87" r="8" fill="#1A1060"/><circle cx="94" cy="87" r="8" fill="#1A1060"/><circle cx="63" cy="83" r="3.5" fill="white"/><circle cx="91" cy="83" r="3.5" fill="white"/><path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>`;
+
+const SUGGESTIONS = [
+  "Comment je passe en OPTAM ?",
+  "Puis-je refuser de nouveaux patients MT ?",
+  "Comment réduire ma charge administrative ?",
+  "Quelles aides pour mon installation ?",
+  "Comment financer mon matériel ?",
+  "Qu'est-ce que la CPTS et comment y adhérer ?",
+  "Comment organiser ma comptabilité ?",
+  "Quels sont mes droits en cas d'arrêt maladie ?",
+];
+
+async function init() {
+  // Vérifier si token dans l'URL (lien magique)
+  const params = new URLSearchParams(window.location.search);
+  const token = params.get('token');
+  if (token) {
+    await authWithToken(token);
+    return;
+  }
+  // Vérifier si session existante
+  try {
+    const r = await fetch('/api/space/me');
+    if (r.ok) {
+      const d = await r.json();
+      showSpace(d);
+      return;
+    }
+  } catch(e) {}
+  // Afficher login
+  document.getElementById('screen-login').style.display = 'flex';
+}
+
+async function authWithToken(token) {
+  try {
+    const r = await fetch(`/api/space/auth?token=${token}`);
+    if (r.ok) {
+      // Nettoyer l'URL
+      window.history.replaceState({}, '', '/space');
+      const me = await fetch('/api/space/me');
+      if (me.ok) {
+        showSpace(await me.json());
+        return;
+      }
+    }
+  } catch(e) {}
+  document.getElementById('screen-login').style.display = 'flex';
+  document.getElementById('login-status').textContent = 'Lien invalide ou expiré. Demandez un nouveau lien.';
+}
+
+async function requestLink() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('login-status').textContent = 'Email invalide.';
+    return;
+  }
+  const btn = document.getElementById('btn-request');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+  try {
+    await fetch('/api/space/request-link', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({email})
+    });
+    document.getElementById('login-status').innerHTML = '✅ Lien envoyé ! Vérifiez votre boîte mail.';
+    btn.textContent = 'Lien envoyé ✓';
+  } catch(e) {
+    document.getElementById('login-status').textContent = 'Erreur. Réessayez.';
+    btn.disabled = false;
+    btn.textContent = 'Recevoir mon lien d\'accès →';
+  }
+}
+
+function showSpace(data) {
+  document.getElementById('screen-login').style.display = 'none';
+  document.getElementById('screen-space').style.display = 'block';
+  document.getElementById('header-user').textContent = data.email;
+  document.getElementById('btn-logout').style.display = 'block';
+
+  // Afficher le bilan
+  renderBilan(data.bilan);
+
+  // Afficher les suggestions
+  const sz = document.getElementById('suggestions-zone');
+  SUGGESTIONS.forEach(s => {
+    const btn = document.createElement('button');
+    btn.className = 'suggestion-btn';
+    btn.textContent = s;
+    btn.onclick = () => { document.getElementById('chat-input').value = s; sendQuestion(); };
+    sz.appendChild(btn);
+  });
+
+  // Message d'accueil Dr Bigdoc
+  addBotMessage("Bonjour ! J'ai votre bilan sous les yeux. Posez-moi vos questions — je suis là pour vous aider à y voir clair.");
+
+  // Afficher l'historique des questions
+  if (data.questions?.length) {
+    data.questions.slice().reverse().forEach(q => {
+      addUserMessage(q.question);
+      addBotMessage(q.reponse);
+    });
+  }
+}
+
+function renderBilan(b) {
+  const zone = document.getElementById('bilan-zone');
+  if (!b) {
+    zone.innerHTML = '<div style="color:#9CA3AF;font-size:.85rem">Aucun bilan trouvé. <a href="/" style="color:#4F46E5">Faire mon diagnostic →</a></div>';
+    return;
+  }
+  const score = b.score_global || 0;
+  const col = score <= 25 ? '#EF4444' : score <= 50 ? '#F59E0B' : score <= 75 ? '#F4A261' : '#10B981';
+  const dimLabels = {
+    administration:'Admin', achats_materiel:'Matériel', informatique:'Informatique',
+    comptabilite:'Comptabilité', charge_mentale:'Charge mentale', financement:'Financement',
+    developpement:'Développement', patientele_mt:'Patientèle MT', acces_soins:'Accès soins',
+    coordination_territoriale:'Coordination', plateau_technique:'Plateau technique',
+    actes_techniques:'Actes techniques', acces_bloc:'Accès bloc',
+    facturation_ccam:'Facturation CCAM', organisation_bloc:'Organisation bloc',
+    charge_administrative_psy:'Charge admin', infrastructure_teleconsult:'Téléconsult',
+  };
+
+  zone.innerHTML = `
+    <div class="score-badge">Score global : <span style="color:${col}">${score}/100</span></div>
+    <div style="font-size:.82rem;font-weight:700;color:#1A1060;margin-bottom:.25rem">${b.titre_personnalise || ''}</div>
+    <div style="font-size:.75rem;color:#6B7280;margin-bottom:1rem">${b.niveau || ''}</div>
+    ${b.alerte_urgente ? `<div style="background:#FEF2F2;border-radius:8px;padding:.5rem .75rem;font-size:.75rem;color:#991B1B;margin-bottom:.75rem">⚠️ ${b.alerte_urgente}</div>` : ''}
+    <div class="dim-grid">
+      ${Object.entries(b.dimensions || {}).map(([k, d]) => {
+        const pct = Math.round((d.score/20)*100);
+        const c = pct<=35?'#EF4444':pct<=65?'#F59E0B':'#10B981';
+        return `<div class="dim-item">
+          <div class="dim-label">${dimLabels[k]||k}</div>
+          <div style="font-size:.82rem;font-weight:800;color:${c}">${d.score}/20</div>
+          <div class="dim-bar"><div class="dim-bar-fill" style="width:${pct}%;background:${c}"></div></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <a href="/" style="display:inline-block;margin-top:.75rem;font-size:.78rem;color:#4F46E5;font-weight:700">Refaire mon diagnostic →</a>
+  `;
+}
+
+function addUserMessage(text) {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="msg user"><div class="msg-bubble">${text}</div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addBotMessage(text) {
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="msg bot"><div class="msg-avatar">${BIGDOC_SVG}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('chat-messages');
+  const id = 'typing-' + Date.now();
+  msgs.innerHTML += `<div class="msg bot" id="${id}"><div class="msg-avatar">${BIGDOC_SVG}</div><div class="typing"><span></span><span></span><span></span></div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  return id;
+}
+
+async function sendQuestion() {
+  const input = document.getElementById('chat-input');
+  const q = input.value.trim();
+  if (!q) return;
+  input.value = '';
+  addUserMessage(q);
+  const typingId = showTyping();
+  try {
+    const r = await fetch('/api/space/ask', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question: q})
+    });
+    const d = await r.json();
+    document.getElementById(typingId)?.remove();
+    if (d.reponse) addBotMessage(d.reponse);
+    else addBotMessage("Je n'ai pas pu répondre. Réessayez.");
+  } catch(e) {
+    document.getElementById(typingId)?.remove();
+    addBotMessage("Erreur de connexion. Réessayez dans quelques instants.");
+  }
+}
+
+async function logout() {
+  await fetch('/api/space/logout', {method: 'POST'});
+  window.location.reload();
+}
+
+init();
+</script>
+</body>
+</html>
