@@ -1608,24 +1608,62 @@ function detecterBranche(specialiteStr) {
 // ─────────────────────────────────────────
 function calculerTransversales(reponses) {
   const txList = [];
-  // Associé détecté ?
-  const devRep = reponses['projet_12mois'] || '';
+
+  // Structure hospitalière
+  const structType = document.getElementById('lead-structure-type')?.value || state.identifiedPractitioner?._structure_type || '';
+  if (structType === 'hospitalier') txList.push('tx_part_liberale');
+
+  // Associé détecté
   const mgStruct = reponses['mg_structure'] || [];
-  if (Array.isArray(mgStruct) && mgStruct.includes('groupe')) {
-    txList.push('tx_pacte_associe');
-  }
+  if (Array.isArray(mgStruct) && mgStruct.includes('groupe')) txList.push('tx_pacte_associe');
+
   // Phase installation
-  if (reponses['phase'] === 'installation') {
-    txList.push('tx_installation_horizon');
-  }
+  if (reponses['phase'] === 'installation') txList.push('tx_installation_horizon');
+
   // Délai long détecté
   const delaiLong = ['mg_delai','gyn_delai','derm_delai','spe_delai'].some(id => reponses[id] === '0' || reponses[id] === '1');
   if (delaiLong) txList.push('tx_refus_patients');
+
   // Situation financière tendue
-  if (reponses['compta'] === '0' || reponses['compta'] === '1') {
-    txList.push('tx_tension_financiere');
-  }
+  if (reponses['compta'] === '0' || reponses['compta'] === '1') txList.push('tx_tension_financiere');
+
+  // Interrogation changement secteur
+  if (reponses['secteur_tarifaire'] === 'interroge') txList.push('tx_changement_secteur');
+
   return txList;
+}
+
+// Pré-remplir le secteur tarifaire depuis l'ANS si disponible
+function prefillSecteurFromANS() {
+  const p = state.identifiedPractitioner;
+  if (!p) return;
+  const secteurANS = p.secteur_conventionnel || p.secteur_ameli || '';
+  if (!secteurANS) return;
+
+  // Mapper le libellé ANS vers une valeur de question
+  const n = secteurANS.toLowerCase();
+  let val = '';
+  if (n.includes('secteur 1') || n.includes('s1') || n.includes('opposable')) val = 's1';
+  else if (n.includes('optam')) val = 's2_optam';
+  else if (n.includes('secteur 2') || n.includes('s2')) val = 's2_hors';
+  else if (n.includes('secteur 3') || n.includes('non conventionné') || n.includes('libre')) val = 's3';
+
+  if (val) {
+    // Pré-sélectionner dans les réponses
+    if (!state.reponses['secteur_tarifaire']) {
+      state.reponses['secteur_tarifaire'] = val;
+    }
+  }
+}
+
+// Pré-remplir Qare dans logiciel si structure tele détectée
+function prefillTeleFromStructure() {
+  const p = state.identifiedPractitioner;
+  if (!p || !p.organisations) return;
+  const hasQare = p.organisations.some(o => o.toLowerCase().includes('qare'));
+  if (hasQare && !state.reponses['logiciel']) {
+    state.reponses['logiciel'] = ['tele_qare'];
+  }
 }
 
 // ─────────────────────────────────────────
@@ -1932,6 +1970,10 @@ function startDiagnostic() {
   } else if (banner) {
     banner.style.display = 'none';
   }
+  // Pré-remplir secteur et téléconsultation depuis les données ANS/structure
+  prefillSecteurFromANS();
+  prefillTeleFromStructure();
+
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
   const specialiteVal = specialiteEl ? specialiteEl.value : '';
