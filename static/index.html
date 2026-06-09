@@ -3335,9 +3335,17 @@ async function identSelect(idx) {
           state.branche = detecterBranche(speE);
           state.brancheQuestions = (window._branches && window._branches[state.branche]) ? window._branches[state.branche] : [];
         }
-        // Modale structure si plusieurs organisations
-        if (enriched.organisations && enriched.organisations.length > 1) {
-          setTimeout(() => showModaleStructure(enriched.organisations, enriched), 300);
+        // Auto-sélectionner la meilleure structure avant le banner
+        if (enriched.organisations && enriched.organisations.length > 0) {
+          const { bestOrg, bestScore, scored } = getStructureSuggestion(enriched.organisations, enriched);
+          if (bestOrg && bestScore >= 1) {
+            enriched._structure_selectionnee = bestOrg;
+            enriched._structure_type = scored.find(s => s.org === bestOrg)?.type || 'liberal';
+          }
+          // Proposer la modale si plusieurs structures
+          if (enriched.organisations.length > 1) {
+            setTimeout(() => showModaleStructure(enriched.organisations, enriched), 500);
+          }
         }
         // Chercher le secteur via Claude si pas dans l'ANS
         if (!enriched.secteur_conventionnel) {
@@ -3433,7 +3441,7 @@ async function fetchSecteurViaClaud(p) {
           const badge = document.createElement('div');
           badge.className = 'secteur-badge';
           badge.style.cssText = 'font-size:.7rem;color:rgba(255,255,255,.8);margin-top:.3rem';
-          badge.innerHTML = `📋 Secteur détecté : <strong>${labels[d.secteur]||d.secteur}</strong> — vérifiez et corrigez si besoin`;
+          badge.innerHTML = `📋 Secteur détecté : <strong>${labels[d.secteur]||d.secteur}</strong> — vous pourrez confirmer en Q2`;
           banner.querySelector('.rpps-ameli-banner')?.appendChild(badge);
         }
       }
