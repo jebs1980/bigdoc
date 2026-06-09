@@ -431,7 +431,16 @@ QUESTIONNAIRE = [
             {"value": "consolidation", "label": "Installé, activité stable, je cherche à optimiser"},
             {"value": "croissance",    "label": "J'ai un projet de développement actif (2e cabinet, MSP, association…)"},
             {"value": "transmission",  "label": "Proche de la retraite ou en réflexion sur la transmission"}
-        ]
+        ],
+        "variant_titulaire": {
+            "question": "Depuis combien de temps exercez-vous dans ce cabinet ?",
+            "options": [
+                {"value": "installation", "label": "Moins d'un an — je suis en train de m'installer"},
+                {"value": "consolidation", "label": "1 à 5 ans — j'ai trouvé mon rythme"},
+                {"value": "croissance",    "label": "5 à 15 ans — j'ai des projets de développement"},
+                {"value": "transmission",  "label": "Plus de 15 ans — je pense à la suite"}
+            ]
+        }
     },
     {
         "id": "secteur_tarifaire",
