@@ -1263,6 +1263,54 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 </div>
 
 <!-- ── CAPTURE LEAD ── -->
+<!-- ══ SCREEN IDENTIFICATION — ÉTAPE 0 ══ -->
+<div id="screen-identification" class="screen">
+  <div style="max-width:580px;margin:2rem auto 0;padding:0 1rem">
+    <div class="card fade-in">
+      <div style="padding:1.75rem 2rem">
+
+        <!-- Dr Bigdoc -->
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem">
+          <div id="ident-bigdoc-svg" style="flex-shrink:0;animation:bd-float 3.5s ease-in-out infinite"></div>
+          <div>
+            <div style="font-size:.6rem;font-weight:800;color:#4F46E5;letter-spacing:1px;text-transform:uppercase">Dr Bigdoc</div>
+            <div style="font-size:.9rem;font-weight:700;color:#1A1060;line-height:1.4">Avant de commencer, je me présente à vous.</div>
+            <div style="font-size:.78rem;color:#6B7280;margin-top:.15rem">Retrouvez votre fiche en quelques secondes — ou continuez sans.</div>
+          </div>
+        </div>
+
+        <!-- Recherche RPPS -->
+        <div class="rpps-search-box">
+          <label>🔍 Recherche par nom ou RPPS</label>
+          <div id="ameli-date-badge-ident" style="display:none;font-size:.65rem;color:#0D9488;font-weight:600;margin-bottom:.5rem"></div>
+          <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap">
+            <input type="text" id="ident-prenom" placeholder="Prénom" style="flex:1;min-width:100px;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="identSearchDebounce()" />
+            <input type="text" id="ident-nom" placeholder="Nom" style="flex:1;min-width:100px;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="identSearchDebounce()" />
+            <input type="text" id="ident-rpps" placeholder="N° RPPS" style="width:110px;padding:.55rem .75rem;border:1px solid #E8EBF0;border-radius:8px;font-size:.85rem" oninput="identSearchDebounce()" />
+          </div>
+          <div id="ident-results" style="max-height:240px;overflow-y:auto"></div>
+          <div id="ident-selected-banner" style="display:none"></div>
+          <div id="ident-disclaimer" class="rpps-disclaimer" style="display:none">
+            <span style="font-size:.9rem;flex-shrink:0">ℹ️</span>
+            <span style="font-size:.75rem;color:#92400E;line-height:1.5">Ces informations proviennent du registre public RPPS (ANS). En continuant, vous confirmez réaliser ce diagnostic pour votre propre cabinet.</span>
+          </div>
+        </div>
+
+        <!-- Boutons action -->
+        <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:1rem">
+          <button id="btn-ident-continue" class="btn-primary" onclick="identContinue()" style="width:100%;padding:.85rem;font-size:1rem;font-weight:800;border:none;border-radius:12px;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Commencer mon diagnostic →
+          </button>
+          <button onclick="identSkip()" style="width:100%;padding:.6rem;font-size:.82rem;color:#9CA3AF;background:none;border:none;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+            Continuer sans m'identifier
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="screen-capture" class="screen">
   <div style="max-width:660px;margin:2rem auto 0;padding:0 1rem;">
     <div class="card fade-in">
@@ -1707,37 +1755,39 @@ function showTestBilan() {
 }
 
 function fillTestData() {
-  // Réponses test — gynécologue médicale Lyon
+  // Réponses test — gynécologue médicale Lyon S2
+  // Nouveau flow : spécialité + structure détectées AVANT le questionnaire
   state.reponses = {
     phase: 'consolidation',
-    admin: '3',
-    materiel: '4',
-    informatique: 'zoom',
+    secteur_tarifaire: 's2_optam',
+    admin: '1',
+    logiciel: ['zoomtele', 'ok'],
     compta: '2',
-    charge: '1',
-    financement: 'non',
-    developpement: ['endometriose']
+    projet_12mois: 'developper',
+    gyn_activite: 'med',
+    gyn_actes: ['echo', 'sterilet', 'frottis'],
+    gyn_delai: '1',
   };
   state.texteLibre = "Je suis gynécologue médicale en secteur 2 à Lyon depuis 12 ans. Je fais des téléconsultations sur Zoom, environ 30% de mon activité. Mon agenda est plein mais je passe beaucoup de temps sur l'admin. Je voudrais développer une consultation endométriose.";
   state.parcours = 'questionnaire';
+  // Simuler spécialité + structure détectées via RPPS
+  state.branche = 'gynecologie';
+  state.brancheQuestions = window._branches?.gynecologie || [];
+  buildAllSteps();
 
-  // Aller directement à la capture email
-  showScreen('capture');
+  initIdentScreen(); showScreen('identification');
 
-  // Pré-remplir le formulaire lead avec délai pour que le DOM soit prêt
   const tryFill = (attempts) => {
     const email = document.getElementById('lead-email');
-    const prenom = document.getElementById('lead-prenom');
-    const spe = document.getElementById('lead-specialite');
-    const ville = document.getElementById('lead-ville');
-
     if (email) {
-      email.value  = 'test@bigdoc.fr';
-      prenom && (prenom.value = 'Marie');
-      const nom = document.getElementById('lead-nom');
-      nom && (nom.value = 'Dupont');
-      spe    && (spe.value   = 'Gynécologie médicale');
-      ville  && (ville.value = 'Lyon (69001)');
+      email.value = 'test@bigdoc.fr';
+      const prenom = document.getElementById('lead-prenom'); if(prenom) prenom.value = 'Marie';
+      const nom    = document.getElementById('lead-nom');    if(nom)    nom.value    = 'Dupont';
+      const spe    = document.getElementById('lead-specialite'); if(spe) spe.value   = 'Gynécologie médicale';
+      const ville  = document.getElementById('lead-ville');  if(ville)  ville.value  = 'Lyon';
+      const rpps   = document.getElementById('lead-rpps');   if(rpps)   rpps.value   = '10000000001';
+      const struct = document.getElementById('lead-structure'); if(struct) struct.value = 'Cabinet Dr Marie Dupont';
+      const stype  = document.getElementById('lead-structure-type'); if(stype) stype.value = 'liberal';
     } else if (attempts > 0) {
       setTimeout(() => tryFill(attempts - 1), 100);
     }
@@ -2008,7 +2058,7 @@ async function goChatCapture() {
     if (!data.reaction) {
       btn.disabled = false;
       btn.textContent = 'Recevoir mon bilan complet →';
-      btn.onclick = () => showScreen('capture');
+      btn.onclick = () => { initIdentScreen(); showScreen('identification'); };
       return;
     }
     const area = document.querySelector('#screen-chat .question-area');
@@ -2038,14 +2088,14 @@ async function goChatCapture() {
     btn.onclick = () => {
       document.getElementById('partial-score').textContent = '?';
       document.getElementById('score-niveau').textContent = 'Votre ordonnance complète est en préparation.';
-      showScreen('capture');
+      initIdentScreen(); showScreen('identification');
     };
 
   } catch(e) {
     // En cas d'erreur, passer directement à la capture
     btn.disabled = false;
     btn.textContent = 'Recevoir mon bilan complet →';
-    btn.onclick = () => showScreen('capture');
+    btn.onclick = () => { initIdentScreen(); showScreen('identification'); };
   }
 }
 
@@ -2366,7 +2416,7 @@ function goToCapture() {
     noteEl.style.display = 'none';
   }
 
-  showScreen('capture');
+  initIdentScreen(); showScreen('identification');
 }
 
 function getScoreLabel(score) {
@@ -3169,6 +3219,161 @@ function rppsShowAmeliBanner(p) {
       <div style="font-size:.78rem;opacity:.8">Données démographiques chargées pour votre département.</div>
     </div>
   `;
+}
+
+// ─────────────────────────────────────────
+// SCREEN IDENTIFICATION — ÉTAPE 0
+// ─────────────────────────────────────────
+let _identSearchTimer = null;
+
+function identSearchDebounce() {
+  clearTimeout(_identSearchTimer);
+  _identSearchTimer = setTimeout(identSearch, 600);
+}
+
+async function identSearch() {
+  const prenom = document.getElementById('ident-prenom')?.value?.trim() || '';
+  const nom    = document.getElementById('ident-nom')?.value?.trim() || '';
+  const rpps   = document.getElementById('ident-rpps')?.value?.trim() || '';
+  const results = document.getElementById('ident-results');
+  if (!results) return;
+  if (!nom && !rpps) { results.innerHTML = ''; return; }
+
+  results.innerHTML = '<div style="font-size:.78rem;color:#6B7280;padding:.4rem 0">Recherche…</div>';
+  try {
+    const params = new URLSearchParams();
+    if (rpps)   params.set('rpps', rpps);
+    if (prenom) params.set('prenom', prenom);
+    if (nom)    params.set('nom', nom);
+    const r = await fetch('/api/rpps-search?' + params.toString());
+    const data = await r.json();
+
+    if (data.too_many) {
+      results.innerHTML = '<div style="font-size:.78rem;color:#92400E;padding:.4rem 0">Trop de résultats — ajoutez le prénom.</div>';
+      return;
+    }
+    if (!data.results?.length) {
+      results.innerHTML = '<div style="font-size:.78rem;color:#6B7280;padding:.4rem 0">Aucun résultat — vérifiez ou continuez sans.</div>';
+      return;
+    }
+    window._identResults = data.results;
+    results.innerHTML = data.results.map((p, i) => `
+      <div class="rpps-result-card" onclick="identSelect(${i})" data-idx="${i}">
+        <div class="rpps-avatar">👨‍⚕️</div>
+        <div style="min-width:0;flex:1">
+          <div style="font-size:.85rem;font-weight:800;color:#0D1F3C">${p.prenom||''} ${p.nom||''}</div>
+          <div style="font-size:.75rem;color:#6B7280">${p.specialite_ans||p.specialite||'—'}${p.ville?' · '+p.ville:''}</div>
+          ${p.organisations?.length?`<div style="font-size:.68rem;color:#6B7280">🏥 ${p.organisations[0]}</div>`:''}
+        </div>
+        ${p.rpps?`<div style="font-size:.65rem;color:#9CA3AF;font-family:monospace;flex-shrink:0;text-align:right">RPPS<br><span style="color:#0D9488;font-weight:700">${p.rpps}</span></div>`:''}
+      </div>
+    `).join('');
+  } catch(e) {
+    results.innerHTML = '<div style="font-size:.78rem;color:#6B7280;padding:.4rem 0">Recherche indisponible.</div>';
+  }
+}
+
+async function identSelect(idx) {
+  const p = (window._identResults||[])[idx];
+  if (!p) return;
+
+  // Marquer la sélection
+  document.querySelectorAll('#ident-results .rpps-result-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`#ident-results .rpps-result-card[data-idx="${idx}"]`)?.classList.add('selected');
+
+  // Stocker dans state
+  state.identifiedPractitioner = p;
+
+  // Détecter la branche depuis la spécialité
+  const spe = p.specialite_ans || p.specialite || '';
+  if (spe) {
+    state.branche = detecterBranche(spe);
+    state.brancheQuestions = (window._branches && window._branches[state.branche]) ? window._branches[state.branche] : [];
+  }
+
+  // Enrichir si on a le RPPS
+  if (p.rpps) {
+    try {
+      const r = await fetch(`/api/rpps-search?rpps=${p.rpps}`);
+      const data = await r.json();
+      if (data.results?.[0]) {
+        const enriched = data.results[0];
+        enriched.prenom = enriched.prenom || p.prenom || '';
+        enriched.nom    = enriched.nom    || p.nom    || '';
+        state.identifiedPractitioner = enriched;
+        // Mettre à jour la branche si spécialité enrichie
+        const speE = enriched.specialite_ans || spe;
+        if (speE) {
+          state.branche = detecterBranche(speE);
+          state.brancheQuestions = (window._branches && window._branches[state.branche]) ? window._branches[state.branche] : [];
+        }
+        // Modale structure si plusieurs organisations
+        if (enriched.organisations && enriched.organisations.length > 1) {
+          setTimeout(() => showModaleStructure(enriched.organisations, enriched), 300);
+        }
+      }
+    } catch(e) {}
+  }
+
+  // Disclaimer
+  const disc = document.getElementById('ident-disclaimer');
+  if (disc) disc.style.display = 'flex';
+
+  // Banner
+  const banner = document.getElementById('ident-selected-banner');
+  if (banner) {
+    const pp = state.identifiedPractitioner;
+    banner.style.display = 'block';
+    banner.innerHTML = `
+      <div class="rpps-ameli-banner" style="margin-top:.75rem">
+        <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.4rem">DR BIGDOC VOUS A TROUVÉ</div>
+        <div style="font-size:.88rem;font-weight:700">${pp.prenom||''} ${pp.nom||''} · ${pp.specialite_ans||pp.specialite||''} ${pp.ville?'· '+pp.ville:''}</div>
+        ${pp.organisations?.length?`<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${pp.organisations[0]}</div>`:''}
+      </div>`;
+  }
+
+  // Changer le bouton
+  const btn = document.getElementById('btn-ident-continue');
+  if (btn) btn.textContent = 'Continuer avec ce profil →';
+}
+
+function identContinue() {
+  // Pré-remplir les champs du formulaire lead depuis le praticien identifié
+  const p = state.identifiedPractitioner;
+  if (p) {
+    const fields = {
+      'lead-prenom': p.prenom || '',
+      'lead-nom':    p.nom    || '',
+      'lead-specialite': p.specialite_ans || p.specialite || '',
+      'lead-ville':  p.ville  || '',
+      'lead-rpps':   p.rpps   || '',
+      'lead-structure': p._structure_selectionnee || (p.organisations?.[0]) || '',
+      'lead-structure-type': p._structure_type || 'liberal',
+    };
+    Object.entries(fields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    });
+  }
+  showScreen('capture');
+}
+
+function identSkip() {
+  // Continuer sans identification — le formulaire lead reste vide
+  state.identifiedPractitioner = null;
+  showScreen('capture');
+}
+
+// Initialiser Dr Bigdoc sur le screen identification
+function initIdentScreen() {
+  const svg = document.getElementById('ident-bigdoc-svg');
+  if (svg) svg.innerHTML = bigdocMiniSVG(56, 'neutre');
+  // Badge date Ameli
+  const badge = document.getElementById('ameli-date-badge-ident');
+  if (badge && document.getElementById('ameli-date-badge')?.textContent) {
+    badge.textContent = document.getElementById('ameli-date-badge').textContent;
+    badge.style.display = 'block';
+  }
 }
 
 let _calendlyUrl = 'https://calendly.com/bigdoc-realmedservices/30min';
