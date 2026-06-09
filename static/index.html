@@ -649,6 +649,7 @@
     @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
     @keyframes writing { 0%,100%{transform:rotate(-8deg)} 50%{transform:rotate(8deg) translateY(-2px)} }
     @keyframes pulse-beat { 0%,100%{transform:scale(1)} 50%{transform:scale(1.25)} }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
     @keyframes bd-float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
     @keyframes bd-blink { 0%,88%,100%{transform:scaleY(1)} 92%,96%{transform:scaleY(0.1)} }
     @keyframes bd-wave { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(22deg)} 75%{transform:rotate(-6deg)} }
@@ -1306,6 +1307,9 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <button onclick="identSkip()" style="width:100%;padding:.6rem;font-size:.82rem;color:#9CA3AF;background:none;border:none;cursor:pointer;font-family:'Nunito Sans',sans-serif">
             Continuer sans m'identifier
           </button>
+          <div id="secteur-detect-msg" style="display:none;font-size:.75rem;color:#0D9488;text-align:center;margin-top:.25rem;animation:pulse 1.5s ease-in-out infinite">
+            🔍 Vérification de votre secteur conventionnel sur les sources publiques…
+          </div>
         </div>
 
       </div>
@@ -3387,8 +3391,10 @@ async function identSelect(idx) {
           if (btnContinue) {
             btnContinue.disabled = true;
             btnContinue.style.opacity = '0.6';
-            btnContinue.textContent = '🔍 Détection du secteur en cours… (5-10s)';
+            btnContinue.textContent = 'Continuer avec ce profil →';
           }
+          const detectMsg = document.getElementById('secteur-detect-msg');
+          if (detectMsg) detectMsg.style.display = 'block';
           fetchSecteurViaClaud(enriched);
         }
       }
@@ -3500,6 +3506,8 @@ async function fetchSecteurViaClaud(p) {
       btnF.style.opacity = '1';
       btnF.textContent = 'Continuer avec ce profil →';
     }
+    const detectMsgF = document.getElementById('secteur-detect-msg');
+    if (detectMsgF) detectMsgF.style.display = 'none';
   }
 }
 
