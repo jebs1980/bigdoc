@@ -2391,7 +2391,7 @@ const BIGDOC_AVATAR_SVG = bigdocMiniSVG(56, 'neutre');
 function renderQuestion() {
   // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
   const steps = state.allSteps.length > 0 ? state.allSteps : state.questions;
-  const q = steps[state.currentStep];
+  let q = steps[state.currentStep];
   if (!q) return;
 
   const total = steps.length;
