@@ -1205,6 +1205,21 @@ async def update_info(lead_id: int, request: Request):
 
 
 
+@app.post("/api/admin/deploy-demo")
+async def deploy_demo(request: Request):
+    """Déploie la version actuelle de dev sur demo.bigdoc.fr"""
+    require_admin(request)
+    import subprocess, threading
+
+    def run_deploy():
+        cmd = "cd /opt/bigdoc-demo && git pull && docker compose down && docker compose build --no-cache && docker compose up -d"
+        subprocess.run(cmd, shell=True, capture_output=True)
+
+    thread = threading.Thread(target=run_deploy, daemon=True)
+    thread.start()
+    return {"success": True, "message": "Déploiement demo lancé en arrière-plan (~3-5 min)"}
+
+
 @app.get("/api/admin/settings")
 async def get_settings_route(request: Request):
     require_admin(request)
