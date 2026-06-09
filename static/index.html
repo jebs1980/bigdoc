@@ -1613,6 +1613,9 @@ function calculerTransversales(reponses) {
   const structType = document.getElementById('lead-structure-type')?.value || state.identifiedPractitioner?._structure_type || '';
   if (structType === 'hospitalier') txList.push('tx_part_liberale');
 
+  // Qare détecté dans les structures
+  if (state._qareDetected) txList.push('tx_qare_liberal');
+
   // Associé détecté
   const mgStruct = reponses['mg_structure'] || [];
   if (Array.isArray(mgStruct) && mgStruct.includes('groupe')) txList.push('tx_pacte_associe');
@@ -1656,14 +1659,15 @@ function prefillSecteurFromANS() {
   }
 }
 
-// Pré-remplir Qare dans logiciel si structure tele détectée
+// Détecter Qare dans les structures pour déclencher la question transversale
 function prefillTeleFromStructure() {
   const p = state.identifiedPractitioner;
   if (!p || !p.organisations) return;
   const hasQare = p.organisations.some(o => o.toLowerCase().includes('qare'));
-  if (hasQare && !state.reponses['logiciel']) {
-    state.reponses['logiciel'] = ['tele_qare'];
-  }
+  // Stocker le flag Qare pour calculerTransversales
+  state._qareDetected = hasQare;
+  // Ne PAS pré-cocher téléconsultation — Qare ≠ solution libérale
+  // La question tx_qare_liberal sera posée si Qare détecté
 }
 
 // ─────────────────────────────────────────
@@ -2234,6 +2238,7 @@ const BIGDOC_INTROS = {
   tx_refus_patients: "Refuser des patients, ça pèse. Comment vous gérez ça ?",
   tx_tension_financiere: "La tension financière, c'est pas une honte — c'est un signal qu'on traite ensemble.",
   preoccupation:     "Dernière question — et la plus importante. Ce qui vous empêche de dormir.",
+  tx_qare_liberal:   "Vous savez faire de la téléconsultation — c'est une vraie compétence. Mais Qare c'est leur outil, pas le vôtre. Pour votre cabinet libéral, qu'est-ce qui se passe ?",
 };
 
 function getBigdocIntro(qid) {
