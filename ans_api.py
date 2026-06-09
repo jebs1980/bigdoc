@@ -127,7 +127,7 @@ async def search_by_rpps(rpps: str) -> dict | None:
                     role_data = role_entries[0]["resource"] if role_entries else {}
                     # Enrichir role_data avec adresse + nom Organisation
                     if org_entries:
-                        org_names = [e["resource"].get("name","") for e in org_entries if e.get("resource",{}).get("name")]
+                        org_names = list(dict.fromkeys([e["resource"].get("name","") for e in org_entries if e.get("resource",{}).get("name")]))
                         role_data["_organizations"] = [{"name": n} for n in org_names if n]
                         if not role_data.get("address"):
                             org = org_entries[0]["resource"]
@@ -342,7 +342,9 @@ def _parse_practitioner(p: dict, role: dict) -> dict:
                     dept = cp[:3]
                 result["departement"] = dept
             if addr.get("city"):
-                result["ville"] = addr["city"]
+                # Nettoyer "PARIS CEDEX 12" → "PARIS"
+                ville_raw = addr["city"].strip()
+                result["ville"] = ville_raw.split(" CEDEX")[0].strip()
 
         # Organisation(s) liée(s) — nom du cabinet/structure
         orgs = []
