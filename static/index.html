@@ -1851,7 +1851,7 @@ function startDiagnostic() {
   state.reponses = {};
   // Injecter le vrai SVG Dr Bigdoc dans la colonne
   const colSvg = document.getElementById('bigdoc-col-svg');
-  if (colSvg) colSvg.innerHTML = bigdocMiniSVG(160);
+  if (colSvg) colSvg.innerHTML = bigdocMiniSVG(160, 'neutre');
   // Détecter la branche depuis la spécialité saisie dans le formulaire lead
   const specialiteEl = document.getElementById('lead-specialite');
   const specialiteVal = specialiteEl ? specialiteEl.value : '';
@@ -2123,8 +2123,25 @@ function getBigdocIntro(qid) {
 }
 
 // SVG Dr Bigdoc — vrai personnage
-function bigdocMiniSVG(size) {
+function bigdocExpression(score) {
+  // 3 expressions selon le score global
+  if (score >= 70) return 'heureux';
+  if (score >= 40) return 'neutre';
+  return 'preoccupe';
+}
+
+function bigdocMiniSVG(size, expression) {
   const s = size || 56;
+  const expr = expression || 'neutre';
+  // Sourire selon expression
+  const smile = expr === 'heureux'
+    ? 'M66 110 Q80 128 94 110'   // grand sourire
+    : expr === 'preoccupe'
+    ? 'M68 115 Q80 105 92 115'   // légère grimace
+    : 'M66 110 Q80 124 94 110';  // sourire normal
+  // Sourcils selon expression
+  const brow_l = expr === 'preoccupe' ? 'M55 68 Q66 72 77 68' : 'M55 73 Q66 68 77 72';
+  const brow_r = expr === 'preoccupe' ? 'M83 68 Q94 72 105 68' : 'M83 72 Q94 68 105 73';
   return `<svg width="${s}" height="${s}" viewBox="0 0 160 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect x="28" y="128" width="104" height="72" rx="20" fill="white"/>
   <rect x="30" y="140" width="58" height="17" rx="4" fill="#4F46E5"/>
@@ -2146,16 +2163,16 @@ function bigdocMiniSVG(size) {
   <circle cx="94" cy="87" r="8" fill="#1A1060"/>
   <circle cx="63" cy="83" r="3.5" fill="white"/>
   <circle cx="91" cy="83" r="3.5" fill="white"/>
-  <path d="M55 73 Q66 68 77 72" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-  <path d="M83 72 Q94 68 105 73" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="${brow_l}" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="${brow_r}" stroke="#5C3A1E" stroke-width="2.5" stroke-linecap="round" fill="none"/>
   <ellipse cx="80" cy="98" rx="4.5" ry="3.5" fill="#E8B896"/>
-  <path d="M66 110 Q80 124 94 110" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-  <path d="M66 110 Q80 122 94 110 Q80 120 66 110Z" fill="white"/>
+  <path d="${smile}" stroke="#C07050" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="${smile} Q80 120 66 110Z" fill="white"/>
   <ellipse cx="52" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
   <ellipse cx="108" cy="102" rx="11" ry="8" fill="#FFB3A0" opacity="0.55"/>
 </svg>`;
 }
-const BIGDOC_AVATAR_SVG = bigdocMiniSVG(56);
+const BIGDOC_AVATAR_SVG = bigdocMiniSVG(56, 'neutre');
 
 function renderQuestion() {
   // Utiliser allSteps si disponible (mode bifurcation), sinon fallback tronc
@@ -2579,9 +2596,15 @@ function renderRadarResult(dims) {
 
 function renderResult() {
   const b = state.bilan;
-  // Injecter Dr Bigdoc dans le bilan
+  // Mettre à jour l'expression Dr Bigdoc dans la colonne questionnaire si encore visible
+  const colSvgR = document.getElementById('bigdoc-col-svg');
+  if (colSvgR) colSvgR.innerHTML = bigdocMiniSVG(160, bigdocExpression(b?.score_global || 0));
+
+  // Injecter Dr Bigdoc dans le bilan avec expression selon le score
   const bilanSvg = document.getElementById('bilan-bigdoc-svg');
-  if (bilanSvg) bilanSvg.innerHTML = bigdocMiniSVG(56);
+  const score = b?.score_global || 0;
+  const expr = bigdocExpression(score);
+  if (bilanSvg) bilanSvg.innerHTML = bigdocMiniSVG(72, expr);
   // Message Dr Bigdoc personnalisé selon le score
   const bilanMsg = document.getElementById('bilan-bigdoc-msg');
   if (bilanMsg && b) {
@@ -2607,10 +2630,16 @@ function renderResult() {
     const pct=Math.round((dim.score/20)*100);
     const col=pct<=35?'#EF4444':pct<=65?'#F59E0B':'#10B981';
     const bg=pct<=35?'rgba(239,68,68,.06)':pct<=65?'rgba(245,158,11,.06)':'rgba(16,185,129,.06)';
+    const conf = dim.confidence_score || 0;
+    const confLabel = conf >= 80 ? '🟢' : conf >= 50 ? '🟡' : '🔴';
+    const confText = conf >= 80 ? 'Données fiables' : conf >= 50 ? 'Estimation partielle' : 'Données limitées';
     return `<div style="background:${bg};border-radius:10px;padding:.75rem .85rem;border:1px solid rgba(0,0,0,.04)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem">
         <span style="font-size:.76rem;font-weight:700;color:#1A1060">${dimLabels[key]||key}</span>
-        <span style="font-size:.82rem;font-weight:900;color:${col};font-family:'Nunito',sans-serif">${dim.score}/20</span>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          ${conf > 0 ? `<span title="${confText}" style="font-size:.6rem;color:#9CA3AF;cursor:help">${confLabel} ${conf}%</span>` : ''}
+          <span style="font-size:.82rem;font-weight:900;color:${col};font-family:'Nunito',sans-serif">${dim.score}/20</span>
+        </div>
       </div>
       <div style="height:5px;background:rgba(0,0,0,.06);border-radius:999px;margin-bottom:.35rem">
         <div style="height:100%;width:${pct}%;background:${col};border-radius:999px"></div>
@@ -2618,6 +2647,20 @@ function renderResult() {
       <p style="font-size:.72rem;color:#6B7280;line-height:1.5;margin:0">${dim.commentaire||''}</p>
     </div>`;
   }).join('');
+
+  // Anomalies détectées
+  const anomaliesHtml = (b.anomalies||[]).length > 0 ? `
+    <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem">
+      <div style="font-size:.72rem;font-weight:800;color:#92400E;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem">⚠️ Points à vérifier</div>
+      ${(b.anomalies||[]).map(a => `<div style="font-size:.78rem;color:#92400E;margin-bottom:.35rem;padding-left:.75rem;border-left:2px solid #FED7AA">${a}</div>`).join('')}
+    </div>` : '';
+
+  // Benchmark comparatif
+  const benchmarkHtml = (b.benchmark||[]).length > 0 ? `
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem">
+      <div style="font-size:.72rem;font-weight:800;color:#1E40AF;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem">📊 Vous vs vos confrères</div>
+      ${(b.benchmark||[]).map(bm => `<div style="font-size:.78rem;color:#1E40AF;margin-bottom:.35rem;padding-left:.75rem;border-left:2px solid #BFDBFE">${bm}</div>`).join('')}
+    </div>` : '';
 
   const quickHtml=(b.quick_wins||[]).map((w,i)=>`
     <div style="display:flex;gap:.5rem;align-items:flex-start;padding:.45rem 0;${i>0?'border-top:1px solid #EDE9FE':''}">
@@ -2729,6 +2772,8 @@ function renderResult() {
           <p style="font-size:.75rem;color:#6B7280;line-height:1.5;margin:0">${(b.recommandation_principale?.justification||'').substring(0,150)}…</p>
         </div>
         <div>
+          ${anomaliesHtml}
+          ${benchmarkHtml}
           <div style="font-size:.58rem;font-weight:800;color:#6366F1;letter-spacing:2px;text-transform:uppercase;margin-bottom:.5rem">PRIORITÉS</div>
           ${quickHtml}
         </div>
