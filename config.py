@@ -154,6 +154,13 @@ RÈGLES DE SCORING PAR BRANCHE :
 -> Chirurgie : accès bloc instable = alerte urgente systématique ; cotations CCAM complexes non maîtrisées = levier financement RMS
 -> Spécialiste technique fallback : appliquer la logique générique actes/matériel/délai
 
+RÈGLES TÉLÉCONSULTATION QARE :
+Si la réponse tx_qare_liberal est présente dans les réponses :
+-> "qare_sans_liberal" : SIGNAL FORT — ce médecin maîtrise la téléconsultation mais son cabinet libéral n'en bénéficie pas. Formuler : "Vous savez faire de la téléconsultation — c'est une compétence réelle. Mais votre outil Qare ne couvre pas votre activité libérale. C'est un levier inexploité que RMS peut activer rapidement."
+-> "qare_zoom" : ANGLE MORT CRITIQUE — téléconsultation libérale via Zoom = non remboursée CPAM, responsabilité civile engagée. Formuler avec bienveillance, jamais "illégal" → "non conforme aux exigences CPAM"
+-> "qare_et_liberal" : situation saine, valoriser la double compétence
+-> "qare_only" : noter que l'activité libérale de téléconsultation est absente — opportunité à saisir
+
 REGISTRE ADAPTÉ PAR BRANCHE :
 -> Médecine générale : parler de "file active", "médecin traitant", "ROSP", "désert médical", "maison de santé"
 -> Gynécologie : parler de "patientes", "consultation gynécologique", "suivi de grossesse", jamais "clients"
@@ -756,6 +763,19 @@ QUESTIONNAIRE_BRANCHES = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 QUESTIONS_TRANSVERSALES = [
+    {
+        "condition": "qare_detected",
+        "id": "tx_qare_liberal",
+        "question": "Vous exercez via Qare — et pour votre cabinet libéral ?",
+        "type": "single",
+        "dimension": "informatique",
+        "options": [
+            {"value": "qare_et_liberal",   "label": "J'ai aussi une solution téléconsultation pour mon activité libérale (Doctolib, Maiia…)"},
+            {"value": "qare_sans_liberal",  "label": "Non — je n'ai pas de solution téléconsultation pour mon cabinet libéral"},
+            {"value": "qare_zoom",          "label": "J'utilise Zoom ou WhatsApp pour mes patients libéraux"},
+            {"value": "qare_only",          "label": "Qare est mon seul canal — je n'ai pas d'activité libérale de téléconsultation"}
+        ]
+    },
     {
         "condition": "structure_type == 'hospitalier'",
         "id": "tx_part_liberale",
