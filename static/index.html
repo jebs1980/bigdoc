@@ -1934,9 +1934,16 @@ function startDiagnostic() {
     if (val) state.reponses['secteur_tarifaire'] = val;
   }
 
-  // Pré-remplir phase si titulaire libéral connu
-  if (identP && identP.est_titulaire && identP.est_liberal && !state.reponses['phase']) {
-    state.reponses['phase'] = 'consolidation';
+  // Pré-remplir phase si cabinet libéral détecté
+  if (identP && !state.reponses['phase']) {
+    const structType = identP._structure_type || '';
+    const hasLiberal = identP.organisations?.some(o => {
+      const n = o.toLowerCase();
+      return ['cabinet','dr ','docteur','selarl','scp','scm'].some(k => n.includes(k));
+    });
+    if (structType === 'liberal' || hasLiberal || identP.est_titulaire || identP.est_liberal) {
+      state.reponses['phase'] = 'consolidation';
+    }
   }
 
   // Détecter Qare dans les organisations
