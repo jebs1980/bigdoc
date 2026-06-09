@@ -1225,6 +1225,8 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <span class="progress-score-preview" id="score-preview"></span>
         </div>
 
+        <div id="prefilled-note" style="display:none;font-size:.72rem;color:#0D9488;background:#F0FDF8;border-radius:8px;padding:.45rem .75rem;margin-bottom:.5rem;border:1px solid #CCFBF1"></div>
+
         <div class="question-area" id="question-area"></div>
 
         <div class="question-nav">
@@ -2278,6 +2280,16 @@ function renderQuestion() {
   // Mettre à jour le speech Dr Bigdoc dans la colonne gauche
   const speech = document.getElementById('bigdoc-speech');
   if (speech) speech.textContent = getBigdocIntro(q.id);
+  // Note si question pré-remplie
+  const prefilledNote = document.getElementById('prefilled-note');
+  const isPrefilled = state.reponses[q.id] && ['phase','secteur_tarifaire'].includes(q.id);
+  if (prefilledNote) {
+    prefilledNote.style.display = isPrefilled ? 'block' : 'none';
+    if (isPrefilled) {
+      const src = q.id === 'secteur_tarifaire' ? 'mablouseblanche.fr / Doctolib' : 'données RPPS (ANS)';
+      prefilledNote.textContent = `💡 Pré-sélectionné d'après les données disponibles (${src}) — vérifiez et corrigez si besoin.`;
+    }
+  }
 
   const el = document.getElementById('score-preview');
   if (el) el.textContent = '';
@@ -3375,7 +3387,7 @@ async function identSelect(idx) {
           if (btnContinue) {
             btnContinue.disabled = true;
             btnContinue.style.opacity = '0.6';
-            btnContinue.textContent = '🔍 Détection en cours…';
+            btnContinue.textContent = '🔍 Détection du secteur en cours… (5-10s)';
           }
           fetchSecteurViaClaud(enriched);
         }
