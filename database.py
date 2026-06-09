@@ -124,6 +124,35 @@ def init_db():
             created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             paid_at         TIMESTAMP
         );
+
+        -- Espace médecin — auth par lien magique
+        CREATE TABLE IF NOT EXISTS medecin_magic_links (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            email         TEXT NOT NULL,
+            token         TEXT UNIQUE NOT NULL,
+            diagnostic_id INTEGER REFERENCES diagnostics(id),
+            used          INTEGER DEFAULT 0,
+            expires_at    TIMESTAMP NOT NULL,
+            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS medecin_sessions (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            email         TEXT NOT NULL,
+            session_token TEXT UNIQUE NOT NULL,
+            diagnostic_id INTEGER REFERENCES diagnostics(id),
+            expires_at    TIMESTAMP NOT NULL,
+            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE TABLE IF NOT EXISTS medecin_questions (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            email         TEXT NOT NULL,
+            diagnostic_id INTEGER REFERENCES diagnostics(id),
+            question      TEXT NOT NULL,
+            reponse       TEXT,
+            created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
     """)
 
     conn.commit()
@@ -786,3 +815,96 @@ def update_lead_info(lead_id: int, data: dict) -> bool:
     conn.commit()
     conn.close()
     return True
+
+
+# ─────────────────────────────────────────────────────────────────
+# ESPACE MÉDECIN — lien magique + sessions + questions
+# ─────────────────────────────────────────────────────────────────
+
+def create_magic_link(email: str, diagnostic_id: int = None) -> str:
+    """Crée un lien magique valable 24h pour l'espace médecin."""
+    import secrets
+    token = secrets.token_urlsafe(32)
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO medecin_magic_links (email, token, diagnostic_id, expires_at)
+        VALUES (?, ?, ?, datetime('now', '+24 hours'))
+    """, (email, token, diagnostic_id))
+    conn.commit()
+    conn.close()
+    return token
+
+
+def verify_magic_link(token: str) -> dict | None:
+    """Vérifie un lien magique et retourne email + diagnostic_id si valide."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT email, diagnostic_id FROM medecin_magic_links
+        WHERE token = ? AND used = 0 AND expires_at > datetime('now')
+    """, (token,)).fetchone()
+    if row:
+        conn.execute("UPDATE medecin_magic_links SET used = 1 WHERE token = ?", (token,))
+        conn.commit()
+    conn.close()
+    return dict(row) if row else None
+
+
+def create_medecin_session(email: str, diagnostic_id: int = None) -> str:
+    """Crée une session médecin valable 30 jours."""
+    import secrets
+    session_token = secrets.token_urlsafe(32)
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO medecin_sessions (email, session_token, diagnostic_id, expires_at)
+        VALUES (?, ?, ?, datetime('now', '+30 days'))
+    """, (email, session_token, diagnostic_id))
+    conn.commit()
+    conn.close()
+    return session_token
+
+
+def verify_medecin_session(session_token: str) -> dict | None:
+    """Vérifie une session médecin."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT email, diagnostic_id FROM medecin_sessions
+        WHERE session_token = ? AND expires_at > datetime('now')
+    """, (session_token,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
+
+
+def save_medecin_question(email: str, question: str, reponse: str, diagnostic_id: int = None):
+    """Sauvegarde une question posée à Dr Bigdoc."""
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO medecin_questions (email, diagnostic_id, question, reponse)
+        VALUES (?, ?, ?, ?)
+    """, (email, diagnostic_id, question, reponse))
+    conn.commit()
+    conn.close()
+
+
+def get_medecin_questions(email: str, diagnostic_id: int = None) -> list:
+    """Récupère l'historique des questions d'un médecin."""
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT question, reponse, created_at FROM medecin_questions
+        WHERE email = ?
+        ORDER BY created_at DESC LIMIT 50
+    """, (email,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def get_medecin_diagnostic(email: str) -> dict | None:
+    """Récupère le dernier diagnostic d'un médecin."""
+    conn = get_db()
+    row = conn.execute("""
+        SELECT d.* FROM diagnostics d
+        JOIN leads l ON d.session_id = l.session_id
+        WHERE l.email = ?
+        ORDER BY d.created_at DESC LIMIT 1
+    """, (email,)).fetchone()
+    conn.close()
+    return dict(row) if row else None
