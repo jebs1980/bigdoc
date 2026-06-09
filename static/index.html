@@ -727,7 +727,7 @@
           Score personnalisé, heures perdues, euros récupérables.
         </p>
         <div style="display:flex;gap:.6rem;align-items:center">
-          <button onclick="showChoix()" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
+          <button onclick="initIdentScreen(); showScreen('identification')" style="background:#4F46E5;color:white;border:none;border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
             🩺 Je veux mon diagnostic
           </button>
           <button onclick="startInstallation()" style="background:white;color:#4F46E5;border:2px solid rgba(99,102,241,.3);border-radius:999px;padding:.85rem 1.5rem;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;cursor:pointer;white-space:nowrap">
@@ -847,7 +847,7 @@
         </p>
       </div>
 
-      <button class="hero-cta" onclick="showChoix()" style="margin-bottom:.75rem">
+      <button class="hero-cta" onclick="initIdentScreen(); showScreen('identification')" style="margin-bottom:.75rem">
         Faire mon diagnostic — gratuit →
       </button>
       <div style="font-size:.72rem;color:rgba(200,200,255,.35);font-family:'Nunito Sans',sans-serif">3 minutes · Sans inscription · Résultat immédiat</div>
@@ -941,7 +941,7 @@
 
       <!-- CTA bas -->
       <div style="text-align:center">
-        <button class="hero-cta" onclick="showChoix()" style="font-size:.95rem;padding:.85rem 2.2rem">
+        <button class="hero-cta" onclick="initIdentScreen(); showScreen('identification')" style="font-size:.95rem;padding:.85rem 2.2rem">
           Lancer mon diagnostic gratuit →
         </button>
         <div style="font-size:.72rem;color:var(--grey);margin-top:.6rem">3 minutes · Aucune inscription · Bilan par email</div>
@@ -2023,7 +2023,7 @@ function renderInstallationResult(data) {
   `;
 }
 
-function showChoix() {
+function initIdentScreen(); showScreen('identification') {
   showScreen('choix');
 }
 
