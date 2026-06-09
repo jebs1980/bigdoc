@@ -1903,7 +1903,6 @@ function showScreen(id) {
 
 function startDiagnostic() {
   state.currentStep = 0;
-  state.reponses = {};
   // Injecter le vrai SVG Dr Bigdoc dans la colonne
   const colSvg = document.getElementById('bigdoc-col-svg');
   if (colSvg) colSvg.innerHTML = bigdocMiniSVG(160, 'neutre');
@@ -1915,6 +1914,9 @@ function startDiagnostic() {
   const speForBranche = (identP && (identP.specialite_ans || identP.specialite)) || specialiteVal;
   state.branche = detecterBranche(speForBranche);
   state.brancheQuestions = (window._branches && window._branches[state.branche]) ? window._branches[state.branche] : [];
+
+  // Reset propre puis pré-remplissage
+  state.reponses = {};
 
   // Pré-remplir secteur depuis ANS ou Claude
   if (identP && !state.reponses['secteur_tarifaire']) {
