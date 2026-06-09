@@ -544,6 +544,15 @@
   }
 }
 
+/* ── MODALE STRUCTURE ── */
+.modale-overlay { position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem; }
+.modale-box { background:white;border-radius:20px;padding:1.5rem;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2); }
+.modale-box h3 { font-size:1rem;font-weight:800;color:#1A1060;margin-bottom:.35rem; }
+.modale-box p { font-size:.82rem;color:#6B7280;margin-bottom:1rem; }
+.structure-btn { width:100%;text-align:left;background:#F8FAFC;border:1.5px solid #E8EBF0;border-radius:10px;padding:.75rem 1rem;margin-bottom:.5rem;cursor:pointer;font-family:'Nunito Sans',sans-serif;font-size:.85rem;font-weight:600;color:#1A1060;transition:all .15s; }
+.structure-btn:hover { border-color:#0D9488;background:#F0FDF8; }
+.structure-btn .structure-type { font-size:.68rem;color:#6B7280;font-weight:400;display:block;margin-top:.1rem; }
+
 /* ── HERO CTA ── */
     .hero-cta {
       display: inline-block;
@@ -742,6 +751,59 @@
       </div>
     </div>
     <span class="hero-sub">Aucune inscription · Résultat immédiat · Gratuit</span>
+  </div>
+
+  <!-- ── CARTOUCHES DATA ── -->
+  <div style="background:#0D1F3C;padding:3rem 1.5rem">
+    <div style="max-width:860px;margin:0 auto">
+      <div style="text-align:center;margin-bottom:2rem">
+        <div style="font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:#0D9488;font-weight:800;margin-bottom:.5rem">CE QUE DR BIGDOC SAIT DÉJÀ SUR VOUS</div>
+        <p style="color:rgba(255,255,255,.65);font-size:.88rem;max-width:520px;margin:0 auto;line-height:1.6">Avant que vous répondiez à une seule question, Dr Bigdoc croise trois sources de données pour contextualiser votre situation.</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem">
+
+        <!-- RPPS -->
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem;text-align:center">
+          <div style="font-size:2.2rem;font-weight:900;color:#0D9488;font-family:'Nunito',sans-serif;line-height:1">250 000+</div>
+          <div style="font-size:.72rem;font-weight:800;color:white;margin:.35rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px">Médecins RPPS</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.5);line-height:1.4">Registre national des professionnels de santé — mis à jour en temps réel</div>
+        </div>
+
+        <!-- Ameli -->
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem;text-align:center">
+          <div style="font-size:2.2rem;font-weight:900;color:#0D9488;font-family:'Nunito',sans-serif;line-height:1">101</div>
+          <div style="font-size:.72rem;font-weight:800;color:white;margin:.35rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px">Départements Ameli</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.5);line-height:1.4">Honoraires, délais, densité médicale — par spécialité et département</div>
+        </div>
+
+        <!-- Spécialités -->
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem;text-align:center">
+          <div style="font-size:2.2rem;font-weight:900;color:#0D9488;font-family:'Nunito',sans-serif;line-height:1">6</div>
+          <div style="font-size:.72rem;font-weight:800;color:white;margin:.35rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px">Branches spécialité</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.5);line-height:1.4">Questionnaire et scoring adaptés à chaque spécialité médicale</div>
+        </div>
+
+        <!-- Dimensions -->
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem;text-align:center">
+          <div style="font-size:2.2rem;font-weight:900;color:#0D9488;font-family:'Nunito',sans-serif;line-height:1">7</div>
+          <div style="font-size:.72rem;font-weight:800;color:white;margin:.35rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px">Dimensions scorées</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.5);line-height:1.4">Administration, finances, matériel, charge mentale — chaque dimension analysée individuellement</div>
+        </div>
+
+        <!-- Eval -->
+        <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:1.25rem;text-align:center">
+          <div style="font-size:2.2rem;font-weight:900;color:#0D9488;font-family:'Nunito',sans-serif;line-height:1">50+</div>
+          <div style="font-size:.72rem;font-weight:800;color:white;margin:.35rem 0 .2rem;text-transform:uppercase;letter-spacing:.5px">Cas de test validés</div>
+          <div style="font-size:.68rem;color:rgba(255,255,255,.5);line-height:1.4">Chaque bilan évalué et noté — amélioration continue du modèle</div>
+        </div>
+
+      </div>
+
+      <div style="text-align:center;margin-top:1.5rem">
+        <p style="font-size:.75rem;color:rgba(255,255,255,.4)">Sources : ANS / RPPS · Ameli Open Data · CNOM · CARMF · DREES</p>
+      </div>
+    </div>
   </div>
 
   <!-- Section peur de s'installer -->
@@ -1129,6 +1191,18 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
 </div>
 
 <!-- ── QUESTIONNAIRE ── -->
+<!-- MODALE SÉLECTION STRUCTURE -->
+<div id="modale-structure" class="modale-overlay" style="display:none" onclick="if(event.target===this)closeModaleStructure()">
+  <div class="modale-box">
+    <h3>Pour quel cabinet faites-vous ce diagnostic ?</h3>
+    <p>Nous avons trouvé plusieurs structures associées à votre profil. Choisissez celle pour laquelle vous souhaitez faire le diagnostic.</p>
+    <div id="structure-list"></div>
+    <button onclick="closeModaleStructure()" style="width:100%;margin-top:.5rem;background:none;border:1px solid #E8EBF0;border-radius:10px;padding:.6rem;font-size:.82rem;color:#6B7280;cursor:pointer;font-family:'Nunito Sans',sans-serif">
+      Passer — je saisirai manuellement
+    </button>
+  </div>
+</div>
+
 <div id="screen-questionnaire" class="screen">
   <div style="max-width:900px;margin:2rem auto 0;padding:0 1rem;display:flex;gap:2rem;align-items:flex-start">
 
@@ -1261,6 +1335,7 @@ Décrivez librement — plus c'est précis, meilleur est le diagnostic." style="
           <!-- Honeypot anti-bot — ne pas modifier -->
           <input type="text" id="lead-honeypot" name="website" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;opacity:0;pointer-events:none" aria-hidden="true">
           <input type="hidden" id="lead-rpps" />
+          <input type="hidden" id="lead-structure" />
         </div>
         <div style="display:flex;gap:.75rem">
           <div class="input-group" style="flex:1">
@@ -2753,6 +2828,58 @@ function rppsSearchDebounce() {
   _rppsSearchTimer = setTimeout(rppsSearch, 600);
 }
 
+function showModaleStructure(orgs, p) {
+  // Afficher la modale de sélection de structure si plusieurs orgs
+  const list = document.getElementById('structure-list');
+  if (!list) return;
+
+  // Classifier les organisations
+  const types = {
+    liberal: ['cabinet', 'dr ', 'docteur', 'selarl', 'scp', 'scm', 'sas'],
+    hopital: ['chu', 'chru', 'chp', 'aphp', 'ap-hp', 'hôpital', 'hopital', 'clinique', 'ghm', 'ghu'],
+    tele: ['qare', 'doctolib', 'medecindirect', 'livi', 'filsante'],
+  };
+
+  function getType(name) {
+    const n = name.toLowerCase();
+    if (types.tele.some(k => n.includes(k))) return 'Téléconsultation';
+    if (types.hopital.some(k => n.includes(k))) return 'Établissement hospitalier';
+    if (types.liberal.some(k => n.includes(k))) return 'Cabinet libéral';
+    return 'Structure de santé';
+  }
+
+  list.innerHTML = orgs.map((org, i) => `
+    <button class="structure-btn" onclick="selectStructure(${i})">
+      ${org}
+      <span class="structure-type">${getType(org)}</span>
+    </button>
+  `).join('');
+
+  window._structureOrgs = orgs;
+  window._structureP = p;
+  document.getElementById('modale-structure').style.display = 'flex';
+}
+
+function selectStructure(idx) {
+  const org = (window._structureOrgs || [])[idx];
+  const p   = window._structureP;
+  if (org) {
+    // Injecter la structure sélectionnée dans le formulaire
+    const elOrg = document.getElementById('lead-structure');
+    if (elOrg) elOrg.value = org;
+    // Mettre à jour le banner
+    if (p) {
+      p._structure_selectionnee = org;
+      rppsShowAmeliBanner(p);
+    }
+  }
+  closeModaleStructure();
+}
+
+function closeModaleStructure() {
+  document.getElementById('modale-structure').style.display = 'none';
+}
+
 async function rppsSearch() {
   const prenom  = document.getElementById('rpps-prenom')?.value?.trim() || '';
   const nom     = document.getElementById('rpps-nom')?.value?.trim() || '';
@@ -2845,6 +2972,11 @@ async function rppsSelect(idx) {
   // Afficher banner provisoire
   rppsShowAmeliBanner(p);
 
+  // Si plusieurs organisations → demander laquelle
+  if (p.organisations && p.organisations.length > 1) {
+    setTimeout(() => showModaleStructure(p.organisations, p), 300);
+  }
+
   // Si on a le RPPS, enrichir avec appel direct pour avoir spécialité + adresse
   if (p.rpps) {
     try {
@@ -2899,6 +3031,7 @@ function rppsShowAmeliBanner(p) {
         ${(p.ville_label || p.ville) ? ' · ' + (p.ville_label || p.ville) : (p.departement ? ' · Dép. ' + p.departement : '')}
         ${secteur ? ' · ' + secteur : ''}
       </div>
+      ${p._structure_selectionnee ? `<div style="font-size:.72rem;background:rgba(255,255,255,.15);border-radius:6px;padding:.2rem .6rem;display:inline-block;margin-bottom:.35rem">🏥 ${p._structure_selectionnee}</div>` : ''}
       <div style="font-size:.78rem;opacity:.8">Données démographiques chargées pour votre département.</div>
     </div>
   `;
