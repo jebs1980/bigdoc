@@ -3358,6 +3358,13 @@ async function identSelect(idx) {
             loading.textContent = '🔍 Détection du secteur en cours…';
             banner.querySelector('.rpps-ameli-banner')?.appendChild(loading);
           }
+          // Bloquer le bouton continuer pendant la détection
+          const btnContinue = document.getElementById('btn-ident-continue');
+          if (btnContinue) {
+            btnContinue.disabled = true;
+            btnContinue.style.opacity = '0.6';
+            btnContinue.textContent = '🔍 Détection en cours…';
+          }
           fetchSecteurViaClaud(enriched);
         }
       }
@@ -3446,6 +3453,9 @@ async function fetchSecteurViaClaud(p) {
       if (banner) {
         const labels = {s1:'Secteur 1', s2_optam:'S2 OPTAM', s2_hors:'S2 hors OPTAM', s3:'Secteur 3'};
         document.getElementById('secteur-loading')?.remove();
+        // Débloquer le bouton
+        const btnC = document.getElementById('btn-ident-continue');
+        if (btnC) { btnC.disabled = false; btnC.style.opacity = '1'; btnC.textContent = 'Continuer avec ce profil →'; }
         const existing = banner.querySelector('.secteur-badge');
         if (!existing) {
           const badge = document.createElement('div');
@@ -3457,6 +3467,16 @@ async function fetchSecteurViaClaud(p) {
       }
     }
   } catch(e) {}
+  finally {
+    // Toujours débloquer le bouton
+    document.getElementById('secteur-loading')?.remove();
+    const btnF = document.getElementById('btn-ident-continue');
+    if (btnF && btnF.disabled) {
+      btnF.disabled = false;
+      btnF.style.opacity = '1';
+      btnF.textContent = 'Continuer avec ce profil →';
+    }
+  }
 }
 
 let _calendlyUrl = 'https://calendly.com/bigdoc-realmedservices/30min';
