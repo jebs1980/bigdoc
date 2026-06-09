@@ -3360,7 +3360,7 @@ async function identSelect(idx) {
       <div class="rpps-ameli-banner" style="margin-top:.75rem">
         <div style="font-size:.65rem;font-weight:800;letter-spacing:1px;opacity:.75;margin-bottom:.4rem">DR BIGDOC VOUS A TROUVÉ</div>
         <div style="font-size:.88rem;font-weight:700">${pp.prenom||''} ${pp.nom||''} · ${pp.specialite_ans||pp.specialite||''} ${pp.ville?'· '+pp.ville:''}</div>
-        ${pp.organisations?.length?`<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${pp.organisations[0]}</div>`:''}
+        ${(pp._structure_selectionnee || pp.organisations?.[0]) ? `<div style="font-size:.72rem;opacity:.8;margin-top:.2rem">🏥 ${pp._structure_selectionnee || pp.organisations[0]}</div>` : ''}
       </div>`;
   }
 
