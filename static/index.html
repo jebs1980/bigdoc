@@ -2608,13 +2608,11 @@ function renderResult() {
   // Message Dr Bigdoc personnalisé selon le score
   const bilanMsg = document.getElementById('bilan-bigdoc-msg');
   if (bilanMsg && b) {
-    const score = b.score_global || 0;
     if (score >= 70) bilanMsg.textContent = "Votre cabinet est en bonne santé — quelques leviers à activer.";
     else if (score >= 50) bilanMsg.textContent = "J'ai identifié des angles morts importants. On peut les traiter.";
     else bilanMsg.textContent = "Votre situation mérite attention. Mais chaque problème a une solution.";
   }
   const card = document.getElementById('result-card');
-  const score = b.score_global;
   const scoreColor = score<=25?'#EF4444':score<=50?'#F59E0B':score<=75?'#F4A261':'#10B981';
 
   const dimLabels = {
