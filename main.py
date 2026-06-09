@@ -708,8 +708,8 @@ Si tu ne trouves pas avec certitude, retourne {{"secteur": null, "confidence": 0
         # Extraire le texte de la réponse
         result_text = ""
         for block in msg.content:
-            if hasattr(block, 'text'):
-                result_text += block.text
+            if hasattr(block, 'text') and block.text:
+                result_text += str(block.text)
 
         # Parser le JSON
         import re as _re
